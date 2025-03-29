@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class AdminController extends Controller
+class FirstController extends Controller
 {
     //
-    public function index(){
+    public function redirect(){
         if(Auth::id()){
             $usertype = Auth()->user()->usertype;
-            if($usertype == 'user') {
+            if($usertype === 'user') {
                 return view('dashboard');
             } elseif($usertype == 'admin') {
                 return view('admin.index');
@@ -20,6 +20,10 @@ class AdminController extends Controller
                 return redirect()->back();
             }
         }
+    }
+
+    public function index(){
+        return view('home.uHome');
     }
 
 }
