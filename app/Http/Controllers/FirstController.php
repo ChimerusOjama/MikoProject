@@ -13,8 +13,8 @@ class FirstController extends Controller
         if(Auth::id()){
             $usertype = Auth()->user()->usertype;
             if($usertype === 'user') {
-                return view('dashboard');
-            } elseif($usertype == 'admin') {
+                return view('home.uHome');
+            } elseif($usertype === 'admin') {
                 return view('admin.index');
             } else {
                 return redirect()->back();
@@ -24,6 +24,10 @@ class FirstController extends Controller
 
     public function index(){
         return view('home.uHome');
+    }
+
+    public function coursListing(){
+        return view('home.listing');
     }
 
 }

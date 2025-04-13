@@ -41,6 +41,19 @@
 								<li><a href=""><i class="fab fa-skype"></i></a></li>
 							</ul>
 						</div>
+						@if(Route::has('login'))
+						@auth
+						<div class="login-block">
+							<a href="#">Salut X</a>
+						</div>
+						@else
+						<div class="login-block">
+							<a href="{{route('login')}}">Se connecter</a>&nbsp;&nbsp;
+							<a href="{{route('register')}}">S'enregister</a>
+						</div>
+						@endauth
+						@endif
+
 					</div>
 				</div>
 			</div>
@@ -54,8 +67,8 @@
 					<div class="nav-wrap">
 						<nav class="nav-desktop">
 							<ul class="menu-list">
-								<li><a href="index.html">Acceuil</a></li>
-								<li><a href="course-listing.html">Nos foramations</a></li>
+								<li><a href="{{route('uHome')}}">Acceuil</a></li>
+								<li><a href="{{route('listing')}}">Nos foramations</a></li>
 								<li><a href="about.html">Informations pratiques</a></li>
 							</ul>
 						</nav>
