@@ -17,7 +17,10 @@ use App\Http\Controllers\FirstController;
 
 Route::get('/', [FirstController::class, 'index'])->name('uHome');
 Route::get('/home', [FirstController::class, 'redirect'])->name('home');
-Route::get('/cours-listing', [FirstController::class, 'coursListing'])->name('listing');
+Route::get('/cours_listing', [FirstController::class, 'coursListing'])->name('listing');
+
+
+
 
 // Route::get('/', function () {
 //     return view('welcome');
