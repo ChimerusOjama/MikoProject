@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,8 @@ Route::get('/', [FirstController::class, 'index'])->name('uHome');
 Route::get('/home', [FirstController::class, 'redirect'])->name('home');
 Route::get('/cours_listing', [FirstController::class, 'coursListing'])->name('listing');
 
-
+Route::get('/nouvelle_formation', [AdminController::class, 'newForm'])->name('newForm');
+Route::post('/Insertion', [AdminController::class, 'storeForm']);
 
 
 // Route::get('/', function () {
