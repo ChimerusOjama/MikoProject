@@ -5,7 +5,7 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-          @if(session('success'))
+            @if(session('success'))
               <div class="alert alert-success">
                   <button type="button" class="close" data-dismiss="alert">X</button>
                   {{session('success')}}

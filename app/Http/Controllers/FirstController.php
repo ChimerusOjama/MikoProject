@@ -73,7 +73,7 @@ class FirstController extends Controller
             $insc->choixForm = $req->choixForm;
             $insc->montant = '14 500 FCFA';
             $insc->save();
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
         } else {
             $insc->name = $req->name;
             $insc->email = $req->email;
@@ -83,7 +83,7 @@ class FirstController extends Controller
             $insc->choixForm = $req->choixForm;
             $insc->montant = '14 500 FCFA';
             $insc->save();
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
         }
         
 
