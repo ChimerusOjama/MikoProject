@@ -129,5 +129,7 @@
 	<!-- <script type="text/javascript" src="js/jquery.mmenu.all.js"></script> -->
 	<!-- <script type="text/javascript" src="js/jquery.meanmenu.min.js"></script> -->
 	<script type="text/javascript" src="{{ asset('template/js/custom.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
+	
 </body>
 </html>

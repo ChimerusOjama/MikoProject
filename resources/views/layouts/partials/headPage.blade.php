@@ -15,6 +15,7 @@
 	<!-- <link rel="stylesheet" type="text/css" href="css/meanmenu.min.css"> -->
 	<link rel="stylesheet" type="text/css" href="{{ asset('template/inner-page-style.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ asset('template/style.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
 	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
 </head>
 <body>
@@ -42,16 +43,19 @@
 							</ul>
 						</div>
 						@if(Route::has('login'))
-						@auth
-						<div class="login-block">
-							<a href="#">Salut X</a>
-						</div>
-						@else
-						<div class="login-block">
-							<a href="{{route('login')}}">Se connecter</a>&nbsp;&nbsp;
-							<a href="{{route('register')}}">S'enregister</a>
-						</div>
-						@endauth
+							@auth
+							<div class="auth-actions">
+								<form action="{{route('uLogout')}}" method="post">
+									@csrf
+									<button type="submit" class="btn btn-danger">Se déconnecter</button>
+								</form>
+							</div>
+							@else
+							<div class="login-block">
+								<a href="{{route('login')}}">Se connecter</a>&nbsp;&nbsp;
+								<a href="{{route('register')}}">S'enregister</a>
+							</div>
+							@endauth
 						@endif
 
 					</div>

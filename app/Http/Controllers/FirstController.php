@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Formation;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,8 @@ class FirstController extends Controller
         if(Auth::id()){
             $usertype = Auth()->user()->usertype;
             if($usertype === 'user') {
-                return view('home.uHome');
+                $forms = Formation::all();
+                return view('home.uHome', compact('forms'));
             } elseif($usertype === 'admin') {
                 return view('admin.index');
             } else {
@@ -22,12 +24,36 @@ class FirstController extends Controller
         }
     }
 
-    public function index(){
-        return view('home.uHome');
+    public function uLogout(Request $req){
+        if(Auth::id()){
+            Auth::logout();
+            $req->session()->invalidate();
+            $req->session()->regenerateToken();
+            $forms = Formation::all();
+            return view('home.uHome', compact('forms'));
+        }else{
+            $forms = Formation::all();
+            return view('home.uHome', compact('forms'));
+        }
     }
 
-    public function coursListing(){
-        return view('home.listing');
+    public function index(){
+        if (Auth::id()) {
+            return redirect('home');
+        } else {
+            $forms = Formation::all();
+            return view('home.uHome', compact('forms'));
+        }
+    }
+
+    public function formListing(){
+        $forms = Formation::all();
+        return view('home.listing', compact('forms'));
+    }
+    public function formSingle($id){
+        $oneForm = Formation::find($id);
+        return view('home.singleForm', compact('oneForm'));
+        // return view('home.singleForm', compact('forms'));
     }
 
 }

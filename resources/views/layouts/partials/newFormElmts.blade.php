@@ -5,6 +5,12 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
+          @if(session('success'))
+              <div class="alert alert-success">
+                  <button type="button" class="close" data-dismiss="alert">X</button>
+                  {{session('success')}}
+              </div>
+            @endif
           <div class="col-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
@@ -13,15 +19,15 @@
                       @csrf
                       <div class="form-group">
                         <label for="exampleInputName1">Libellé</label>
-                        <input type="text" class="form-control" id="exampleInputName1" name="libForm" placeholder="Libellé de la formation">
+                        <input type="text" class="form-control" id="exampleInputName1" name="libForm" required placeholder="Libellé de la formation">
                       </div>
                       <div class="form-group">
                         <label for="exampleInputName2">Description</label>
-                        <input type="text" class="form-control" id="exampleInputName2" name="desc" placeholder="Description de la formation">
+                        <input type="text" class="form-control" id="exampleInputName2" name="desc" required placeholder="Description de la formation">
                       </div>
                       <div class="form-group">
                         <label for="exampleInputName3">Image</label>
-                        <input type="file" class="form-control" id="exampleInputName3" name="image">
+                        <input type="file" class="form-control" id="exampleInputName3" name="image" required>
                       </div>
                       <!-- <div class="form-group">
                         <label>Image</label>
@@ -34,8 +40,8 @@
                         </div>
                       </div> -->
                       <!-- <input type="submit" value="Soumettre"> -->
-                      <button type="submit" class="btn btn-primary me-2">Submit</button>
-                      <button class="btn btn-dark">Cancel</button>
+                      <button type="submit" class="btn btn-primary me-2">Soummetre</button>
+                      <button class="btn btn-dark">Annuler</button>
                     </form>
                   </div>
                 </div>

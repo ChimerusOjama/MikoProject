@@ -16,9 +16,11 @@ use App\Http\Controllers\AdminController;
 */
 
 
+Route::post('/logout', [FirstController::class, 'uLogout'])->name('uLogout');
 Route::get('/', [FirstController::class, 'index'])->name('uHome');
 Route::get('/home', [FirstController::class, 'redirect'])->name('home');
-Route::get('/cours_listing', [FirstController::class, 'coursListing'])->name('listing');
+Route::get('/Nos_formations', [FirstController::class, 'formListing'])->name('listing');
+Route::get('/Reserver_votre_place/form={id}', [FirstController::class, 'formSingle'])->name('singleForm');
 
 Route::get('/nouvelle_formation', [AdminController::class, 'newForm'])->name('newForm');
 Route::post('/Insertion', [AdminController::class, 'storeForm']);

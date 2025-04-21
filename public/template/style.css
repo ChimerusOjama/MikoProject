@@ -105,7 +105,7 @@ pre {
 
 a {
 	background-color: transparent;
-	text-decoration: none;
+	text-decoration: none !important;
 }
 
 /**
@@ -977,8 +977,9 @@ ul > li {
 	position: absolute;
 	left: 5%;
 	top: 44%;
-	/*background: #009450;*/
 	padding: 0.9375em 3.5625em 1em 3.5625em;
+	text-decoration: none;
+	/*background: #009450;*/
 	/*font-size: 1.8rem;*/
 	/*font-family: "Raleway", sans-serif;*/
 	/*color: #fff;*/
@@ -2548,6 +2549,7 @@ aside .news-letter hr {
 
 #course-page aside .reserve-course input[type="text"],
 aside .reserve-course input[type="email"],
+aside .reserve-course input[type="tel"],
 .testimonial-page aside .submit-testimonials input[type="text"],
 .testimonial-page aside .submit-testimonials input[type="email"]
 {
@@ -3544,4 +3546,17 @@ RESPONSIVE STYLESHEET
 .what-other-say .owl-carousel .owl-nav button.owl-prev:hover,
 .what-other-say .owl-nav button.owl-next:hover {
 	background: #12a84e;
+}
+
+/* Mon css */
+.auth-actions{
+  display: flex;
+  align-items: center;
+  gap: 10 px
+}
+
+#libForm{
+  /* color: rgb(21, 112, 18); */
+  font-size: 100 px !important;
+
 }
