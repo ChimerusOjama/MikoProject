@@ -76,26 +76,30 @@
                 <div class="reserve-course">
                     <h2>Reservez votre place</h2>
                     @if(Route::has('login'))
-							@auth
-                            <form>
-                                <input type="text" value="{{ Auth::user()->name }}" disabled>
-                                <input type="email" value="{{ Auth::user()->email }}" name="userEmail" disabled>
-                                <input type="tel" value="{{ Auth::user()->phone }}" disabled>
-                                <input type="text" value="{{ $oneForm->libForm }}" disabled>
-                                <textarea placeholder="Besoins particuliers ? Faite le nous savoir ici."></textarea>
-                                <input type="submit" value="Soumettre">
-                            </form>
-							@else
-                            <form>
-                                <input type="text" placeholder="Nom complet*" required>
-                                <input type="email" name="userEmail" placeholder="Adresse mail*" required>
-                                <input type="tel" placeholder="Teléphone*" required>
-                                <input type="text" value="{{ $oneForm->libForm }}" disabled>
-                                <textarea placeholder="Besoins particuliers ? Faite le nous savoir ici."></textarea>
-                                <input type="submit" value="Soumettre">
-                            </form>
-							@endauth
-						@endif
+                        @auth
+                        <form action="{{route('inscForm')}}" method="POST">
+                            @csrf
+                            <input type="text" value="{{ Auth::user()->name }}" disabled>
+                            <input type="email" value="{{ Auth::user()->email }}"  disabled>
+                            <input type="tel" value="{{ Auth::user()->phone }}" disabled>
+                            <input type="text" name="address" placeholder="Adresse*" required>
+                            <input type="hidden" value="{{ $oneForm->libForm }}" name="choixForm">
+                            <textarea name="message" placeholder="Besoins particuliers ? Faite le nous savoir ici."></textarea>
+                            <input type="submit" value="Soumettre">
+                        </form>
+                        @else
+                        <form action="{{route('inscForm')}}" method="POST">
+                            @csrf
+                            <input type="text" placeholder="Nom complet*" name="name" required>
+                            <input type="email" name="email" placeholder="Adresse mail*" required>
+                            <input type="tel" placeholder="Teléphone*" name="phone" required>
+                            <input type="text" name="address" placeholder="Adresse*" required>
+                            <input type="hidden" value="{{ $oneForm->libForm }}" name="choixForm">
+                            <textarea name="message" placeholder="Besoins particuliers ? Faite le nous savoir ici."></textarea>
+                            <input type="submit" value="Soumettre">
+                        </form>
+                        @endauth
+                    @endif
                 </div>
                 <!-- New Letter Ends -->
                 <!-- Recent Post Close -->
