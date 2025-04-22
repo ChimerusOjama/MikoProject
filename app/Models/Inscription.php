@@ -17,6 +17,7 @@ class Inscription extends Model
         'address',
         'montant',
         'choixForm',
-        'choixForm',
+        'message',
+        'status',
     ];
 }

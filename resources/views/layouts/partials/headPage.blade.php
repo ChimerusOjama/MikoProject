@@ -45,10 +45,12 @@
 						@if(Route::has('login'))
 							@auth
 							<div class="auth-actions">
+								<a href="{{route('uAdmin')}}" class="btn btn-primary">Mes reservations</a>&nbsp;&nbsp;
 								<form action="{{route('uLogout')}}" method="post">
 									@csrf
 									<button type="submit" class="btn btn-danger">Se déconnecter</button>
 								</form>
+								
 							</div>
 							@else
 							<div class="login-block">

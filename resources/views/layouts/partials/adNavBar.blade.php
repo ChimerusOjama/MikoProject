@@ -178,10 +178,10 @@
                       </div>
                     </div>
                     <div class="preview-item-content">
-                    <form action="{{route('uLogout')}}" method="post">
-                      @csrf
-                      <button type="submit">Se déconnecter</button>
-                    </form>
+                      <form action="{{route('uLogout')}}" method="post">
+                        @csrf
+                        <button type="submit">Se déconnecter</button>
+                      </form>
                     </div>
                   </a>
                   <div class="dropdown-divider"></div>

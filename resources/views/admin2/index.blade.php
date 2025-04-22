@@ -3,15 +3,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Miko Admin</title>
+    <title>Miko admin2</title>
 	<!-- BOOTSTRAP STYLES-->
-    <link href="{{ asset('admin/assets/css/bootstrap.css') }}" rel="stylesheet" />
+    <link href="{{ asset('admin2/assets/css/bootstrap.css') }}" rel="stylesheet" />
      <!-- FONTAWESOME STYLES-->
-    <link href="{{ asset('admin/assets/css/font-awesome.css') }}" rel="stylesheet" />
+    <link href="{{ asset('admin2/assets/css/font-awesome.css') }}" rel="stylesheet" />
      <!-- MORRIS CHART STYLES-->
-    <link href="{{ asset('admin/assets/js/morris/morris-0.4.3.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('admin2/assets/js/morris/morris-0.4.3.min.css') }}" rel="stylesheet" />
         <!-- CUSTOM STYLES-->
-    <link href="{{ asset('admin/assets/css/custom.css') }}" rel="stylesheet" />
+    <link href="{{ asset('admin2/assets/css/custom.css') }}" rel="stylesheet" />
      <!-- GOOGLE FONTS-->
    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 </head>
@@ -25,42 +25,47 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">Miko Admin</a> 
+                <a class="navbar-brand" href="index.html">Miko admin2</a> 
             </div>
-            <!-- <div style="color: white; padding: 15px 50px 5px 50px; float: right; font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="#" class="btn btn-danger square-btn-adjust">Logout</a> </div> -->
-            <div style="color: white; padding: 15px 50px 5px 50px; float: right; font-size: 16px;"> 
-                Last access : 30 May 2014 &nbsp; 
-                <ul >	
-					
-					                   
-                    <li>
-                    <x-app-layout>
-                    </x-app-layout>
+            <div style="color: white; padding: 15px 50px 5px 0px; float: right; font-size: 16px;"> 
+                <form action="{{route('uLogout')}}" method="post">
+                @csrf
+                <button type="submit" class="btn btn-danger square-btn-adjust">Se déconnecter</button>
+                </form> 
+            </div>
+            <div style="color: white; padding: 15px 50px 5px 0px; float: right; font-size: 16px;"> 
+                <a href="{{route('home')}}" class="btn btn-primary square-btn-adjust">Page d'acceuil</a>
+            </div>
 
-                      </li>  	
-                </ul> 
-            </div>
         </nav>   
             <!-- /. NAV TOP  -->
-            @include('layouts.partials.navTop')  
+            @include('layouts.partials.navSide')
 
             <!-- /. NAV SIDE  -->
-            @include('layouts.partials.adIndexContent') 
+            @include('layouts.partials.uAdIndexContent') 
          <!-- /. PAGE WRAPPER  -->
     </div>
      <!-- /. WRAPPER  -->
     <!-- SCRIPTS -AT THE BOTOM TO REDUCE THE LOAD TIME-->
     <!-- JQUERY SCRIPTS -->
-    <script src="{{ asset('admin/assets/js/jquery-1.10.2.js') }}"></script>
+    <script src="{{ asset('admin2/assets/js/jquery-1.10.2.js') }}"></script>
       <!-- BOOTSTRAP SCRIPTS -->
-    <script src="{{ asset('admin/assets/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('admin2/assets/js/bootstrap.min.js') }}"></script>
     <!-- METISMENU SCRIPTS -->
-    <script src="{{ asset('admin/assets/js/jquery.metisMenu.js') }}"></script>
+    <script src="{{ asset('admin2/assets/js/jquery.metisMenu.js') }}"></script>
      <!-- MORRIS CHART SCRIPTS -->
-     <script src="{{ asset('admin/assets/js/morris/raphael-2.1.0.min.js') }}"></script>
-    <script src="{{ asset('admin/assets/js/morris/morris.js') }}"></script>
+     <script src="{{ asset('admin2/assets/js/morris/raphael-2.1.0.min.js') }}"></script>
+    <script src="{{ asset('admin2/assets/js/morris/morris.js') }}"></script>
       <!-- CUSTOM SCRIPTS -->
-    <script src="{{ asset('admin/assets/js/custom.js') }}"></script>
+    <script src="{{ asset('admin2/assets/js/custom.js') }}"></script>
+     <!-- DATA TABLE SCRIPTS -->
+    <script src="{{ asset('admin2/assets/js/dataTables/jquery.dataTables.js') }}"></script>
+    <script src="{{ asset('admin2/assets/js/dataTables/dataTables.bootstrap.js') }}"></script>
+        <script>
+            $(document).ready(function () {
+                $('#dataTables-example').dataTable();
+            });
+    </script>
     
    
 </body>

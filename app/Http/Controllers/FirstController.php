@@ -72,6 +72,7 @@ class FirstController extends Controller
             $insc->message = $req->message;
             $insc->choixForm = $req->choixForm;
             $insc->montant = '14 500 FCFA';
+            $insc->status = 'En cours';
             $insc->save();
             return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
         } else {
@@ -82,11 +83,44 @@ class FirstController extends Controller
             $insc->message = $req->message;
             $insc->choixForm = $req->choixForm;
             $insc->montant = '14 500 FCFA';
+            $insc->status = 'En cours';
             $insc->save();
             return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
         }
         
 
+    }
+
+    public function uAdmin(){
+        if (Auth::id()) {
+
+            $userName = Auth::user()->name;
+            $inscShow = Inscription::where('name', $userName)->get();
+            return view('admin2.index', compact('inscShow'));
+
+            // $user_id = Auth::id();
+            // $inscById = Inscription::where('user_id', $user_id)->get();
+            // return view('admin2.index', compact('inscById'));
+
+            // if ($user_id == 'null') {
+            //     $userName = Auth::user()->name;
+            //     $inscById = Inscription::where('name', $userName)->get();
+            //     return view('admin2.index', compact('inscById'));
+            // } else {
+            //     $user_id = Auth::id();
+            //     $inscById = Inscription::where('user_id', $user_id)->get();
+            //     return view('admin2.index', compact('inscById'));
+            // }
+
+        } else {
+            return redirect()->back();
+        }
+    }
+
+    public function annulerRes($id){
+        $delInsc = Inscription::find($id);
+        $delInsc->delete();
+        return redirect()->back();
     }
     
 
