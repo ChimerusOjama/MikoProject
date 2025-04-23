@@ -5,12 +5,14 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-            @if(session('success'))
-              <div class="alert alert-success">
-                  <button type="button" class="close" data-dismiss="alert">X</button>
-                  {{session('success')}}
-              </div>
-            @endif
+          @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Succès!</strong> {{ session('success') }}.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+           @endif
           <div class="col-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">

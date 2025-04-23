@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Formation;
+use App\Models\Inscription;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -42,5 +43,31 @@ class AdminController extends Controller
         } else {
             return view("home.uHome");
         }
+    }
+
+    public function reserveView(){
+        $allInsc = Inscription::all();
+        return view('admin.fromUserReserve', compact('allInsc'));
+    }
+
+    public function accepterRes($id){
+        $res = Inscription::find($id);
+        $stat = $res->status;
+        if ($stat == 'Accepté') {
+            return redirect()->back()->with('message', 'La demande a déjà été acceptée');
+        } else {
+            $res->status = 'Accepté';
+            $res->save();
+            return redirect()->back()->with('message2', 'Vous avez accepté la demande');
+        }
+         
+
+    }
+
+    public function rejeterRes($id){
+        $res = Inscription::find($id);
+        $res->status = 'Rejeté';
+        $res->save();
+        return redirect()->back()->with('etat', 'success');
     }
 }

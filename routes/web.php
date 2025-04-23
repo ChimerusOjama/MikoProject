@@ -27,6 +27,10 @@ Route::get('/Annuler_reservation/inscription={id}', [FirstController::class, 'an
 
 Route::get('/nouvelle_formation', [AdminController::class, 'newForm'])->name('newForm');
 Route::post('/Insertion', [AdminController::class, 'storeForm']);
+Route::get('/Reservations', [AdminController::class, 'reserveView']);
+Route::get('/Accepter_reservation/inscription={id}', [AdminController::class, 'accepterRes']);
+Route::get('/Rejeter_reservation/inscription={id}', [AdminController::class, 'rejeterRes']);
+
 
 
 // Route::get('/', function () {

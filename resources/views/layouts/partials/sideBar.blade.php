@@ -64,5 +64,13 @@
               <span class="menu-title">Formations</span>
             </a>
           </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="{{ url('Reservations') }}">
+              <span class="menu-icon">
+                <i class="mdi mdi-table-large"></i>
+              </span>
+              <span class="menu-title">Inscriptions</span>
+            </a>
+          </li>
         </ul>
 </nav>

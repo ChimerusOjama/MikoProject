@@ -1,0 +1,10 @@
+td{
+    color: #6c7293 !important;
+}
+
+tr > td > a {
+    text-decoration: none;
+}
+tr > td > a :hover {
+    color: #6c7293;
+}
