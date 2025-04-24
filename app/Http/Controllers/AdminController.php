@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 class AdminController extends Controller
 {
     //
+    public function allForm(){
+        $forms = Formation::all();
+        return view('admin.allForm', compact('forms'));
+    }
+
     public function newForm(){
         return view('admin.newForm');
     }
@@ -43,6 +48,12 @@ class AdminController extends Controller
         } else {
             return view("home.uHome");
         }
+    }
+
+    public function supForm($id){
+        $delInsc = Formation::find($id);
+        $delInsc->delete();
+        return redirect()->back()->with('message2', 'La formation a été supprimée avec succès');
     }
 
     public function reserveView(){

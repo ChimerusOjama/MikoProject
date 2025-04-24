@@ -57,7 +57,7 @@
             <span class="nav-link">Navigation</span>
           </li>
           <li class="nav-item menu-items">
-            <a class="nav-link" href="{{ url('nouvelle_formation') }}">
+            <a class="nav-link" href="{{ route('allForm') }}">
               <span class="menu-icon">
                 <i class="mdi mdi-speedometer"></i>
               </span>
@@ -65,7 +65,7 @@
             </a>
           </li>
           <li class="nav-item menu-items">
-            <a class="nav-link" href="{{ url('Reservations') }}">
+            <a class="nav-link" href="{{ route('allreserv') }}">
               <span class="menu-icon">
                 <i class="mdi mdi-table-large"></i>
               </span>

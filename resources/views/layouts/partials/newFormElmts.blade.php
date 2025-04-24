@@ -56,7 +56,8 @@
                       </div> -->
                       <!-- <input type="submit" value="Soumettre"> -->
                       <button type="submit" class="btn btn-primary me-2">Soummetre</button>
-                      <button class="btn btn-dark">Annuler</button>
+                      <!-- <button class="btn btn-dark">Annuler</button> -->
+                      <a href="{{ route('allForm') }}" class="btn btn-dark">Liste des formations</a>
                     </form>
                   </div>
                 </div>
