@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>education</title>
-	<meta name="viewport" content="width=device-width">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/all.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/all.min.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/lightbox.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/flexslider.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/owl.carousel.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/owl.theme.default.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/css/jquery.rateyo.css') }}"/>
-	<!-- <link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.css" /> -->
-	<!-- <link rel="stylesheet" type="text/css" href="css/meanmenu.min.css"> -->
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/inner-page-style.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('template/style.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
-	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edulab</title>
+
+<!-- Edulab Template CSS -->
+<link rel="stylesheet" href="{{ asset('template/css/all.css') }}">
+<link rel="stylesheet" href="{{ asset('template/css/all.min.css') }}">
+<link rel="stylesheet" href="{{ asset('template/css/lightbox.css') }}">
+<link rel="stylesheet" href="{{ asset('template/css/flexslider.css') }}">
+<link rel="stylesheet" href="{{ asset('template/css/owl.carousel.css') }}">
+<link rel="stylesheet" href="{{ asset('template/css/owl.theme.default.css') }}">
+<link rel="stylesheet" href="{{ asset('template/css/jquery.rateyo.css') }}">
+<link rel="stylesheet" href="{{ asset('template/inner-page-style.css') }}">
+<link rel="stylesheet" href="{{ asset('template/style.css') }}">
+
+<!-- Bootstrap 5 CSS -->
+<link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
+
+<!-- bootstrap icon cdn -->
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
 </head>
 <body>
 	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
@@ -75,7 +86,7 @@
 							<ul class="menu-list">
 								<li><a href="{{route('uHome')}}">Acceuil</a></li>
 								<li><a href="{{route('listing')}}">Nos foramations</a></li>
-								<li><a href="about.html">Informations pratiques</a></li>
+								<li><a href="{{route('aboutView')}}">Informations pratiques</a></li>
 							</ul>
 						</nav>
 						<div id="bar">

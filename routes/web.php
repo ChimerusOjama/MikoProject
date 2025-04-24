@@ -23,6 +23,7 @@ Route::get('/Nos_formations', [FirstController::class, 'formListing'])->name('li
 Route::get('/Reserver_votre_place/form={id}', [FirstController::class, 'formSingle'])->name('singleForm');
 Route::post('/Inscription', [FirstController::class, 'formInsc'])->name('inscForm');
 Route::get('/Mes_reservations', [FirstController::class, 'uAdmin'])->name('uAdmin');
+Route::get('/A_propos', [FirstController::class, 'aboutView'])->name('aboutView');
 Route::get('/Annuler_reservation/inscription={id}', [FirstController::class, 'annulerRes']);
 
 Route::get('/nouvelle_formation', [AdminController::class, 'newForm'])->name('newForm');

@@ -119,17 +119,35 @@
 		</nav> -->
 
 	</div>
-	<script type="text/javascript" src="{{ asset('template/js/jquery-3.3.1.min.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('template/js/lightbox.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('template/js/all.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('template/js/isotope.pkgd.min.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('template/js/owl.carousel.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('template/js/jquery.flexslider.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('template/js/jquery.rateyo.js') }}"></script>
-	<!-- <script type="text/javascript" src="js/jquery.mmenu.all.js"></script> -->
-	<!-- <script type="text/javascript" src="js/jquery.meanmenu.min.js"></script> -->
-	<script type="text/javascript" src="{{ asset('template/js/custom.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
+	<!-- Edulab Template JS -->
+<script src="{{ asset('template/js/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ asset('template/js/lightbox.js') }}"></script>
+<script src="{{ asset('template/js/all.js') }}"></script>
+<script src="{{ asset('template/js/isotope.pkgd.min.js') }}"></script>
+<script src="{{ asset('template/js/owl.carousel.js') }}"></script>
+<script src="{{ asset('template/js/jquery.flexslider.js') }}"></script>
+<script src="{{ asset('template/js/jquery.rateyo.js') }}"></script>
+<script src="{{ asset('template/js/custom.js') }}"></script>
+
+<!-- Bootstrap 5 JS (bundle includes Popper for modals) -->
+<script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
+
+<!-- Modal trigger (optional if you're using a button with data-bs-toggle already) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (session('success'))
+            const message = @json(session('success'));
+            document.getElementById('modalMessage').innerText = message;
+
+            const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+            modal.show();
+        @endif
+    });
+</script>
+
+
+
+
 	
 </body>
 </html>

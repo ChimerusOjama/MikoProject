@@ -5,14 +5,27 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
+          <!-- Modal -->
           @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-              <strong>Succès!</strong> {{ session('success') }}.
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-           @endif
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-square">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Message</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                          </div>
+                          <div class="modal-body" id="modalMessage">
+                              <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                              <!-- Message injecté par JavaScript -->
+                          </div>
+                          <div class="modal-footer justify-content-center">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          @endif
+          <!-- Modal end -->
           <div class="col-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">

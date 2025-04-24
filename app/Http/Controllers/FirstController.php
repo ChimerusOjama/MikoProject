@@ -86,9 +86,7 @@ class FirstController extends Controller
             $insc->status = 'En cours';
             $insc->save();
             return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
-        }
-        
-
+        } 
     }
 
     public function uAdmin(){
@@ -122,6 +120,35 @@ class FirstController extends Controller
         $delInsc->delete();
         return redirect()->back();
     }
+
+    public function aboutView(){
+        return view('home.about');
+    }
+
+    public function uProfile(){
+        if (Auth::id()) {
+            $user = Auth::user();
+            return view('home.uProfile', compact('user'));
+        } else {
+            return redirect()->back();
+        }
+    }
+    public function uUpdate(Request $req){
+        $user = Auth::user();
+        $user->name = $req->name;
+        $user->email = $req->email;
+        $user->phone = $req->phone;
+        $user->address = $req->address;
+        $user->save();
+        return redirect()->back()->with('success', 'Votre profile a été mis à jour avec succès');
+    }
+
+    public function uDelete(Request $req){
+        $user = Auth::user();
+        $user->delete();
+        return redirect()->back()->with('success', 'Votre compte a été supprimé avec succès');
+    }
+
     
 
 }

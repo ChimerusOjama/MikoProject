@@ -20,5 +20,20 @@
     <!-- Custom js for this page -->
     <script src="{{ asset('admin/assets/js/dashboard.js') }}"></script>
     <!-- End custom js for this page -->
+     <!-- Bootstrap 5 JS (bundle includes Popper for modals) -->
+<script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
+
+  <!-- Modal trigger (optional if you're using a button with data-bs-toggle already) -->
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          @if (session('success'))
+              const message = @json(session('success'));
+              document.getElementById('modalMessage').innerText = message;
+
+              const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+              modal.show();
+          @endif
+      });
+  </script>
   </body>
 </html>

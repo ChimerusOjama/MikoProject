@@ -597,7 +597,7 @@ a {
 }
 
 a:visited {
-	color: purple;
+	color: #f1f1f1;
 }
 
 a:hover, a:focus, a:active {
@@ -3560,3 +3560,54 @@ RESPONSIVE STYLESHEET
   font-size: 100 px !important;
 
 }
+
+.modal-square {
+    width: 150px;
+    height: 150px;
+    max-width: 90%;
+}
+
+.modal-square .modal-content {
+    height: 100%;
+}
+
+.modal-square .modal-body {
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
+.card {
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+	border-radius: 10px;
+	display: flex;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.tCard {
+	font-size: 1.4rem;
+}
+ .card-title {
+	font-size: 1.8rem;
+}
+.card-body > a {
+	font-size: 1.2rem;
+}
+.card-body > a:hover {
+	text-decoration: none;
+}
+/* Effet ombrage */
+/* .tCard {
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+	border-radius: 10px;
+	padding: 20px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+} */
