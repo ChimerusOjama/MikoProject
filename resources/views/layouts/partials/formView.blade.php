@@ -36,7 +36,6 @@
                                         <th>Image</th>
                                         <th>Libellé</th>
                                         <th>Description</th>
-                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -47,7 +46,7 @@
                                         <td>{{ $form->desc }}</td>
                                         <td><label class="text">{{ $form->status }}</label></td>
                                         <td>
-                                            <a href="/Accepter_reservation/inscription={{ $form->id }}" class="badge badge-info">Mettre à jour</a>
+                                            <a href="/Modifier_formation/foramtion={{ $form->id }}" class="badge badge-info">Mettre à jour</a>
                                             <a href="/Supprimer_formation/foramtion={{ $form->id }}" 
                                             class="badge badge-danger"
                                             onclick="return confirm('Souhaitez-vous réellement supprimer cette formation ?')">Supprimer</a>

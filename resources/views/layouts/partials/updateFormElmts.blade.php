@@ -29,20 +29,25 @@
           <div class="col-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Formulaire de création</h4>
-                    <form class="forms-sample" action="{{route('storeForm')}}" method="POST" enctype="multipart/form-data">
+                    <h4 class="card-title">Formulaire de mise à jour</h4>
+                    <form class="forms-sample" action="/Mise_a_jour/formation={{ $form->id }}" method="POST" enctype="multipart/form-data">
                       @csrf
                       <div class="form-group">
                         <label for="exampleInputName1">Libellé</label>
-                        <input type="text" class="form-control" id="exampleInputName1" name="libForm" required placeholder="Libellé de la formation">
+                        <input type="text" class="form-control" id="exampleInputName1" name="libForm" value="{{ $form->libForm }}" required placeholder="Libellé de la formation">
                       </div>
                       <div class="form-group">
                         <label for="exampleInputName2">Description</label>
-                        <input type="text" class="form-control" id="exampleInputName2" name="desc" required placeholder="Description de la formation">
+                        <input type="text" class="form-control" id="exampleInputName2" name="desc" value="{{ $form->desc }}" required placeholder="Description de la formation">
                       </div>
                       <div class="form-group">
-                        <label for="exampleInputName3">Image</label>
-                        <input type="file" class="form-control" id="exampleInputName3" name="image" required>
+                        <label for="exampleInputName3">Image actuelle</label>
+                        <img width="300 px" height="200 px" src="{{ $form->image }}" alt="{{ $form->image }}">
+                        <!-- <img width="300 px" height="200 px" src="{{ asset('template/images/page-banner3.jpg') }}" alt="{{ $form->image }}"> -->
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputName3">Nouvelle image</label>
+                        <input type="file" class="form-control" id="exampleInputName3" name="image">
                       </div>
                       <!-- <div class="form-group">
                         <label>Image</label>
@@ -55,7 +60,7 @@
                         </div>
                       </div> -->
                       <!-- <input type="submit" value="Soumettre"> -->
-                      <button type="submit" class="btn btn-primary me-2">Soummetre</button>
+                      <button type="submit" class="btn btn-primary me-2">Mettre à jour</button>
                       <!-- <button class="btn btn-dark">Annuler</button> -->
                       <a href="{{ route('allForm') }}" class="btn btn-dark">Liste des formations</a>
                     </form>

@@ -56,6 +56,52 @@ class AdminController extends Controller
         return redirect()->back()->with('message2', 'La formation a été supprimée avec succès');
     }
 
+    public function updateView($id){
+        $form = Formation::find($id);
+        return view('admin.updateForm', compact('form'));
+    }
+
+    public function updateForm(Request $req, $id){
+
+        $form = Formation::find($id);
+        $req->validate([
+            'image' => 'image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $form->libForm = $req->libForm;
+        $form->desc = $req->desc;
+
+        // Récupérer l'image envoyée via le champ "image"
+        $image = $req->image;
+
+        if($image){
+            // Générer un nom unique pour l'image
+            $imageName = time() . '_' . $image->getClientOriginalName();
+
+            // Déplacer l'image dans public/imgForms
+            $image->move('imgForms', $imageName);
+
+            // Générer l'URL publique de l'image
+            $imagePath = 'imgForms/' . $imageName;
+
+            $form->image = $imagePath;
+        }
+
+
+        $result = $form->save();
+
+        if ($result) {
+            return redirect()->back()->with('success', 'La formation a été mise à jour avec succès');
+        } else {
+            return view("home.uHome");
+        }
+
+
+
+
+
+    }
+
     public function reserveView(){
         $allInsc = Inscription::all();
         return view('admin.fromUserReserve', compact('allInsc'));
@@ -70,9 +116,7 @@ class AdminController extends Controller
             $res->status = 'Accepté';
             $res->save();
             return redirect()->back()->with('message2', 'Vous avez accepté la demande');
-        }
-         
-
+        }  
     }
 
     public function rejeterRes($id){
