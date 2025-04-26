@@ -1,12 +1,10 @@
 <div id="page-wrapper" >
-        <!-- Modal -->
-        <x-alert-modal />
-    <!-- Modal end -->
     <div id="page-inner">
         <div class="row">
             <div class="col-md-12">
                 <h2>Mes reservations</h2>   
                 <h5>Bienvenu {{ Auth::user()->name }} , gérez vos reservations ici. </h5>
+                
             </div>
         </div>
             <!-- /. ROW  -->
@@ -38,15 +36,10 @@
                                             <td>{{ $oneInscShow->status }}</td>
                                             <td>
                                                 <a href="#" class="btn btn-success square-btn-adjust">Finaliser l'inscription</a>
-                                                <a href="#"
-                                                class="btn btn-danger square-btn-adjust"
-                                                onclick="event.preventDefault(); confirmAnnulation({{ $oneInscShow->id }});">
-                                                    Annuler
+                                                <a href="/Annuler_reservation/inscription={{ $oneInscShow->id }}"
+                                                 class="btn btn-danger square-btn-adjust" 
+                                                 onclick="return confirm('Souhaitez-vous réellement annuler votre demande')">Annuler
                                                 </a>
-
-                                                <form id="confirmForm" method="POST" style="display: none;">
-                                                    @csrf
-                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach

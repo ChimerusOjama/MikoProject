@@ -66,6 +66,13 @@
                 $('#dataTables-example').dataTable();
             });
     </script>
+      <script>
+        function confirmAnnulation(id) {
+            const form = document.getElementById('confirmForm');
+            form.action = `/afficher-confirmation/${id}`;
+            form.submit();
+        }
+    </script>
     
    
 </body>

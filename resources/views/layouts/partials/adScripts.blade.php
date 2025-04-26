@@ -24,16 +24,13 @@
 <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
 
   <!-- Modal trigger (optional if you're using a button with data-bs-toggle already) -->
+  @include('layouts.partials.modalScript')
   <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          @if (session('success'))
-              const message = @json(session('success'));
-              document.getElementById('modalMessage').innerText = message;
-
-              const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
-              modal.show();
-          @endif
-      });
-  </script>
+        function confirmAnnulation(id) {
+            const form = document.getElementById('confirmForm');
+            form.action = `/afficher-confirmation/${id}`;
+            form.submit();
+        }
+    </script>
   </body>
 </html>

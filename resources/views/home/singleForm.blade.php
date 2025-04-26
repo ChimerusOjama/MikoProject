@@ -1,25 +1,7 @@
 @include('layouts.partials.headPage')
 <section class="page-content" id="course-page">
     <!-- Modal -->
-    @if(session('success'))
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-square">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Message</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                    </div>
-                    <div class="modal-body" id="modalMessage">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                        <!-- Message injecté par JavaScript -->
-                    </div>
-                    <div class="modal-footer justify-content-center">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+    <x-alert-modal1 />
     <!-- Modal end -->
     <div class="container mt-4">
         <div class="row">
@@ -103,7 +85,7 @@
                             <input type="text" value="{{ Auth::user()->name }}" disabled>
                             <input type="email" value="{{ Auth::user()->email }}"  disabled>
                             <input type="tel" value="{{ Auth::user()->phone }}" disabled>
-                            <input type="text" name="address" placeholder="Adresse*" required>
+                            <input type="text" value="{{ Auth::user()->address }}" disabled>
                             <input type="hidden" value="{{ $oneForm->libForm }}" name="choixForm">
                             <textarea name="message" placeholder="Besoins particuliers ? Faite le nous savoir ici."></textarea>
                             <input type="submit" value="Soumettre">
