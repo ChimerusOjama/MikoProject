@@ -1,6 +1,6 @@
 <div id="page-wrapper" >
         <!-- Modal -->
-        <x-alert-modal />
+        <x-alert-modal1 />
     <!-- Modal end -->
     <div id="page-inner">
         <div class="row">

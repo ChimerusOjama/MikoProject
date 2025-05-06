@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('montant');
             $table->string('choixForm');
-            $table->string('message');
+            $table->string('message')->nullable();
             $table->string('status');
             $table->timestamps();
         });

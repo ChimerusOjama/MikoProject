@@ -134,7 +134,7 @@
 
 <!-- Modal trigger (optional if you're using a button with data-bs-toggle already) -->
 @include('layouts.partials.modalScript')
-@include('layouts.partials.modalScript2')
+@include('layouts.partials.modalScript1')
 
 
 
