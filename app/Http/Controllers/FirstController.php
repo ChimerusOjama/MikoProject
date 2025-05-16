@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\infoMail;
 use App\Models\Formation;
 use App\Models\Inscription;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class FirstController extends Controller
 {
@@ -32,8 +34,6 @@ class FirstController extends Controller
             $req->session()->regenerateToken();
             $forms = Formation::all();
             return redirect('/');
-
-            // return redirect('home', compact('forms'));
         }else{
             $forms = Formation::all();
             return view('home.uHome', compact('forms'));
@@ -83,7 +83,7 @@ class FirstController extends Controller
         $insc->montant = '14 500 FCFA';
         $insc->status = 'En cours';
         $insc->save();
-
+        Mail::to(Auth::user()->email)->send(new infoMail());
         return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
     }
 
@@ -107,95 +107,14 @@ class FirstController extends Controller
     $insc->status = 'En cours';
     $insc->save();
 
+    // Envoi d'un email de confirmation (si nécessaire)
+    // Ship the order...
+ 
+    Mail::to($req->email)->send(new infoMail());
+    
     return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
-}
 
-    // v2
-    // public function formInsc(Request $req){
-    //     // Vérification pour les utilisateurs connectés
-    //     if (Auth::id()) {
-    //         $existing = Inscription::where('user_id', Auth::id())
-    //             ->where('name', Auth::user()->name)
-    //             ->where('email', Auth::user()->email)
-    //             ->where('phone', Auth::user()->phone)
-    //             ->where('address', Auth::user()->address)
-    //             ->where('choixForm', $req->choixForm)
-    //             ->first();
-
-    //         if ($existing) {
-    //             return redirect()->back()->with('success', 'Vous êtes déjà inscrit à cette formation.');
-    //         }
-
-    //         $insc = new Inscription();
-    //         $insc->user_id = Auth::id();
-    //         $insc->name = Auth::user()->name;
-    //         $insc->email = Auth::user()->email;
-    //         $insc->phone = Auth::user()->phone;
-    //         $insc->address = Auth::user()->address;
-    //         $insc->message = $req->message;
-    //         $insc->choixForm = $req->choixForm;
-    //         $insc->montant = '14 500 FCFA';
-    //         $insc->status = 'En cours';
-    //         $insc->save();
-
-    //         return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
-    //     }
-
-    //     // Vérification pour les utilisateurs non connectés
-    //     $existing = Inscription::where('name', $req->name)
-    //         ->where('email', $req->email)
-    //         ->where('phone', $req->phone)
-    //         ->where('address', $req->address)
-    //         ->where('choixForm', $req->choixForm)
-    //         ->first();
-
-    //     if ($existing) {
-    //         return redirect()->back()->with('success', 'Vous êtes déjà inscrit à cette formation.');
-    //     }
-
-    //     $insc = new Inscription();
-    //     $insc->name = $req->name;
-    //     $insc->email = $req->email;
-    //     $insc->phone = $req->phone;
-    //     $insc->address = $req->address;
-    //     $insc->message = $req->message;
-    //     $insc->choixForm = $req->choixForm;
-    //     $insc->montant = '14 500 FCFA';
-    //     $insc->status = 'En cours';
-    //     $insc->save();
-
-    //     return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
-    // }
-
-    // v1
-    // public function formInsc(Request $req){
-    //     $insc = new Inscription();
-
-    //     if (Auth::id()) {
-    //         $insc->user_id = Auth::user()->id;
-    //         $insc->name = Auth::user()->name;
-    //         $insc->email = Auth::user()->email;
-    //         $insc->phone = Auth::user()->phone;
-    //         $insc->phone = Auth::user()->address;
-    //         $insc->message = $req->message;
-    //         $insc->choixForm = $req->choixForm;
-    //         $insc->montant = '14 500 FCFA';
-    //         $insc->status = 'En cours';
-    //         $insc->save();
-    //         return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
-    //     } else {
-    //         $insc->name = $req->name;
-    //         $insc->email = $req->email;
-    //         $insc->phone = $req->phone;
-    //         $insc->address = $req->address;
-    //         $insc->message = $req->message;
-    //         $insc->choixForm = $req->choixForm;
-    //         $insc->montant = '14 500 FCFA';
-    //         $insc->status = 'En cours';
-    //         $insc->save();
-    //         return redirect()->back()->with('success', 'Votre demanade a été reçu avec succès');
-    //     } 
-    // }
+    }
 
     public function uAdmin(){
         if (Auth::id()) {
@@ -203,20 +122,6 @@ class FirstController extends Controller
             $userName = Auth::user()->name;
             $inscShow = Inscription::where('name', $userName)->get();
             return view('admin2.index', compact('inscShow'));
-
-            // $user_id = Auth::id();
-            // $inscById = Inscription::where('user_id', $user_id)->get();
-            // return view('admin2.index', compact('inscById'));
-
-            // if ($user_id == 'null') {
-            //     $userName = Auth::user()->name;
-            //     $inscById = Inscription::where('name', $userName)->get();
-            //     return view('admin2.index', compact('inscById'));
-            // } else {
-            //     $user_id = Auth::id();
-            //     $inscById = Inscription::where('user_id', $user_id)->get();
-            //     return view('admin2.index', compact('inscById'));
-            // }
 
         } else {
             return redirect()->back();

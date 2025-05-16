@@ -16,6 +16,8 @@
    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 </head>
 <body>
+    <!-- Modal -->
+    <x-alert-modal2 />
     <div id="wrapper">
         <nav class="navbar navbar-default navbar-cls-top " role="navigation" style="margin-bottom: 0">
             <div class="navbar-header">
@@ -61,18 +63,51 @@
      <!-- DATA TABLE SCRIPTS -->
     <script src="{{ asset('admin2/assets/js/dataTables/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('admin2/assets/js/dataTables/dataTables.bootstrap.js') }}"></script>
-        <script>
+    <script>
             $(document).ready(function () {
                 $('#dataTables-example').dataTable();
             });
     </script>
-      <script>
+
+    <!-- <script>
+        function showConfirmationModal(id) {
+            // On modifie dynamiquement l'action du formulaire dans le modal
+            const form = document.getElementById('confirmForm');
+            form.action = `/Annuler_reservation/${id}`;
+
+            // Puis on affiche le modal
+            const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+            modal.show();
+        }
+    </script> -->
+    @include('layouts.partials.modalScript2')
+
+
+
+    <!-- <script>
+        function openAlertModal(message, actionRoute) {
+            // Injecte dynamiquement le message
+            document.querySelector('#alertModal .modal-body p').textContent = message;
+
+            // Si le formulaire existe dans le footer (type = 'info')
+            const form = document.querySelector('#alertModal form');
+            if (form) {
+                form.action = actionRoute;
+            }
+
+            // Affiche le modal (Bootstrap 5)
+            const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+            modal.show();
+        }
+    </script> -->
+
+    <!-- <script>
         function confirmAnnulation(id) {
             const form = document.getElementById('confirmForm');
             form.action = `/afficher-confirmation/${id}`;
             form.submit();
         }
-    </script>
+    </script> -->
     
    
 </body>

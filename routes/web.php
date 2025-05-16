@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstController;
 use App\Http\Controllers\AdminController;
+use App\Mail\TestMail;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +28,10 @@ Route::get('/Mes_reservations', [FirstController::class, 'uAdmin'])->name('uAdmi
 Route::get('/A_propos', [FirstController::class, 'aboutView'])->name('aboutView');
 // Route::get('/Annuler_reservation/inscription={id}', [FirstController::class, 'annulerRes']);
 Route::post('/afficher-confirmation/{id}', [FirstController::class, 'afficherConfirmation']);
-Route::post('/Annuler_reservation/{id}', [FirstController::class, 'annulerRes'])->name('annuler_reservation');
+// Route::post('/Annuler_reservation/{id}', [FirstController::class, 'annulerRes'])->name('annuler_reservation');
+// web.php
+Route::post('/Annuler_reservation/{id}', [FirstController::class, 'annulerRes'])->name('annuler.inscription');
+
 
 
 Route::get('/formations', [AdminController::class, 'allForm'])->name('allForm');
@@ -38,6 +43,11 @@ Route::get('/Rejeter_reservation/inscription={id}', [AdminController::class, 're
 Route::get('/Supprimer_formation/foramtion={id}', [AdminController::class, 'supForm']);
 Route::get('/Modifier_formation/foramtion={id}', [AdminController::class, 'updateView']);
 Route::post('/Mise_a_jour/formation={id}', [AdminController::class, 'updateForm'])->name('updateForm');
+
+Route::get('/test-mail', function () {
+    Mail::to('berchebaisrael@gmail.com')->send(new TestMail());
+    return 'E-mail envoyé !';
+});
 
 
 

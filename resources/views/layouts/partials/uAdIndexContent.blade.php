@@ -37,16 +37,19 @@
                                             <td>{{ $oneInscShow->montant }}</td>
                                             <td>{{ $oneInscShow->status }}</td>
                                             <td>
-                                                <a href="#" class="btn btn-success square-btn-adjust">Finaliser l'inscription</a>
-                                                <a href="#"
-                                                class="btn btn-danger square-btn-adjust"
-                                                onclick="event.preventDefault(); confirmAnnulation({{ $oneInscShow->id }});">
-                                                    Annuler
-                                                </a>
+                                            <a href="#" class="btn btn-success square-btn-adjust">Finaliser l'inscription</a>
+                                            
+                                            <a href="#"
+                                            class="btn btn-danger square-btn-adjust"
+                                            onclick="event.preventDefault(); openCancelModal({{ $oneInscShow->id }});">
+                                                Annuler
+                                            </a>
 
-                                                <form id="confirmForm" method="POST" style="display: none;">
-                                                    @csrf
-                                                </form>
+
+
+                                            <form id="confirmForm" method="POST" style="display: none;">
+                                                @csrf
+                                            </form>
                                             </td>
                                         </tr>
                                     @endforeach
