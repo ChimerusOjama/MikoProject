@@ -1,5 +1,6 @@
 @include('layouts.partials.adDoctype')
     <div class="container-scroller">
+    <x-alert-modal1 />
       <!-- partial:partials/_sidebar.html -->
       @include('layouts.partials.sideBar')
       <!-- partial -->

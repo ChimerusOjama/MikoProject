@@ -57,7 +57,6 @@ class FirstController extends Controller
     public function formSingle($id){
         $oneForm = Formation::find($id);
         return view('home.singleForm', compact('oneForm'));
-        // return view('home.singleForm', compact('forms'));
     }
 
     public function formInsc(Request $req)
@@ -81,7 +80,7 @@ class FirstController extends Controller
         $insc->message = $req->message;
         $insc->choixForm = $req->choixForm;
         $insc->montant = '14 500 FCFA';
-        $insc->status = 'En cours';
+        $insc->status = 'En attente';
         $insc->save();
         Mail::to(Auth::user()->email)->send(new infoMail());
         return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
@@ -129,14 +128,14 @@ class FirstController extends Controller
     }
 
     public function afficherConfirmation($id)
-{
-    $route = route('annuler_reservation', ['id' => $id]);
-    return redirect()->back()->with([
-        'message' => 'Souhaitez-vous réellement annuler votre demande ?',
-        'type' => 'info',
-        'confirm_route' => $route
-    ]);
-}
+    {
+        $route = route('annuler_reservation', ['id' => $id]);
+        return redirect()->back()->with([
+            'message' => 'Souhaitez-vous réellement annuler votre demande ?',
+            'type' => 'info',
+            'confirm_route' => $route
+        ]);
+    }
 
 public function annulerRes($id)
 {
