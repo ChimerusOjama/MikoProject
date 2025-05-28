@@ -95,23 +95,23 @@ class FirstController extends Controller
         return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
     }
 
-    $insc = new Inscription();
-    $insc->name = $req->name;
-    $insc->email = $req->email;
-    $insc->phone = $req->phone;
-    $insc->address = $req->address;
-    $insc->message = $req->message;
-    $insc->choixForm = $req->choixForm;
-    $insc->montant = '14 500 FCFA';
-    $insc->status = 'En cours';
-    $insc->save();
+    // $insc = new Inscription();
+    // $insc->name = $req->name;
+    // $insc->email = $req->email;
+    // $insc->phone = $req->phone;
+    // $insc->address = $req->address;
+    // $insc->message = $req->message;
+    // $insc->choixForm = $req->choixForm;
+    // $insc->montant = '14 500 FCFA';
+    // $insc->status = 'En cours';
+    // $insc->save();
 
-    // Envoi d'un email de confirmation (si nécessaire)
-    // Ship the order...
+    // // Envoi d'un email de confirmation (si nécessaire)
+    // // Ship the order...
  
-    Mail::to($req->email)->send(new infoMail());
+    // Mail::to($req->email)->send(new infoMail());
     
-    return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
+    // return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
 
     }
 

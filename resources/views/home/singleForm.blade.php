@@ -91,7 +91,11 @@
                             <input type="submit" value="Soumettre">
                         </form>
                         @else
-                        <form action="{{route('inscForm')}}" method="POST">
+                        <form action="">
+                            <p>Vous devez être connecté pour vous inscrire via ce formulaire.</p>
+                            <p>Veuillez vous connecter ou vous inscrire pour continuer.</p>
+                        </form>
+                        <!-- <form action="{{route('inscForm')}}" method="POST">
                             @csrf
                             <input type="text" placeholder="Nom complet*" name="name" required>
                             <input type="email" name="email" placeholder="Adresse mail*" required>
@@ -100,7 +104,7 @@
                             <input type="hidden" value="{{ $oneForm->libForm }}" name="choixForm">
                             <textarea name="message" placeholder="Besoins particuliers ? Faite le nous savoir ici."></textarea>
                             <input type="submit" value="Soumettre">
-                        </form>
+                        </form> -->
                         @endauth
                     @endif
                 </div>

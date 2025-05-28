@@ -3,51 +3,49 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstController;
 use App\Http\Controllers\AdminController;
-use App\Mail\TestMail;
-use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\MainController;
-// use Illuminate\Support\Facades\Http;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
+// ✅ GROUPE : FirstController (public routes)
+Route::controller(FirstController::class)->group(function () {
+    Route::get('/', 'index')->name('uHome');
+    Route::get('/Nos_formations', 'formListing')->name('listing');
+    Route::get('/Reserver_votre_place/form={id}', 'formSingle')->name('singleForm');
+    Route::post('/Inscription', 'formInsc')->name('inscForm');
+    Route::get('/A_propos', 'aboutView')->name('aboutView');
+    Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
+    Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
+});
 
-Route::post('/logout', [FirstController::class, 'uLogout'])->name('uLogout');
-Route::get('/', [FirstController::class, 'index'])->name('uHome');
-Route::get('/home', [FirstController::class, 'redirect'])->name('home')
-    ->middleware('auth','verified');
-Route::get('/Nos_formations', [FirstController::class, 'formListing'])->name('listing');
-Route::get('/Reserver_votre_place/form={id}', [FirstController::class, 'formSingle'])->name('singleForm');
-Route::post('/Inscription', [FirstController::class, 'formInsc'])->name('inscForm');
-Route::get('/Mes_reservations', [FirstController::class, 'uAdmin'])->name('uAdmin');
-Route::get('/A_propos', [FirstController::class, 'aboutView'])->name('aboutView');
-// Route::get('/Annuler_reservation/inscription={id}', [FirstController::class, 'annulerRes']);
-Route::post('/afficher-confirmation/{id}', [FirstController::class, 'afficherConfirmation']);
-// Route::post('/Annuler_reservation/{id}', [FirstController::class, 'annulerRes'])->name('annuler_reservation');
-// web.php
-Route::post('/Annuler_reservation/{id}', [FirstController::class, 'annulerRes'])->name('annuler.inscription');
+// ✅ GROUPE : FirstController (routes protégées)
+Route::middleware(['auth', 'verified'])->controller(FirstController::class)->group(function () {
+    Route::get('/home', 'redirect')->name('home');
+    Route::get('/Mes_reservations', 'uAdmin')->name('uAdmin');
+    Route::post('/logout', 'uLogout')->name('uLogout');
+});
 
+// ✅ GROUPE : AdminController (routes admin)
+Route::middleware(['auth', 'verified'])->controller(AdminController::class)->group(function () {
+    Route::get('/formations', 'allForm')->name('allForm');
+    Route::get('/nouvelle_formation', 'newForm')->name('newForm');
+    Route::post('/Insertion', 'storeForm')->name('storeForm');
+    Route::get('/Reservations', 'reserveView')->name('allreserv');
+    Route::get('/Accepter_reservation/inscription={id}', 'accepterRes');
+    Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes');
+    Route::get('/Supprimer_formation/foramtion={id}', 'supForm');
+    Route::get('/Modifier_formation/foramtion={id}', 'updateView');
+    Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
+});
 
-
-Route::get('/formations', [AdminController::class, 'allForm'])->name('allForm');
-Route::get('/nouvelle_formation', [AdminController::class, 'newForm'])->name('newForm');
-Route::post('/Insertion', [AdminController::class, 'storeForm'])->name('storeForm');
-Route::get('/Reservations', [AdminController::class, 'reserveView'])->name('allreserv');
-Route::get('/Accepter_reservation/inscription={id}', [AdminController::class, 'accepterRes']);
-Route::get('/Rejeter_reservation/inscription={id}', [AdminController::class, 'rejeterRes']);
-Route::get('/Supprimer_formation/foramtion={id}', [AdminController::class, 'supForm']);
-Route::get('/Modifier_formation/foramtion={id}', [AdminController::class, 'updateView']);
-Route::post('/Mise_a_jour/formation={id}', [AdminController::class, 'updateForm'])->name('updateForm');
-
+// ✅ Route de test mail (isolée)
 Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
+
+
 
 // Route::get('/test-mail', function () {
 //     Mail::to('berchebaisrael@gmail.com')->send(new TestMail());
