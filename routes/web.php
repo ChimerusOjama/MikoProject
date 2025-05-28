@@ -5,6 +5,8 @@ use App\Http\Controllers\FirstController;
 use App\Http\Controllers\AdminController;
 use App\Mail\TestMail;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\MainController;
+// use Illuminate\Support\Facades\Http;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +22,8 @@ use Illuminate\Support\Facades\Mail;
 
 Route::post('/logout', [FirstController::class, 'uLogout'])->name('uLogout');
 Route::get('/', [FirstController::class, 'index'])->name('uHome');
-Route::get('/home', [FirstController::class, 'redirect'])->name('home');
+Route::get('/home', [FirstController::class, 'redirect'])->name('home')
+    ->middleware('auth','verified');
 Route::get('/Nos_formations', [FirstController::class, 'formListing'])->name('listing');
 Route::get('/Reserver_votre_place/form={id}', [FirstController::class, 'formSingle'])->name('singleForm');
 Route::post('/Inscription', [FirstController::class, 'formInsc'])->name('inscForm');
@@ -44,10 +47,12 @@ Route::get('/Supprimer_formation/foramtion={id}', [AdminController::class, 'supF
 Route::get('/Modifier_formation/foramtion={id}', [AdminController::class, 'updateView']);
 Route::post('/Mise_a_jour/formation={id}', [AdminController::class, 'updateForm'])->name('updateForm');
 
-Route::get('/test-mail', function () {
-    Mail::to('berchebaisrael@gmail.com')->send(new TestMail());
-    return 'E-mail envoyé !';
-});
+Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
+
+// Route::get('/test-mail', function () {
+//     Mail::to('berchebaisrael@gmail.com')->send(new TestMail());
+//     return 'E-mail envoyé !';
+// });
 
 
 
