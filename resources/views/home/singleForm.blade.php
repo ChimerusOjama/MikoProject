@@ -27,7 +27,12 @@
 
                     <div class="course-box">
                         <h3>Emploi du temps</h3>
-                        <button>fichier pdf</button>
+                        <a href="{{ asset('pdfs/emploiDuTemps.pdf') }}" 
+                            class="btn btn-outline-normal" 
+                            download>
+                                Ficher PDF
+                        </a>
+
                     </div>
                 </header>
                 <article>
@@ -37,7 +42,7 @@
                         <p>{{ $oneForm->desc }}</p>
                     </section>
 
-                    <section class="course-objective">
+                    <!-- <section class="course-objective">
                         <h3>Objectives</h3>
                         <p>After this course student will be able to:</p>
                         <ul>
@@ -72,7 +77,7 @@
                             <li>Field Visit and real project demonstration</li>
                             <li>+2 with managem</li>
                         </ul>
-                    </section>
+                    </section> -->
                 </article>					
             </main>
             <aside class="course-sidebar col-md-4">

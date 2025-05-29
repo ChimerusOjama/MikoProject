@@ -59,59 +59,70 @@ class FirstController extends Controller
         return view('home.singleForm', compact('oneForm'));
     }
 
-    public function formInsc(Request $req)
-{
-    // Utilisateur connecté
-    if (Auth::id()) {
-        $existing = Inscription::where('user_id', Auth::id())
-            ->where('choixForm', $req->choixForm)
-            ->first();
+    public function formInsc(Request $req){
+        // Validation des données d'inscription
+        $req->validate([
+            'choixForm' => 'required',
+            'message' => 'nullable|string|max:500',
+            'email' => 'required|email|max:255',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:18',
+            'address' => 'required|string|max:255',
+        ]);
+        // Vérification si l'utilisateur est connecté
+        // Si l'utilisateur est connecté, on utilise Auth::id() pour obtenir son ID
+        if (Auth::id()) {
+            $existing = Inscription::where('user_id', Auth::id())
+                ->where('choixForm', $req->choixForm)
+                ->first();
 
-        if ($existing) {
-            return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
+            if ($existing) {
+                return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
+            }
+
+            $insc = new Inscription();
+            $insc->user_id = Auth::id();
+            $insc->name = Auth::user()->name;
+            $insc->email = Auth::user()->email;
+            $insc->phone = Auth::user()->phone;
+            $insc->address = Auth::user()->address;
+            $insc->message = $req->message;
+            $insc->choixForm = $req->choixForm;
+            $insc->montant = '14 500 FCFA';
+            $insc->status = 'En attente';
+            $insc->save();
+            Mail::to(Auth::user()->email)->send(new infoMail());
+            return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
+        }else{
+            return redirect()->back()->with('warning', 'Vous devez être connecté pour soumettre une inscription.');
         }
 
-        $insc = new Inscription();
-        $insc->user_id = Auth::id();
-        $insc->name = Auth::user()->name;
-        $insc->email = Auth::user()->email;
-        $insc->phone = Auth::user()->phone;
-        $insc->address = Auth::user()->address;
-        $insc->message = $req->message;
-        $insc->choixForm = $req->choixForm;
-        $insc->montant = '14 500 FCFA';
-        $insc->status = 'En attente';
-        $insc->save();
-        Mail::to(Auth::user()->email)->send(new infoMail());
-        return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
-    }
+        // Utilisateur non connecté (on utilise l'email comme identifiant)
+        // $existing = Inscription::where('email', $req->email)
+        //     ->where('choixForm', $req->choixForm)
+        //     ->first();
 
-    // Utilisateur non connecté (on utilise l'email comme identifiant)
-    $existing = Inscription::where('email', $req->email)
-        ->where('choixForm', $req->choixForm)
-        ->first();
+        // if ($existing) {
+        //     return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
+        // }
 
-    if ($existing) {
-        return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
-    }
+        // $insc = new Inscription();
+        // $insc->name = $req->name;
+        // $insc->email = $req->email;
+        // $insc->phone = $req->phone;
+        // $insc->address = $req->address;
+        // $insc->message = $req->message;
+        // $insc->choixForm = $req->choixForm;
+        // $insc->montant = '14 500 FCFA';
+        // $insc->status = 'En cours';
+        // $insc->save();
 
-    // $insc = new Inscription();
-    // $insc->name = $req->name;
-    // $insc->email = $req->email;
-    // $insc->phone = $req->phone;
-    // $insc->address = $req->address;
-    // $insc->message = $req->message;
-    // $insc->choixForm = $req->choixForm;
-    // $insc->montant = '14 500 FCFA';
-    // $insc->status = 'En cours';
-    // $insc->save();
-
-    // // Envoi d'un email de confirmation (si nécessaire)
-    // // Ship the order...
- 
-    // Mail::to($req->email)->send(new infoMail());
+        // // Envoi d'un email de confirmation (si nécessaire)
+        // // Ship the order...
     
-    // return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
+        // Mail::to($req->email)->send(new infoMail());
+        
+        // return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
 
     }
 

@@ -71,7 +71,7 @@ figcaption h4
 .about-upper-section .who-we-are p,
 .about-upper-section .our-story a,
 .course-detail .course-box h3,
-.course-detail .course-box button,
+.course-detail .course-box a,
 .course-detail p,
 .course-objective li,
 .contact-list li span
@@ -222,7 +222,7 @@ figcaption h3
 .about-upper-section,
 .team-members .container,
 #course-page,
-.course-detail .course-box button,
+.course-detail .course-box a,
 #course-page aside .reserve-course input, 
 #course-page aside .reserve-course textarea,
 .testimonial-page aside .submit-testimonials input,
@@ -308,7 +308,7 @@ figcaption h4
 .button-section .button, 
 .customer-review .button,
 .people-info-wrap form input[type="submit"],
-.course-detail .course-box button,
+.course-detail .course-box a,
 #course-page aside .reserve-course input[type="submit"],
 .testimonial-page aside .submit-testimonials input[type="submit"]
 {
@@ -339,7 +339,7 @@ figcaption h4
 .recent-course-single .grid-item .learn-desining-banner-course,
 .comment-form input[type="submit"],
 .button-section .button, .customer-review .button,
-.course-detail .course-box button,
+.course-detail .course-box a,
 #course-page aside .reserve-course input[type="submit"],
 .testimonial-page aside .submit-testimonials input[type="submit"]
 {

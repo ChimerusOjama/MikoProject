@@ -192,6 +192,7 @@ textarea {
  * 1. Show the overflow in Edge.
  */
 
+.course-box a,
 button,
 input { /* 1 */
 	overflow: visible;
@@ -202,6 +203,7 @@ input { /* 1 */
  * 1. Remove the inheritance of text transform in Firefox.
  */
 
+.course-box a,
 button,
 select { /* 1 */
 	text-transform: none;
@@ -2478,7 +2480,7 @@ aside .news-letter hr {
 	/*color: #1c3961;*/
 }
 
-.course-detail .course-box button {
+.course-detail .course-box a {
 	/*background: #1c3961;*/
 	/*color: #fff;*/
 	/*font-size: 1.6rem;*/
