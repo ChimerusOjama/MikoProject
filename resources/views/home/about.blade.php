@@ -30,7 +30,7 @@
     <div class="row">
         <div class="col-md-6 col-lg-4">
             <div class="card">
-                <img src="{{ asset('template/images/course-pic.jpg') }}" class="card-img-top" alt="Cours">
+                <img src="images/cours1.jpg" class="card-img-top" alt="Cours">
                 <div class="card-body">
                     <h5 class="card-title">ttt</h5>
                     <p class="tCard card-text">Durée : 3 mois</p>
@@ -42,7 +42,7 @@
         </div>
         <div class="col-md-6 col-lg-4">
             <div class="card">
-                <img src="{{ asset('template/images/course-pic.jpg') }}" class="card-img-top" alt="Cours">
+                <img src="images/cours1.jpg" class="card-img-top" alt="Cours">
                 <div class="card-body">
                     <h5 class="card-title">ttt</h5>
                     <p class="tCard card-text">Durée : 3 mois</p>
@@ -54,43 +54,7 @@
         </div>
         <div class="col-md-6 col-lg-4">
             <div class="card">
-                <img src="{{ asset('template/images/course-pic.jpg') }}" class="card-img-top" alt="Cours">
-                <div class="card-body">
-                    <h5 class="card-title">ttt</h5>
-                    <p class="tCard card-text">Durée : 3 mois</p>
-                    <p class="tCard card-text">Horaires : 8h00-10h00 / 13h00-15h00</p>
-                    <p class="tCard card-text"><strong>Prix : 14 500 FCFA</strong></p>
-                    <a href="#" class="btn btn-primary w-100">Voir le cours</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card">
-                <img src="{{ asset('template/images/course-pic.jpg') }}" class="card-img-top" alt="Cours">
-                <div class="card-body">
-                    <h5 class="card-title">ttt</h5>
-                    <p class="tCard card-text">Durée : 3 mois</p>
-                    <p class="tCard card-text">Horaires : 8h00-10h00 / 13h00-15h00</p>
-                    <p class="tCard card-text"><strong>Prix : 14 500 FCFA</strong></p>
-                    <a href="#" class="btn btn-primary w-100">Voir le cours</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card">
-                <img src="{{ asset('template/images/course-pic.jpg') }}" class="card-img-top" alt="Cours">
-                <div class="card-body">
-                    <h5 class="card-title">ttt</h5>
-                    <p class="tCard card-text">Durée : 3 mois</p>
-                    <p class="tCard card-text">Horaires : 8h00-10h00 / 13h00-15h00</p>
-                    <p class="tCard card-text"><strong>Prix : 14 500 FCFA</strong></p>
-                    <a href="#" class="btn btn-primary w-100">Voir le cours</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card">
-                <img src="{{ asset('template/images/course-pic.jpg') }}" class="card-img-top" alt="Cours">
+                <img src="images/cours1.jpg" class="card-img-top" alt="Cours">
                 <div class="card-body">
                     <h5 class="card-title">ttt</h5>
                     <p class="tCard card-text">Durée : 3 mois</p>

@@ -5,10 +5,15 @@
 			<img src="{{ asset('template/images/page-banner.jpg') }}" alt="Image of Bannner">
 			<img src="{{ asset('template/images/page-banner2.jpg') }}" alt="Image of Bannner">
 			<img src="{{ asset('template/images/page-banner3.jpg') }}" alt="Image of Bannner">
+			
+			<!-- <img src="{{ asset('template/images/hero/hero0.jpg') }}" alt="Image of Bannner">
+			<img src="{{ asset('template/images/hero/hero1.jpg') }}" alt="Image of Bannner">
+			<img src="{{ asset('template/images/hero/hero2.jpg') }}" alt="Image of Bannner">
+			<img src="{{ asset('template/images/hero/hero3.jpg') }}" alt="Image of Bannner"> -->
 		</div>
 		<div class="container" itemprop="description">
-			<h1>welcome to education pro</h1>
-			<h3>With our advance search feature you can now find the trips for you...</h3>
+			<h1>bienvenu chez {{ config('app.name') }}</h1>
+			<h3>Avec nous, profitrez de formations certiantes et qualifiantes...</h3>
 		</div>
 			<div id="owl-four-nav" class="owl-nav"></div>
 	</div>

@@ -61,14 +61,14 @@ class FirstController extends Controller
 
     public function formInsc(Request $req){
         // Validation des données d'inscription
-        $req->validate([
-            'choixForm' => 'required',
-            'message' => 'nullable|string|max:500',
-            'email' => 'required|email|max:255',
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:18',
-            'address' => 'required|string|max:255',
-        ]);
+        // $req->validate([
+        //     'choixForm' => 'required',
+        //     'message' => 'nullable|string|max:500',
+        //     'email' => 'required|email|max:255',
+        //     'name' => 'required|string|max:255',
+        //     'phone' => 'required|string|max:18',
+        //     'address' => 'required|string|max:255',
+        // ]);
         // Vérification si l'utilisateur est connecté
         // Si l'utilisateur est connecté, on utilise Auth::id() pour obtenir son ID
         if (Auth::id()) {

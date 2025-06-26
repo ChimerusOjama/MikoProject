@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edulab</title>
+<title>{{ config('app.name') }}</title>
 
 <!-- Edulab Template CSS -->
 <link rel="stylesheet" href="{{ asset('template/css/all.css') }}">
@@ -18,7 +18,6 @@
 
 <!-- Bootstrap 5 CSS -->
 <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
 
 <!-- bootstrap icon cdn -->
@@ -38,21 +37,22 @@
 				<div class="container">
 					<div class="top-header-left">
 						<div class="top-header-block">
-							<a href="mailto:info@educationpro.com" itemprop="email"><i class="fas fa-envelope"></i> info@educationpro.com</a>
+							<a href="#" itemprop="email"><i class="fas fa-envelope"></i> miko@formation.cg</a>
 						</div>
 						<div class="top-header-block">
-							<a href="tel:+9779813639131" itemprop="telephone"><i class="fas fa-phone"></i> +977 9813639131</a>
+							<a href="tel:+9779813639131" itemprop="telephone"><i class="fas fa-phone"></i> +242 06 196 36 80</a>
 						</div>
 					</div>
 					<div class="top-header-right">
 						<div class="social-block">
 							<ul class="social-list">
-								<li><a href=""><i class="fab fa-viber"></i></a></li>
-								<li><a href=""><i class="fab fa-google-plus-g"></i></a></li>
 								<li><a href=""><i class="fab fa-facebook-square"></i></a></li>
 								<li><a href=""><i class="fab fa-facebook-messenger"></i></a></li>
-								<li><a href=""><i class="fab fa-twitter"></i></a></li>
-								<li><a href=""><i class="fab fa-skype"></i></a></li>
+								<!-- <li><a href=""><i class="fab fa-tiktok"></i></a></li> -->
+								<!-- <li><a href=""><i class="fab fa-twitter"></i></a></li> -->
+								<!-- <li><a href=""><i class="fab fa-google-plus-g"></i></a></li>
+								<li><a href=""><i class="fab fa-viber"></i></a></li>
+								<li><a href=""><i class="fab fa-skype"></i></a></li> -->
 							</ul>
 						</div>
 						@if(Route::has('login'))
