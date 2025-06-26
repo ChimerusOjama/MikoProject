@@ -65,3 +65,85 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# testApp — Projet Laravel
+
+## État actuel du projet
+
+- **Framework** : Laravel (version à préciser)
+- **Front-end** : Bootstrap 5, Font Awesome 6 (en cours de mise à jour), jQuery, Owl Carousel, Flexslider, Lightbox
+- **Authentification** : Utilisateurs avec login/register, gestion des réservations
+- **Fonctionnalités principales déjà implémentées** :
+  - Inscription et connexion utilisateur
+  - Affichage des formations disponibles
+  - Réservation d’une formation (formulaire côté utilisateur)
+  - Gestion des réservations (espace utilisateur/admin)
+  - Téléchargement d’un emploi du temps PDF
+  - Système de notifications/modales (ex : `<x-alert-modal1 />`)
+  - Affichage dynamique des informations utilisateur (nom, email, téléphone, adresse)
+  - Affichage des statuts de réservation et actions associées (finaliser, annuler)
+  - Intégration des réseaux sociaux (Facebook, Messenger, etc.)
+  - Sécurité HTTPS adaptée à l’environnement (artisan serve, ngrok, production)
+
+## Points à améliorer ou en cours
+- Mise à jour complète de Font Awesome vers la version 6 pour supporter toutes les icônes récentes (ex : TikTok)
+- Ajout d’icônes manquantes ou nouvelles
+- Finalisation des formulaires pour utilisateurs non connectés
+- Ajout de tests unitaires et d’intégration
+- Documentation technique à compléter
+
+## Arborescence du projet
+
+```
+testApp/
+│
+├── app/
+│   ├── Console/
+│   ├── Exceptions/
+│   ├── Http/
+│   ├── Models/
+│   ├── Providers/
+│   │   └── AppServiceProvider.php
+│   └── ...
+├── bootstrap/
+├── config/
+├── database/
+├── public/
+│   ├── template/
+│   │   ├── css/
+│   │   │   ├── all.css
+│   │   │   ├── all.min.css
+│   │   │   └── ...
+│   │   ├── webfonts/
+│   │   ├── images/
+│   │   └── ...
+│   ├── pdfs/
+│   │   └── emploiDuTemps.pdf
+│   └── ...
+├── resources/
+│   ├── views/
+│   │   ├── home/
+│   │   │   └── singleForm.blade.php
+│   │   ├── layouts/
+│   │   │   ├── partials/
+│   │   │   │   ├── headPage.blade.php
+│   │   │   │   ├── footPage.blade.php
+│   │   │   │   └── uAdIndexContent.blade.php
+│   │   └── ...
+│   └── ...
+├── routes/
+│   └── web.php
+├── storage/
+├── tests/
+├── .env
+├── composer.json
+├── package.json
+└── README.md  <-- ce fichier
+```
+
+## Notes
+
+- Pour toute modification majeure, pense à mettre à jour ce fichier.
+- Pour ajouter une nouvelle fonctionnalité, documente-la ici pour faciliter la maintenance.
+
+---
