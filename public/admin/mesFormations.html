@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes formations - Miko Formation</title>
+  
+  <!-- Polices Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/adStyles.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+  
+</head>
+<body>
+  <!-- Loader Overlay -->
+  <div class="loader-overlay">
+    <div class="loader"></div>
+  </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        <span>Miko Formation</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-menu">
+      <div class="nav-item">
+        <a href="dashboard.html">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Tableau de Bord</span>
+        </a>
+      </div>
+      <div class="nav-item active">
+        <a href="mesFormations.html">
+          <i class="fas fa-book-open"></i>
+          <span>Mes Formations</span>
+        </a>
+      </div>
+      <!-- <div class="nav-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Progression</span>
+      </div> -->
+      <div class="nav-item">
+        <a href="user-profil.html">
+          <i class="fas fa-user"></i>
+          <span>Mon Profil</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="support.html">
+          <i class="fas fa-question-circle"></i>
+          <span>Support</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <h1 class="page-title">Mes formations</h1>
+        <ul class="breadcrumb">
+          <li>Accueil</li>
+          <li>Formations</li>
+        </ul>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Rechercher...">
+        </div>
+        
+        <div class="notifications">
+          <i class="fas fa-message"></i>
+          <span class="notification-badge">1</span>
+        </div>
+
+        <div class="notifications">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </div>
+        
+        <div class="user-profile dropdown">
+          <button class="profile-link dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                 alt="Photo de profil" 
+                 class="profile-img">
+            <span class="user-name">Jean Dupont</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="user-profil.html" class="dropdown-item">
+              <i class="fas fa-user"></i> Mon Profil
+            </a>
+            <a href="#" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i> Se déconnecter
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+            <div class="section">
+        <h3 class="section-title"><i class="fas fa-list"></i> Toutes mes inscriptions</h3>
+        
+        <div class="data-table-container">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Formation</th>
+                  <th>Montant</th>
+                  <th>Date d'inscription</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#F2025</td>
+                  <td>Développement Web Avancé</td>
+                  <td>490 €</td>
+                  <td>10/06/2025</td>
+                  <td><span class="status-badge status-confirmed">Confirmée</span></td>
+                  <td class="actions-cell">
+                    <button class="btn-icon success" title="Finaliser">
+                      <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="btn-icon danger" title="Annuler">
+                      <i class="fas fa-times-circle"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#F1987</td>
+                  <td>Marketing Digital Intermédiaire</td>
+                  <td>320 €</td>
+                  <td>05/06/2025</td>
+                  <td><span class="status-badge status-pending">En attente</span></td>
+                  <td class="actions-cell">
+                    <button class="btn-icon success" title="Finaliser">
+                      <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="btn-icon danger" title="Annuler">
+                      <i class="fas fa-times-circle"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#F1765</td>
+                  <td>UI/UX Design Fundamentals</td>
+                  <td>420 €</td>
+                  <td>12/12/2024</td>
+                  <td><span class="status-badge status-completed">Terminée</span></td>
+                  <td class="actions-cell">
+                    <button class="btn-icon" disabled>
+                      <i class="fas fa-file-download"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#F2101</td>
+                  <td>Data Science Fundamentals</td>
+                  <td>550 €</td>
+                  <td>15/06/2025</td>
+                  <td><span class="status-badge status-pending">En attente</span></td>
+                  <td class="actions-cell">
+                    <button class="btn-icon success" title="Finaliser">
+                      <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="btn-icon danger" title="Annuler">
+                      <i class="fas fa-times-circle"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container">
+        <!-- Formations en cours -->
+        <div class="section">
+          <h3 class="section-title"><i class="fas fa-spinner"></i> Formations en cours</h3>
+          <div class="courses-container">
+            <div class="course-card">
+              <div class="course-image development">
+                <span class="course-status status-in-progress">En cours</span>
+              </div>
+              <div class="course-content">
+                <h4 class="course-title">Formation en Développement Web Avancé</h4>
+                <div class="course-info">
+                  <span>Développement</span>
+                  <span><i class="far fa-calendar"></i> 12/06/2025 - 30/08/2025</span>
+                </div>
+                <div class="course-progress">
+                  <div class="progress-text">
+                    <span>Progression</span>
+                    <span>75%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-value progress-75"></div>
+                  </div>
+                </div>
+                <div class="course-actions">
+                  <button class="btn btn-primary"><i class="fas fa-play-circle"></i> Continuer</button>
+                  <button class="btn btn-outline"><i class="fas fa-info-circle"></i> Détails</button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="course-card">
+              <div class="course-image marketing">
+                <span class="course-status status-in-progress">En cours</span>
+              </div>
+              <div class="course-content">
+                <h4 class="course-title">Marketing Digital - Niveau Intermédiaire</h4>
+                <div class="course-info">
+                  <span>Marketing</span>
+                  <span><i class="far fa-clock"></i> 8 semaines</span>
+                </div>
+                <div class="course-progress">
+                  <div class="progress-text">
+                    <span>Progression</span>
+                    <span>30%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-value progress-30"></div>
+                  </div>
+                </div>
+                <div class="course-actions">
+                  <button class="btn btn-primary"><i class="fas fa-play-circle"></i> Continuer</button>
+                  <button class="btn btn-outline"><i class="fas fa-info-circle"></i> Détails</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formations terminées -->
+        <div class="section">
+          <h3 class="section-title"><i class="fas fa-check-circle"></i> Formations terminées</h3>
+          <div class="courses-container">
+            <div class="course-card">
+              <div class="course-image design">
+                <span class="course-status status-completed">Terminée</span>
+              </div>
+              <div class="course-content">
+                <h4 class="course-title">UI/UX Design Fundamentals</h4>
+                <div class="course-info">
+                  <span>Design</span>
+                  <span><i class="far fa-calendar"></i> 15/01/2025 - 15/04/2025</span>
+                </div>
+                <div class="course-progress">
+                  <div class="progress-text">
+                    <span>Progression</span>
+                    <span>100%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-value progress-100"></div>
+                  </div>
+                </div>
+                <div class="course-actions">
+                  <button class="btn btn-outline"><i class="fas fa-info-circle"></i> Détails</button>
+                  <button class="btn btn-secondary"><i class="fas fa-download"></i> Attestation</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formations à venir -->
+        <div class="section">
+          <h3 class="section-title"><i class="fas fa-clock"></i> Formations à venir</h3>
+          <div class="courses-container">
+            <div class="course-card">
+              <div class="course-image data">
+                <span class="course-status status-upcoming">À venir</span>
+              </div>
+              <div class="course-content">
+                <h4 class="course-title">Data Science Fundamentals</h4>
+                <div class="course-info">
+                  <span>Data Science</span>
+                  <span><i class="far fa-calendar"></i> 01/09/2025 - 15/12/2025</span>
+                </div>
+                <div class="course-progress">
+                  <div class="progress-text">
+                    <span>Début dans</span>
+                    <span>35 jours</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-value progress-0"></div>
+                  </div>
+                </div>
+                <div class="course-actions">
+                  <button class="btn btn-outline" disabled><i class="fas fa-info-circle"></i> Détails</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="back-to-top" aria-label="Retour en haut de page">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+</body>
+<script src="../assets/js/adMain.js"></script>
+</html>

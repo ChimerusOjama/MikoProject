@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de Bord - Miko Formation</title>
+  
+  <!-- Polices Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/adStyles.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+  
+</head>
+<body>
+  <!-- Loader Overlay -->
+  <div class="loader-overlay">
+    <div class="loader"></div>
+  </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        <span>Miko Formation</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-menu">
+      <div class="nav-item active">
+        <a href="dashboard.html">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Tableau de Bord</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="mesFormations.html">
+          <i class="fas fa-book-open"></i>
+          <span>Mes Formations</span>
+        </a>
+      </div>
+      <!-- <div class="nav-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Progression</span>
+      </div> -->
+      <div class="nav-item">
+        <a href="user-profil.html">
+          <i class="fas fa-user"></i>
+          <span>Mon Profil</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="support.html">
+          <i class="fas fa-question-circle"></i>
+          <span>Support</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <h1 class="page-title">Tableau de Bord</h1>
+        <ul class="breadcrumb">
+          <li>Accueil</li>
+          <li>Tableau de Bord</li>
+        </ul>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Rechercher...">
+        </div>
+
+        <div class="notifications">
+          <i class="fas fa-message"></i>
+          <span class="notification-badge">1</span>
+        </div>
+        
+        <div class="notifications">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </div>
+        
+        <div class="user-profile dropdown">
+          <button class="profile-link dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                 alt="Photo de profil" 
+                 class="profile-img">
+            <span class="user-name">Jean Dupont</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a href="user-profil.html" class="dropdown-item">
+              <i class="fas fa-user"></i> Mon Profil
+            </a>
+            <a href="#" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i> Se déconnecter
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+      <!-- Alert Notification -->
+      <div class="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="alert-content">
+          <h4>Prochaine échéance</h4>
+          <p>Votre projet pour le cours "Marketing Digital" est à rendre avant le 30 juin 2025</p>
+        </div>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-title">Formations suivies</div>
+            <div class="stat-card-icon" style="background-color: rgba(63, 81, 181, 0.1); color: var(--primary);">
+              <i class="fas fa-book"></i>
+            </div>
+          </div>
+          <div class="stat-card-value">12</div>
+          <div class="stat-card-change change-positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+2 ce mois-ci</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-title">Formations en cours</div>
+            <div class="stat-card-icon" style="background-color: rgba(255, 202, 40, 0.1); color: var(--warning);">
+              <i class="fas fa-spinner"></i>
+            </div>
+          </div>
+          <div class="stat-card-value">4</div>
+          <div class="stat-card-change change-positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+1 cette semaine</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div class="stat-card-title">Formations terminées</div>
+            <div class="stat-card-icon" style="background-color: rgba(76, 175, 80, 0.1); color: var(--success);">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </div>
+          <div class="stat-card-value">8</div>
+          <div class="stat-card-change change-positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+3 ce trimestre</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mes Formations -->
+      <h2 class="section-title">
+        <i class="fas fa-book-open"></i>
+        Mes Formations Actives
+      </h2>
+      
+      <div class="courses-container">
+        <!-- Course 1 -->
+        <div class="course-card">
+          <div class="course-image">
+            <div class="course-status status-in-progress">En cours</div>
+          </div>
+          <div class="course-content">
+            <h3 class="course-title">Marketing Digital Avancé</h3>
+            <div class="course-info">
+              <div><i class="far fa-clock"></i> 8 semaines</div>
+              <div><i class="far fa-calendar"></i> Termine le 15/07/2025</div>
+            </div>
+            <div class="course-progress">
+              <div class="progress-text">
+                <span>Progression</span>
+                <span>75%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-value progress-75"></div>
+              </div>
+            </div>
+            <div class="course-actions">
+              <button class="btn btn-primary">
+                <i class="fas fa-play"></i> Continuer
+              </button>
+              <button class="btn btn-outline">
+                <i class="fas fa-file-pdf"></i> Programme
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Course 2 -->
+        <div class="course-card">
+          <div class="course-image" style="background: linear-gradient(45deg, #FF9800, #FFB74D);">
+            <div class="course-status status-in-progress">En cours</div>
+          </div>
+          <div class="course-content">
+            <h3 class="course-title">Gestion de Projet Agile</h3>
+            <div class="course-info">
+              <div><i class="far fa-clock"></i> 6 semaines</div>
+              <div><i class="far fa-calendar"></i> Termine le 30/06/2025</div>
+            </div>
+            <div class="course-progress">
+              <div class="progress-text">
+                <span>Progression</span>
+                <span>100%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-value progress-100"></div>
+              </div>
+            </div>
+            <div class="course-actions">
+              <button class="btn btn-secondary">
+                <i class="fas fa-tasks"></i> Projet final
+              </button>
+              <button class="btn btn-outline">
+                <i class="fas fa-file-pdf"></i> Programme
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Course 3 -->
+        <div class="course-card">
+          <div class="course-image" style="background: linear-gradient(45deg, #4CAF50, #66BB6A);">
+            <div class="course-status status-completed">Terminée</div>
+          </div>
+          <div class="course-content">
+            <h3 class="course-title">Data Science pour Débutants</h3>
+            <div class="course-info">
+              <div><i class="far fa-clock"></i> 10 semaines</div>
+              <div><i class="fas fa-medal"></i> Certifié</div>
+            </div>
+            <div class="course-progress">
+              <div class="progress-text">
+                <span>Progression</span>
+                <span>100%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-value progress-100"></div>
+              </div>
+            </div>
+            <div class="course-actions">
+              <button class="btn btn-primary">
+                <i class="fas fa-download"></i> Certificat
+              </button>
+              <button class="btn btn-outline">
+                <i class="fas fa-star"></i> Évaluer
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Course 4 -->
+        <div class="course-card">
+          <div class="course-image" style="background: linear-gradient(45deg, #9C27B0, #AB47BC);">
+            <div class="course-status status-upcoming">À venir</div>
+          </div>
+          <div class="course-content">
+            <h3 class="course-title">Leadership et Management</h3>
+            <div class="course-info">
+              <div><i class="far fa-clock"></i> 5 semaines</div>
+              <div><i class="far fa-calendar"></i> Commence le 01/07/2025</div>
+            </div>
+            <div class="course-progress">
+              <div class="progress-text">
+                <span>Progression</span>
+                <span>0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-value progress-30" style="width: 0;"></div>
+              </div>
+            </div>
+            <div class="course-actions">
+              <button class="btn btn-outline" disabled>
+                <i class="fas fa-info-circle"></i> Commence bientôt
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Activity -->
+      <h2 class="section-title">
+        <i class="fas fa-history"></i>
+        Activité Récente
+      </h2>
+      
+      <div class="courses-container">
+        <!-- Activity 1 -->
+        <div class="course-card">
+          <div class="course-content">
+            <div class="course-info" style="border: none; margin-bottom: 10px; padding-bottom: 0;">
+              <div><i class="far fa-clock"></i> Il y a 2 heures</div>
+              <div><i class="fas fa-book"></i> Marketing Digital</div>
+            </div>
+            <h3 class="course-title">Module 4 complété</h3>
+            <p style="color: var(--text-medium); margin-bottom: 15px; font-size: 14px;">
+              Vous avez terminé le module "Stratégies de contenu" avec succès et obtenu 92% au quiz.
+            </p>
+            <button class="btn btn-outline">
+              <i class="fas fa-eye"></i> Voir les résultats
+            </button>
+          </div>
+        </div>
+        
+        <!-- Activity 2 -->
+        <div class="course-card">
+          <div class="course-content">
+            <div class="course-info" style="border: none; margin-bottom: 10px; padding-bottom: 0;">
+              <div><i class="far fa-clock"></i> Hier</div>
+              <div><i class="fas fa-comment"></i> Gestion de Projet</div>
+            </div>
+            <h3 class="course-title">Nouveau message du formateur</h3>
+            <p style="color: var(--text-medium); margin-bottom: 15px; font-size: 14px;">
+              Votre formateur a commenté votre projet: "Excellent travail sur le diagramme de Gantt, quelques ajustements nécessaires."
+            </p>
+            <button class="btn btn-outline">
+              <i class="fas fa-reply"></i> Répondre
+            </button>
+          </div>
+        </div>
+        
+        <!-- Activity 3 -->
+        <div class="course-card">
+          <div class="course-content">
+            <div class="course-info" style="border: none; margin-bottom: 10px; padding-bottom: 0;">
+              <div><i class="far fa-clock"></i> 3 jours</div>
+              <div><i class="fas fa-certificate"></i> Data Science</div>
+            </div>
+            <h3 class="course-title">Certificat disponible</h3>
+            <p style="color: var(--text-medium); margin-bottom: 15px; font-size: 14px;">
+              Votre certificat pour le cours "Data Science pour Débutants" est maintenant disponible au téléchargement.
+            </p>
+            <button class="btn btn-primary">
+              <i class="fas fa-download"></i> Télécharger
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Back to Top Button -->
+<button id="backToTop" class="back-to-top" aria-label="Retour en haut de page">
+  <i class="fas fa-arrow-up"></i>
+</button>
+</body>
+<script src="../assets/js/adMain.js"></script>
+</html>
