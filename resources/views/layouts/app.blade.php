@@ -54,16 +54,16 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Accueil</a>
+            <a class="nav-link @yield('uHome')" href="{{ route('uHome') }}">Accueil</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('listing') }}">Formations</a>
+            <a class="nav-link @yield('listing')" href="{{ route('listing') }}">Formations</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('about') }}">À propos</a>
+            <a class="nav-link @yield('contact')" href="{{ route('contact') }}">Contact</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('contact') }}">Contact</a>
+            <a class="nav-link @yield('about')" href="{{ route('about') }}">À propos</a>
           </li>
           
           <!-- Dropdown pour desktop -->
@@ -72,13 +72,34 @@
               <i class="fas fa-user-circle me-1"></i> Mon compte
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a></li>
-              <li><a class="dropdown-item register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a></li>
+                @if(Route::has('login'))
+                @auth
+                <li><a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a></li>
+                <li>
+                  <form action="{{route('uLogout')}}" method="post">
+                    @csrf
+                    <a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a>
+                    <button type="submit" class="btn btn-danger">Se déconnecter</button>
+                  </form>
+                </li>
+                @else
+                <li><a class="dropdown-item login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a></li>
+                <li><a class="dropdown-item register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a></li>
+                @endauth
+              @endif
+             
+              <!-- <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a></li> -->
             </ul>
           </li>
         </ul>
+
+        <!-- Liens compte pour mobile -->
+        <div class="mobile-account-links">
+          <a class="nav-link login-btn" href="login.html"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
+          <a class="nav-link register-btn" href="register.html"><i class="fas fa-user-plus me-2"></i>S'inscrire</a>
+          <a class="nav-link logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a>
+        </div>
       </div>
     </div>
   </nav>
@@ -94,7 +115,7 @@
       <div class="row">
         <div class="col-lg-4 mb-4">
           <!-- <h5 class="app-name">MIKO FORMATION</h5> -->
-          <h5 class="app-name">MIKO FORMATION</h5>
+          <h5 class="app-name">{{ config('app.name') }}</h5>
           <p>Centre de formation professionnelle offrant des programmes adaptés aux besoins du marché.</p>
           <div class="mt-4">
             <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>

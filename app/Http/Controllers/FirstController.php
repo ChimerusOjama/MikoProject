@@ -26,7 +26,7 @@ class FirstController extends Controller
             $usertype = Auth()->user()->usertype;
             if($usertype === 'user') {
                 $forms = Formation::all();
-                return view('home.uHome', compact('forms'));
+                return view('index', compact('forms'));
             } elseif($usertype === 'admin') {
                 return view('admin.index');
             } else {
@@ -50,12 +50,38 @@ class FirstController extends Controller
 
     public function formListing(){
         $forms = Formation::all();
-        return view('home.listing', compact('forms'));
+        return view('listing', compact('forms'));
     }
 
     public function formSingle($id){
         $oneForm = Formation::find($id);
-        return view('home.singleForm', compact('oneForm'));
+        return view('singleForm', compact('oneForm'));
+    }
+
+    public function contactView(){
+        return view('contact');
+    }
+
+    public function aboutView(){
+        return view('about');
+    }
+
+    public function storeContact(Request $req){
+        // Validation des données de contact
+        $req->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string|max:500',
+        ]);
+
+        // Envoi d'un e-mail de contact (si nécessaire)
+        // Mail::to('admin@example.com')->send(new infoMail()); // Remplacez 'admin@example.com' par l'adresse e-mail de destination
+        // Enregistrement du message de contact dans la base de données (si nécessaire)
+        // Contact::create([
+        //     'name' => $req->name,
+        //     'email' => $req->email,
+        //     'message' => $req->message,
+        // ]);
     }
 
     public function formInsc(Request $req){
@@ -164,10 +190,6 @@ public function annulerRes($id)
     //     $delInsc->delete();
     //     return redirect()->back();
     // }
-
-    public function aboutView(){
-        return view('home.about');
-    }
 
     public function uProfile(){
         if (Auth::id()) {

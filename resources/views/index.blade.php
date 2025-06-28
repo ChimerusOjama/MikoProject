@@ -1,17 +1,66 @@
 @extends('layouts.app')
 
-@section('title', 'Accueil | Miko Formation')
+@section('title', 'Formations Professionnelles au Congo | Miko Formation - Centre Certifié')
+
+@section('uHome', 'active')
 
 @section('meta')
-  <meta name="description" content="MIKO Formation - Centre de formation professionnelle offrant des programmes adaptés aux besoins du marché.">
-  <meta name="keywords" content="formation, professionnel, compétences, Congo, Miko Formation, cours, apprentissage, développement personnel">
+  <meta name="description" content="Centre de formation certifié à Brazzaville. Formations bureautique, comptabilité et marketing digital avec certification reconnue. Inscription en ligne.">
+  <meta name="keywords" content="centre formation Congo, certification professionnelle Brazzaville, cours Excel Congo, formation comptabilité Congo, Miko Formation Brazzaville, diplôme reconnu Congo">
   <meta name="author" content="Miko Formation">
-  <meta property="og:title" content="MIKO Formation - Centre de formation professionnelle">
-  <meta property="og:description" content="Découvrez nos formations professionnelles adaptées aux besoins du marché congolais.">
-  <meta property="og:image" content="{{ asset('assets/imgs/logo.png') }}">
+  <meta name="copyright" content="Miko Formation">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Balises Open Graph -->
+  <meta property="og:title" content="Centre de Formation Professionnelle | Miko Formation Congo">
+  <meta property="og:description" content="+500 professionnels formés depuis 2020. Formations certifiantes en bureautique, gestion et développement personnel.">
+  <meta property="og:image" content="{{ asset('assets/imgs/og-accueil.jpg') }}">
   <meta property="og:url" content="{{ url('/') }}">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Miko Formation">
+  
+  <!-- Balises Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Formez-vous aux métiers d'avenir au Congo">
+  <meta name="twitter:description" content="Certifications reconnues par l'État congolais | Formations finançables | 95% de satisfaction">
+  <meta name="twitter:image" content="{{ asset('assets/imgs/twitter-accueil.jpg') }}">
+  
+  <!-- Géolocalisation -->
+  <meta name="geo.region" content="CG-BZV">
+  <meta name="geo.placename" content="Brazzaville">
+  <meta name="geo.position" content="-4.263369;15.242885">
+  <meta name="ICBM" content="-4.263369, 15.242885">
+  
+  <!-- Balises Schema.org -->
+  <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Miko Formation",
+        "description": "Centre de formation professionnelle certifié à Brazzaville",
+        "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Avenue de la Formation",
+        "addressLocality": "Brazzaville",
+        "postalCode": "BZV 123",
+        "addressCountry": "CG"
+        },
+        "telephone": "+242-068552497",
+        "image": "{{ asset('assets/imgs/logo.png') }}",
+        "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "127"
+        },
+        "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "08:00",
+        "closes": "18:00"
+        }
+    }
+  </script>
 @endsection
 
 @section('content')
@@ -25,24 +74,33 @@
         </div>
         <div class="carousel-inner">
             <div class="carousel-item active">
-            <img src="{{ asset('assets/imgs/salle.jpg') }}" class="d-block w-100" alt="Formation professionnelle">
+              <img src="{{ asset('assets/imgs/salle.jpg') }}" 
+                alt="Centre de formation professionnelle à Brazzaville" 
+                itemprop="contentUrl">
             <div class="carousel-caption">
                 <h1>Formez-vous aux métiers d'avenir</h1>
-                <a href="#formations" class="btn btn-secondary btn-lg mt-3">Découvrir nos formations</a>
+                <p class="lead d-none d-md-block" itemprop="description">Certifications reconnues par l'État congolais</p>
+                <a href="{{ route('listing') }}" class="btn btn-secondary btn-lg mt-3">Découvrir nos formations</a>
             </div>
             </div>
             <div class="carousel-item">
-            <img src="{{ asset('assets/imgs/salle2.jpg') }}" class="d-block w-100" alt="Salle de formation">
+            <img src="{{ asset('assets/imgs/salle2.jpg') }}" 
+                alt="Centre de formation professionnelle à Brazzaville" 
+                itemprop="contentUrl">
             <div class="carousel-caption">
                 <h1>Se connaitre est un gage de confiance</h1>
-                <a href="#formations" class="btn btn-secondary btn-lg mt-3">&Agrave; propos de nous</a>
+                <p class="lead d-none d-md-block" itemprop="description">Découvrez nos objectifs, notre vision et plus encore</p>
+                <a href="{{ route('about') }}" class="btn btn-secondary btn-lg mt-3">&Agrave; propos de nous</a>
             </div>
             </div>
             <div class="carousel-item">
-            <img src="{{ asset('assets/imgs/salle3.jpg') }}" class="d-block w-100" alt="Équipe pédagogique">
+            <img src="{{ asset('assets/imgs/salle3.jpg') }}" 
+                alt="Centre de formation professionnelle à Brazzaville" 
+                itemprop="contentUrl">
             <div class="carousel-caption">
                 <h1>Un accompagnement personnalisé</h1>
-                <a href="#contact" class="btn btn-secondary btn-lg mt-3">Nous contacter</a>
+                <p class="lead d-none d-md-block" itemprop="description">Nos formateurs vous guident vers la réussite</p>
+                <a href="{{ route('contact') }}" class="btn btn-secondary btn-lg mt-3">Nous contacter</a>
             </div>
             </div>
         </div>
@@ -152,38 +210,38 @@
         
         <div class="row justify-content-center">
             <div class="col-lg-6">
-            <form id="contactForm" class="contact-form">
-                <div class="mb-4">
-                <input type="text" class="form-control" id="name" placeholder="Votre nom complet" required>
-                </div>
-                
-                <div class="mb-4">
-                <input type="email" class="form-control" id="email" placeholder="Votre email" required>
-                </div>
-                
-                <div class="mb-4">
-                <input type="tel" class="form-control" id="phone" placeholder="Votre téléphone (optionnel)">
-                </div>
-                
-                <div class="mb-4">
-                <select class="form-select" id="subject" required>
-                    <option value="" disabled selected>Sujet de votre message</option>
-                    <option value="formation">Demande d'information sur une formation</option>
-                    <option value="partenariat">Partenariat entreprise</option>
-                    <option value="autre">Autre demande</option>
-                </select>
-                </div>
-                
-                <div class="mb-4">
-                <textarea class="form-control" id="message" rows="5" placeholder="Votre message" required></textarea>
-                </div>
-                
-                <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-paper-plane me-2"></i> Envoyer le message
-                </button>
-                </div>
-            </form>
+                <form id="contactForm" class="contact-form">
+                    <div class="mb-4">
+                    <input type="text" class="form-control" id="name" placeholder="Votre nom complet" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                    <input type="email" class="form-control" id="email" placeholder="Votre email" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                    <input type="tel" class="form-control" id="phone" placeholder="Votre téléphone (optionnel)">
+                    </div>
+                    
+                    <div class="mb-4">
+                    <select class="form-select" id="subject" required>
+                        <option value="" disabled selected>Sujet de votre message</option>
+                        <option value="formation">Demande d'information sur une formation</option>
+                        <option value="partenariat">Partenariat entreprise</option>
+                        <option value="autre">Autre demande</option>
+                    </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                    <textarea class="form-control" id="message" rows="5" placeholder="Votre message" required></textarea>
+                    </div>
+                    
+                    <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i> Envoyer le message
+                    </button>
+                    </div>
+                </form>
             </div>
         </div>
         </div>
