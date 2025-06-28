@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Mail;
 class FirstController extends Controller
 {
     //
+    public function index(){
+        if (Auth::id()) {
+            return redirect('home');
+        } else {
+            $forms = Formation::all();
+            return view('index', compact('forms'));
+        }
+    }
     public function redirect(){
         if(Auth::id()){
             $usertype = Auth()->user()->usertype;
@@ -35,15 +43,6 @@ class FirstController extends Controller
             $forms = Formation::all();
             return redirect('/');
         }else{
-            $forms = Formation::all();
-            return view('home.uHome', compact('forms'));
-        }
-    }
-
-    public function index(){
-        if (Auth::id()) {
-            return redirect('home');
-        } else {
             $forms = Formation::all();
             return view('home.uHome', compact('forms'));
         }

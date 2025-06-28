@@ -1014,3 +1014,7 @@ img {
 .modal.fade .modal-dialog {
   animation: modalEnter 0.3s ease-out;
 }
+
+.app-name {
+  text-transform: uppercase;
+}

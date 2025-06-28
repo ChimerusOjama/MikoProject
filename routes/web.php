@@ -11,25 +11,26 @@ use App\Http\Controllers\MainController;
 |--------------------------------------------------------------------------
 */
 
-// ✅ GROUPE : FirstController (public routes)
+// GROUPE : FirstController (public routes)
 Route::controller(FirstController::class)->group(function () {
     Route::get('/', 'index')->name('uHome');
     Route::get('/Nos_formations', 'formListing')->name('listing');
     Route::get('/Reserver_votre_place/form={id}', 'formSingle')->name('singleForm');
     Route::post('/Inscription', 'formInsc')->name('inscForm');
-    Route::get('/A_propos', 'aboutView')->name('aboutView');
+    Route::get('/A_propos', 'aboutView')->name('about');
+    Route::get('/Contact', 'contactView')->name('contact');
     Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
 });
 
-// ✅ GROUPE : FirstController (routes protégées)
+// GROUPE : FirstController (routes protégées)
 Route::middleware(['auth', 'verified'])->controller(FirstController::class)->group(function () {
     Route::get('/home', 'redirect')->name('home');
     Route::get('/Mes_reservations', 'uAdmin')->name('uAdmin');
     Route::post('/logout', 'uLogout')->name('uLogout');
 });
 
-// ✅ GROUPE : AdminController (routes admin)
+// GROUPE : AdminController (routes admin)
 Route::middleware(['auth', 'verified'])->controller(AdminController::class)->group(function () {
     Route::get('/formations', 'allForm')->name('allForm');
     Route::get('/nouvelle_formation', 'newForm')->name('newForm');
