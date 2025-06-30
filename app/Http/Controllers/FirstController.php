@@ -55,7 +55,7 @@ class FirstController extends Controller
 
     public function formSingle($id){
         $oneForm = Formation::find($id);
-        return view('singleForm', compact('oneForm'));
+        return view('inscription', compact('oneForm'));
     }
 
     public function contactView(){
@@ -121,34 +121,6 @@ class FirstController extends Controller
         }else{
             return redirect()->back()->with('warning', 'Vous devez être connecté pour soumettre une inscription.');
         }
-
-        // Utilisateur non connecté (on utilise l'email comme identifiant)
-        // $existing = Inscription::where('email', $req->email)
-        //     ->where('choixForm', $req->choixForm)
-        //     ->first();
-
-        // if ($existing) {
-        //     return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
-        // }
-
-        // $insc = new Inscription();
-        // $insc->name = $req->name;
-        // $insc->email = $req->email;
-        // $insc->phone = $req->phone;
-        // $insc->address = $req->address;
-        // $insc->message = $req->message;
-        // $insc->choixForm = $req->choixForm;
-        // $insc->montant = '14 500 FCFA';
-        // $insc->status = 'En cours';
-        // $insc->save();
-
-        // // Envoi d'un email de confirmation (si nécessaire)
-        // // Ship the order...
-    
-        // Mail::to($req->email)->send(new infoMail());
-        
-        // return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
-
     }
 
     public function uAdmin(){

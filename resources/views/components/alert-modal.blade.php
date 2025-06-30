@@ -1,41 +1,56 @@
-@if (session('message'))
-    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-center">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="alertModalLabel">Notification</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                    @switch(session('type'))
-                        @case('success')
-                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                            @break
-                        @case('error')
-                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 4rem;"></i>
-                            @break
-                        @case('info')
-                            <i class="bi bi-info-circle-fill text-info" style="font-size: 4rem;"></i>
-                            @break
-                        @default
-                            <i class="bi bi-exclamation-circle-fill text-warning" style="font-size: 4rem;"></i>
-                    @endswitch
-                    <p class="mt-3">{{ session('message') }}</p>
-                </div>
-
-                <div class="modal-footer justify-content-center">
-                    @if (session('type') === 'info' && session('confirm_route'))
-                        <form method="POST" action="{{ session('confirm_route') }}">
-                            @csrf
-                            <button type="submit" class="btn btn-danger">Confirmer</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        </form>
-                    @else
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    @endif
-                </div>
+<!-- Modal de succès -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>Opération réussie</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="success-modal-body">
+                <!-- Contenu dynamique injecté via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                <a href="{{ route('home') }}" class="btn btn-success">Voir mes formations</a>
             </div>
         </div>
     </div>
-@endif
+</div>
 
+<!-- Modal d'avertissement -->
+<div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Attention requise</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="warning-modal-body">
+                <!-- Contenu dynamique injecté via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Corriger</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'erreur -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>Erreur</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="error-modal-body">
+                <!-- Contenu dynamique injecté via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                <a href="{{ route('contact') }}" class="btn btn-danger">Contacter le support</a>
+            </div>
+        </div>
+    </div>
+</div>

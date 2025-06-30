@@ -194,7 +194,7 @@
         </div>
 
         <div class="view-all-btn">
-            <a href="listing.html" class="btn btn-outline-primary">Voir toutes nos formations</a>
+            <a href="{{ route('listing') }}" class="btn btn-outline-primary">Voir toutes nos formations</a>
         </div>
         </div>
     </section>

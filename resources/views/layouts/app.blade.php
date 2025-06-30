@@ -22,9 +22,46 @@
 </head>
 <body>
   <!-- Loader Overlay -->
-  <div class="loader-overlay">
-    <div class="loader"></div>
-  </div>
+  @empty($hideLoader)
+    <div class="loader-overlay">
+      <div class="loader"></div>
+    </div>
+  @endempty
+  <!-- Alert Modals -->
+  @empty($hideModals)
+    @if(session('success'))
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              const message = {!! json_encode(session('success'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
+              document.getElementById('success-modal-body').innerHTML = `<p>${message}</p>`;
+              const modal = new bootstrap.Modal(document.getElementById('successModal'));
+              modal.show();
+          });
+      </script>
+    @endif
+
+    @if(session('warning'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const message = {!! json_encode(session('warning'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
+                document.getElementById('warning-modal-body').innerHTML = `<p>${message}</p>`;
+                const modal = new bootstrap.Modal(document.getElementById('warningModal'));
+                modal.show();
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const message = {!! json_encode(session('error'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
+                document.getElementById('error-modal-body').innerHTML = `<p>${message}</p>`;
+                const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+                modal.show();
+            });
+        </script>
+    @endif
+  @endempty
 
   <!-- Top Info Bar -->
   <div class="top-info-bar">
@@ -74,12 +111,10 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 @if(Route::has('login'))
                 @auth
-                <li><a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a></li>
-                <li>
+                  <li><a class="dropdown-item login-btn" href="login.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                   <form action="{{route('uLogout')}}" method="post">
                     @csrf
-                    <a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a>
-                    <button type="submit" class="btn btn-danger">Se déconnecter</button>
+                    <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
                   </form>
                 </li>
                 @else
@@ -96,9 +131,18 @@
 
         <!-- Liens compte pour mobile -->
         <div class="mobile-account-links">
-          <a class="nav-link login-btn" href="login.html"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
-          <a class="nav-link register-btn" href="register.html"><i class="fas fa-user-plus me-2"></i>S'inscrire</a>
-          <a class="nav-link logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a>
+          @if(Route::has('login'))
+            @auth
+              <a class="nav-link login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
+              <form action="{{route('uLogout')}}" method="post">
+                @csrf
+                <button type="submit" class="nav-link logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
+              </form>
+            @else
+              <a class="nav-link login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
+              <a class="nav-link register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a>
+            @endauth
+          @endif
         </div>
       </div>
     </div>

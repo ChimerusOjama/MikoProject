@@ -689,7 +689,6 @@ img {
   }
 }
 
-/* Améliorations visuelles pour les liens mobiles */
 .mobile-account-links .nav-link {
   display: flex;
   align-items: center;
@@ -822,20 +821,20 @@ img {
 /* Desktop */
 @media (min-width: 768px) {
   .courses-scroll {
-    overflow-x: auto; /* Permettre le défilement horizontal */
-    scrollbar-width: none; /* Cacher la barre de défilement native */
-    flex-wrap: nowrap; /* Empêcher le retour à la ligne */
-    justify-content: flex-start; /* Aligner à gauche */
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     padding: 1rem;
     margin: 0 -1rem;
   }
   
   .courses-scroll::-webkit-scrollbar {
-    display: none; /* Cacher la barre pour Chrome/Safari */
+    display: none;
   }
   
   .scroll-item {
-    flex: 0 0 calc(33.333% - 1.5rem); /* 3 cartes visibles */
+    flex: 0 0 calc(33.333% - 1.5rem);
     max-width: calc(33.333% - 1.5rem);
   }
 }
@@ -852,7 +851,6 @@ img {
   display: none;
 }
 
-/* styles.css */
 .scroll-controls {
   display: flex;
   justify-content: center;
@@ -860,7 +858,6 @@ img {
   margin-top: 1.5rem;
 }
 
-/* Rendre les flèches plus visibles en desktop */
 @media (min-width: 768px) {
   .scroll-btn {
     width: 50px;
@@ -910,8 +907,6 @@ img {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-/* Ajouter à la fin du fichier */
 
 /* Pages d'authentification */
 .auth-page {
@@ -999,7 +994,7 @@ img {
   }
 }
 
-/* Animation d'ouverture personnalisée */
+/* Animation pour les modals */
 @keyframes modalEnter {
   from {
     opacity: 0;
@@ -1017,4 +1012,22 @@ img {
 
 .app-name {
   text-transform: uppercase;
+}
+
+.benefits ul {
+    padding-left: 1.5em;
+    margin: 0;
+    list-style: none;
+    text-align: left;
+    display: block;
+}
+
+.benefits li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75em;
+    text-align: left;
+}
+.benefits li i {
+    margin-right: 0.5em;
 }

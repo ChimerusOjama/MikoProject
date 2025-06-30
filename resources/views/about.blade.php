@@ -4,6 +4,8 @@
 
 @section('about', 'active')
 
+@php($hideModals = true)
+
 @section('meta')
   <!-- Meta Description institutionnelle -->
   <meta name="description" content="Découvrez l'histoire, la mission et l'équipe de Miko Formation. Centre de formation professionnelle certifié à Brazzaville depuis 2015. +5000 diplômés formés.">

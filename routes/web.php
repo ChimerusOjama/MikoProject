@@ -15,7 +15,7 @@ use App\Http\Controllers\MainController;
 Route::controller(FirstController::class)->group(function () {
     Route::get('/', 'index')->name('uHome');
     Route::get('/Nos_formations', 'formListing')->name('listing');
-    Route::get('/Reserver_votre_place/form={id}', 'formSingle')->name('singleForm');
+    Route::get('/Reserver_votre_place/form={id}', 'formSingle')->name('inscription');
     Route::post('/Inscription', 'formInsc')->name('inscForm');
     Route::get('/A_propos', 'aboutView')->name('about');
     Route::get('/Contact', 'contactView')->name('contact');
