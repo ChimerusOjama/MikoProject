@@ -44,7 +44,7 @@ class FirstController extends Controller
             return redirect('/');
         }else{
             $forms = Formation::all();
-            return view('home.uHome', compact('forms'));
+            return view('index', compact('forms'));
         }
     }
 
@@ -125,16 +125,35 @@ class FirstController extends Controller
 
     public function uAdmin(){
         if (Auth::id()) {
-
             $userName = Auth::user()->name;
             $inscShow = Inscription::where('name', $userName)->get();
-            return view('admin2.index', compact('inscShow'));
+            return view('uAdmin.index', compact('inscShow'));
 
         } else {
             return redirect()->back();
         }
     }
 
+    public function uFormation(){
+        if (Auth::id()) {
+            $userName = Auth::user()->name;
+            $inscShow = Inscription::where('name', $userName)->get();
+            return view('uAdmin.forms', compact('inscShow'));
+
+        } else {
+            return redirect()->back();
+        }
+    }
+    public function annulerRes($id)
+    {
+        $delInsc = Inscription::findOrFail($id);
+        $delInsc->delete();
+
+        return redirect()->back()->with([
+            'message' => 'Votre réservation a bien été annulée.',
+            'type' => 'success'
+        ]);
+    }
     public function afficherConfirmation($id)
     {
         $route = route('annuler_reservation', ['id' => $id]);
@@ -145,28 +164,10 @@ class FirstController extends Controller
         ]);
     }
 
-public function annulerRes($id)
-{
-    $delInsc = Inscription::findOrFail($id);
-    $delInsc->delete();
-
-    return redirect()->back()->with([
-        'message' => 'Votre réservation a bien été annulée.',
-        'type' => 'success'
-    ]);
-}
-
-
-    // public function annulerRes($id){
-    //     $delInsc = Inscription::find($id);
-    //     $delInsc->delete();
-    //     return redirect()->back();
-    // }
-
     public function uProfile(){
         if (Auth::id()) {
             $user = Auth::user();
-            return view('home.uProfile', compact('user'));
+            return view('uAdmin.profile', compact('user'));
         } else {
             return redirect()->back();
         }
@@ -186,7 +187,30 @@ public function annulerRes($id)
         $user->delete();
         return redirect()->back()->with('success', 'Votre compte a été supprimé avec succès');
     }
+    public function uPassword(Request $req){
+        $user = Auth::user();
+        if (password_verify($req->old_password, $user->password)) {
+            if ($req->new_password === $req->confirm_password) {
+                $user->password = bcrypt($req->new_password);
+                $user->save();
+                return redirect()->back()->with('success', 'Votre mot de passe a été mis à jour avec succès');
+            } else {
+                return redirect()->back()->with('error', 'Les nouveaux mots de passe ne correspondent pas');
+            }
+        } else {
+            return redirect()->back()->with('error', 'L\'ancien mot de passe est incorrect');
+        }
+    }
 
-    
+    public function uSupport(){
+        return view('uAdmin.support');
+    }
 
+
+
+    // public function annulerRes($id){
+    //     $delInsc = Inscription::find($id);
+    //     $delInsc->delete();
+    //     return redirect()->back();
+    // }
 }

@@ -1,119 +1,15 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes formations - Miko Formation</title>
-  
-  <!-- Polices Google -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/adStyles.css">
+@extends('layouts.adApp')
 
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
-  
-</head>
-<body>
-  <!-- Loader Overlay -->
-  <div class="loader-overlay">
-    <div class="loader"></div>
-  </div>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <a href="#" class="logo">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Miko Formation</span>
-      </a>
-    </div>
-    
-    <div class="sidebar-menu">
-      <div class="nav-item">
-        <a href="dashboard.html">
-          <i class="fas fa-tachometer-alt"></i>
-          <span>Tableau de Bord</span>
-        </a>
-      </div>
-      <div class="nav-item active">
-        <a href="mesFormations.html">
-          <i class="fas fa-book-open"></i>
-          <span>Mes Formations</span>
-        </a>
-      </div>
-      <!-- <div class="nav-item">
-        <i class="fas fa-chart-line"></i>
-        <span>Progression</span>
-      </div> -->
-      <div class="nav-item">
-        <a href="user-profil.html">
-          <i class="fas fa-user"></i>
-          <span>Mon Profil</span>
-        </a>
-      </div>
-      <div class="nav-item">
-        <a href="support.html">
-          <i class="fas fa-question-circle"></i>
-          <span>Support</span>
-        </a>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Header -->
-    <div class="header">
-      <div>
-        <h1 class="page-title">Mes formations</h1>
-        <ul class="breadcrumb">
-          <li>Accueil</li>
-          <li>Formations</li>
-        </ul>
-      </div>
-      
-      <div class="header-right">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Rechercher...">
-        </div>
-        
-        <div class="notifications">
-          <i class="fas fa-message"></i>
-          <span class="notification-badge">1</span>
-        </div>
+@section('title', 'Mes formations - Tableau de Bord')
+@section('page-title', 'Mes formations')
+@section('breadcrumb')
+    <li>Admin</li>
+    <li>Formation</li>
+@endsection
 
-        <div class="notifications">
-          <i class="fas fa-bell"></i>
-          <span class="notification-badge">3</span>
-        </div>
-        
-        <div class="user-profile dropdown">
-          <button class="profile-link dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                 alt="Photo de profil" 
-                 class="profile-img">
-            <span class="user-name">Jean Dupont</span>
-            <i class="fas fa-chevron-down"></i>
-          </button>
-          <div class="dropdown-menu">
-            <a href="user-profil.html" class="dropdown-item">
-              <i class="fas fa-user"></i> Mon Profil
-            </a>
-            <a href="#" class="dropdown-item logout">
-              <i class="fas fa-sign-out-alt"></i> Se déconnecter
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Content -->
-    <div class="content">
+@section('forms', 'active')
+
+@section('content')
       <div class="section">
         <h3 class="section-title"><i class="fas fa-list"></i> Toutes mes inscriptions</h3>
         
@@ -122,7 +18,6 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Formation</th>
                   <th>Montant</th>
                   <th>Date d'inscription</th>
@@ -131,12 +26,12 @@
                 </tr>
               </thead>
               <tbody>
+                @foreach($inscShow as $oneInscShow)
                 <tr>
-                  <td>#F2025</td>
-                  <td>Développement Web Avancé</td>
-                  <td>490 €</td>
+                  <td>{{ $oneInscShow->choixForm }}</td>
+                  <td>{{ $oneInscShow->montant }}</td>
                   <td>10/06/2025</td>
-                  <td><span class="status-badge status-confirmed">Confirmée</span></td>
+                  <td><span class="status-badge">{{ $oneInscShow->status }}</span></td>
                   <td class="actions-cell">
                     <button class="btn-icon success" title="Finaliser">
                       <i class="fas fa-check-circle"></i>
@@ -146,8 +41,8 @@
                     </button>
                   </td>
                 </tr>
+                @endforeach
                 <tr>
-                  <td>#F1987</td>
                   <td>Marketing Digital Intermédiaire</td>
                   <td>320 €</td>
                   <td>05/06/2025</td>
@@ -162,7 +57,6 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>#F1765</td>
                   <td>UI/UX Design Fundamentals</td>
                   <td>420 €</td>
                   <td>12/12/2024</td>
@@ -174,7 +68,6 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>#F2101</td>
                   <td>Data Science Fundamentals</td>
                   <td>550 €</td>
                   <td>15/06/2025</td>
@@ -316,12 +209,13 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- Back to Top Button -->
-  <button id="backToTop" class="back-to-top" aria-label="Retour en haut de page">
-    <i class="fas fa-arrow-up"></i>
-  </button>
-</body>
-<script src="../assets/js/adMain.js"></script>
-</html>
+@endsection
+
+@push('scripts')
+<script>
+  // Scripts spécifiques au dashboard
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard admin chargé');
+  });
+</script>
+@endpush

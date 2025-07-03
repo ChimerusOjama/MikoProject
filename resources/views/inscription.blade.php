@@ -21,6 +21,7 @@
  
 @section('content')
 
+  <!-- Modal d'alerte -->
   <x-alert-modal />
   
   <!-- Hero Section spécifique aux détails formation -->

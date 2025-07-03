@@ -111,7 +111,7 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 @if(Route::has('login'))
                 @auth
-                  <li><a class="dropdown-item login-btn" href="login.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                  <li><a class="dropdown-item login-btn" href="{{route('uAdmin')}}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                   <form action="{{route('uLogout')}}" method="post">
                     @csrf
                     <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>

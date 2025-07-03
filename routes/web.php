@@ -26,7 +26,10 @@ Route::controller(FirstController::class)->group(function () {
 // GROUPE : FirstController (routes protégées)
 Route::middleware(['auth', 'verified'])->controller(FirstController::class)->group(function () {
     Route::get('/home', 'redirect')->name('home');
-    Route::get('/Mes_reservations', 'uAdmin')->name('uAdmin');
+    Route::get('/Mon_tableau_de_bord', 'uAdmin')->name('uAdmin');
+    Route::get('/Mes_formations', 'uFormation')->name('uFormation');
+    Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
+    Route::get('/Support', 'uSupport')->name('uSupport');
     Route::post('/logout', 'uLogout')->name('uLogout');
 });
 
