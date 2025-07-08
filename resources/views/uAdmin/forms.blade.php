@@ -10,6 +10,15 @@
 @section('forms', 'active')
 
 @section('content')
+      <!-- Alert Notification -->
+      <div class="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="alert-content">
+          <h4>Prochaine échéance</h4>
+          <p>Votre projet pour le cours "Marketing Digital" est à rendre avant le 30 juin 2025</p>
+        </div>
+      </div>
+
       <div class="section">
         <h3 class="section-title"><i class="fas fa-list"></i> Toutes mes inscriptions</h3>
         
@@ -27,60 +36,53 @@
               </thead>
               <tbody>
                 @foreach($inscShow as $oneInscShow)
+                @php
+                    $statusClass = '';
+                    if ($oneInscShow->status === 'En attente') {
+                        $statusClass = 'status-pending';
+                    } elseif ($oneInscShow->status === 'Accepté') {
+                        $statusClass = 'status-confirmed';
+                    } elseif ($oneInscShow->status === 'Payé') {
+                        $statusClass = 'status-completed';
+                    }
+                @endphp
                 <tr>
                   <td>{{ $oneInscShow->choixForm }}</td>
                   <td>{{ $oneInscShow->montant }}</td>
-                  <td>10/06/2025</td>
-                  <td><span class="status-badge">{{ $oneInscShow->status }}</span></td>
+                  <td>{{ $oneInscShow->created_at->format('d/m/Y') }}</td>
+                  <td><span class="status-badge {{ $statusClass }}">{{ $oneInscShow->status }}</span></td>
                   <td class="actions-cell">
-                    <button class="btn-icon success" title="Finaliser">
-                      <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="btn-icon danger" title="Annuler">
-                      <i class="fas fa-times-circle"></i>
-                    </button>
+                    @if($oneInscShow->status === 'En attente')
+                      <form action="" method="POST" style="display: inline;">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn-icon danger" title="Annuler">
+                            <i class="fas fa-times-circle"></i>
+                          </button>
+                      </form>
+                    @elseif($oneInscShow->status === 'Accepté')
+                      <!-- Actions pour "Accepté" -->
+                      <a href="{{ route('checkout', ['inscriptionId' => $oneInscShow->id]) }}" 
+                        class="btn-icon success" 
+                        title="Effectuer le paiement">
+                          <i class="fas fa-money-bill"></i>
+                      </a>
+                      <form action="" method="POST" style="display: inline;">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn-icon danger" title="Annuler">
+                            <i class="fas fa-times-circle"></i>
+                          </button>
+                      </form>
+                    @elseif($oneInscShow->status === 'Payé')
+                      <!-- Actions pour "Payé" -->
+                      <button class="btn-icon" title="Télécharger l'attestation">
+                        <i class="fas fa-file-download"></i>
+                      </button>
+                    @endif
                   </td>
                 </tr>
                 @endforeach
-                <tr>
-                  <td>Marketing Digital Intermédiaire</td>
-                  <td>320 €</td>
-                  <td>05/06/2025</td>
-                  <td><span class="status-badge status-pending">En attente</span></td>
-                  <td class="actions-cell">
-                    <button class="btn-icon success" title="Finaliser">
-                      <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="btn-icon danger" title="Annuler">
-                      <i class="fas fa-times-circle"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>UI/UX Design Fundamentals</td>
-                  <td>420 €</td>
-                  <td>12/12/2024</td>
-                  <td><span class="status-badge status-completed">Terminée</span></td>
-                  <td class="actions-cell">
-                    <button class="btn-icon" disabled>
-                      <i class="fas fa-file-download"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Data Science Fundamentals</td>
-                  <td>550 €</td>
-                  <td>15/06/2025</td>
-                  <td><span class="status-badge status-pending">En attente</span></td>
-                  <td class="actions-cell">
-                    <button class="btn-icon success" title="Finaliser">
-                      <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="btn-icon danger" title="Annuler">
-                      <i class="fas fa-times-circle"></i>
-                    </button>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>

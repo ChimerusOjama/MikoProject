@@ -1,0 +1,82 @@
+Product Requirements Document (PRD)
+1. Titre du projet
+Miko Formation — Plateforme de gestion et d’inscription à des formations certifiantes
+
+2. Résumé du projet
+Développer une plateforme web permettant à des utilisateurs de consulter, s’inscrire et suivre des formations certifiantes (présentielles ou en ligne), avec un espace administrateur pour la gestion des formations, des utilisateurs, des inscriptions et des contenus.
+
+3. Objectifs
+Offrir un catalogue de formations certifiantes à destination de professionnels et particuliers.
+Permettre l’inscription en ligne et le suivi des candidatures.
+Proposer un espace personnel pour chaque utilisateur.
+Fournir un tableau de bord d’administration pour la gestion des formations, utilisateurs et inscriptions.
+Optimiser le référencement SEO pour chaque formation.
+4. Fonctionnalités principales
+4.1. Front Office (utilisateur)
+Accueil : Présentation de l’organisme, mise en avant des formations.
+Catalogue des formations : Liste filtrable et consultable des formations.
+Détail d’une formation : Description, objectifs, programme, modalités, témoignages, bouton d’inscription.
+Inscription à une formation : Formulaire accessible après connexion/inscription.
+Espace utilisateur :
+Suivi des inscriptions
+Téléchargement des ressources
+Accès à l’historique et progression
+Authentification : Inscription, connexion, déconnexion.
+Pages statiques : Contact, À propos, mentions légales.
+4.2. Back Office (administrateur)
+Tableau de bord : Statistiques, notifications, accès rapide.
+Gestion des formations : CRUD (création, modification, suppression).
+Gestion des utilisateurs : Voir, modifier, supprimer, réinitialiser mot de passe.
+Gestion des inscriptions : Validation, annulation, suivi.
+Gestion des contenus : Témoignages, ressources, actualités.
+4.3. Fonctionnalités transverses
+SEO optimisé : Balises meta dynamiques, Open Graph, Twitter Cards.
+Responsive design : Compatible mobile, tablette, desktop.
+Sécurité : CSRF, validation des données, gestion des rôles.
+Notifications : Alertes de succès/erreur, modales d’information.
+Loader : Affiché sur toutes les pages sauf inscription.
+5. Utilisateurs cibles
+Apprenants : Professionnels, étudiants, particuliers souhaitant se former.
+Administrateurs : Équipe pédagogique, gestionnaires de la plateforme.
+6. Parcours utilisateur type
+L’utilisateur visite la page d’accueil.
+Il consulte le catalogue et sélectionne une formation.
+Il lit la fiche détaillée, consulte le programme, les objectifs, les témoignages.
+Il s’inscrit (création de compte si nécessaire).
+Il suit l’état de son inscription dans son espace personnel.
+L’administrateur valide ou refuse l’inscription via le back office.
+7. Contraintes techniques
+Framework : Laravel 10+
+Base de données : MySQL/MariaDB
+Front-end : Bootstrap 5, Font Awesome 6, jQuery
+Hébergement : Serveur PHP/MySQL
+Gestion des fichiers : Stockage des PDF, images, avatars utilisateurs
+Envoi d’emails : Notifications d’inscription, rappels
+8. Arborescence fonctionnelle (exemple)
+Accueil
+Formations
+Détail formation
+Inscription
+Espace utilisateur
+Mes réservations
+Profil
+Tableau de bord admin
+Formations
+Utilisateurs
+Inscriptions
+Support
+Contact
+À propos
+9. Critères de succès
+Inscription et connexion fonctionnelles
+Ajout/suppression/modification de formations par l’admin
+Inscription à une formation possible et traçable
+Responsive et rapide
+SEO correct sur toutes les pages publiques
+Sécurité des données utilisateurs
+10. Évolutions possibles
+Paiement en ligne
+E-learning intégré (vidéos, quiz)
+Système de certification automatisé
+Statistiques avancées pour les admins
+Document à adapter et compléter selon l’évolution du projet et les retours utilisateurs.

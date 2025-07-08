@@ -31,6 +31,9 @@ Route::middleware(['auth', 'verified'])->controller(FirstController::class)->gro
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
     Route::post('/logout', 'uLogout')->name('uLogout');
+    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
+    Route::get('/payment/success','success')->name('payment.success');
+    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
 });
 
 // GROUPE : AdminController (routes admin)
@@ -46,7 +49,7 @@ Route::middleware(['auth', 'verified'])->controller(AdminController::class)->gro
     Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
 });
 
-// ✅ Route de test mail (isolée)
+// Route de test mail (isolée)
 Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
 
 

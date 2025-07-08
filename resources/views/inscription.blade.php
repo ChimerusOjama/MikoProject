@@ -189,7 +189,7 @@
                       <label for="address" class="form-label">Adresse <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="address" disabled value="{{ Auth::user()->address }}" required>
                     </div>
-                    <input type="hidden" value="{{ $oneForm->libForm }}" name="choixForm">
+                    <input type="hidden" name="formation_id" value="{{ $oneForm->id }}">
                     <div class="mb-4">
                       <label for="message" class="form-label">Message (optionnel)</label>
                       <textarea class="form-control" id="message" rows="3"></textarea>

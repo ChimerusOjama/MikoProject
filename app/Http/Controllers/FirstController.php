@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\If_;
 
 class FirstController extends Controller
 {
@@ -84,21 +88,20 @@ class FirstController extends Controller
         // ]);
     }
 
-    public function formInsc(Request $req){
-        // Validation des données d'inscription
-        // $req->validate([
-        //     'choixForm' => 'required',
-        //     'message' => 'nullable|string|max:500',
-        //     'email' => 'required|email|max:255',
-        //     'name' => 'required|string|max:255',
-        //     'phone' => 'required|string|max:18',
-        //     'address' => 'required|string|max:255',
-        // ]);
-        // Vérification si l'utilisateur est connecté
-        // Si l'utilisateur est connecté, on utilise Auth::id() pour obtenir son ID
+   public function formInsc(Request $req)
+    {
         if (Auth::id()) {
+            // Validation
+            $req->validate([
+                'formation_id' => 'required|exists:formations,id',
+                'message' => 'nullable|string|max:500',
+            ]);
+
+            // Récupère la formation par son ID
+            $formation = Formation::findOrFail($req->formation_id);
+
             $existing = Inscription::where('user_id', Auth::id())
-                ->where('choixForm', $req->choixForm)
+                ->where('formation_id', $formation->id)
                 ->first();
 
             if ($existing) {
@@ -112,12 +115,18 @@ class FirstController extends Controller
             $insc->phone = Auth::user()->phone;
             $insc->address = Auth::user()->address;
             $insc->message = $req->message;
-            $insc->choixForm = $req->choixForm;
+            $insc->formation_id = $formation->id;
+            $insc->choixForm = $formation->libForm; // Conserve le nom pour affichage
             $insc->montant = '14 500 FCFA';
             $insc->status = 'En attente';
+            
             $insc->save();
-            Mail::to(Auth::user()->email)->send(new infoMail());
-            return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
+            if (!$insc) {
+                return redirect()->back()->with('error', 'Votre demande a échouée, veuillez réessayer.');
+            } else {
+                Mail::to(Auth::user()->email)->send(new infoMail());
+                return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
+            }
         }else{
             return redirect()->back()->with('warning', 'Vous devez être connecté pour soumettre une inscription.');
         }
@@ -134,12 +143,13 @@ class FirstController extends Controller
         }
     }
 
-    public function uFormation(){
+    public function uFormation()
+    {
         if (Auth::id()) {
-            $userName = Auth::user()->name;
-            $inscShow = Inscription::where('name', $userName)->get();
+            $userId = Auth::id();
+            $inscShow = Inscription::where('user_id', $userId)->get();
+            
             return view('uAdmin.forms', compact('inscShow'));
-
         } else {
             return redirect()->back();
         }
@@ -206,11 +216,80 @@ class FirstController extends Controller
         return view('uAdmin.support');
     }
 
+    // Stripe
 
+    public function checkout($inscriptionId)
+    {
+        $inscription = Inscription::findOrFail($inscriptionId);
+        
+        // Vérifier que l'inscription appartient à l'utilisateur connecté
+        if (Auth::id() !== $inscription->user_id) {
+            \Log::error('Tentative accès non autorisé', [
+                'auth_id' => Auth::id(),
+                'inscription_user' => $inscription->user_id
+            ]);
+            abort(403, 'Unauthorized action.');
+        }
+        
+        Stripe::setApiKey(config('services.stripe.secret'));
+        
+        try {
+            $session = Session::create([
+                'line_items' => [[
+                    'price' => $inscription->formation->stripe_price_id,
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => route('payment.success', [
+                    'inscription' => $inscriptionId,
+                    'session_id' => '{CHECKOUT_SESSION_ID}'
+                ]),
+                'cancel_url' => route('payment.cancel'),
+                'metadata' => [
+                    'inscription_id' => $inscriptionId,
+                    'user_id' => Auth::id()
+                ]
+            ]);
+            
+            return redirect($session->url);
+            
+        } catch (\Exception $e) {
+            Log::error('Stripe Checkout Error: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Une erreur est survenue lors de la tentative de paiement. Veuillez réessayer.');
+        }
+    }
 
-    // public function annulerRes($id){
-    //     $delInsc = Inscription::find($id);
-    //     $delInsc->delete();
-    //     return redirect()->back();
-    // }
+    public function success(Request $request)
+    {
+        $sessionId = $request->get('session_id');
+        
+        try {
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $session = Session::retrieve($sessionId);
+            if (!$session || $session->payment_status !== 'paid') {
+                return redirect()->route('payment.cancel')->with('error', 'Le paiement n\'a pas été effectué.');
+            }
+            if ($session->payment_status === 'paid') {
+                $inscription = Inscription::findOrFail($request->get('inscription'));
+                $inscription->update([
+                    'status' => 'Payé',
+                    'payment_date' => now(),
+                    'stripe_session_id' => $sessionId
+                ]);
+                
+                return view('payment.success', compact('inscription'));
+            }
+            
+            return redirect()->route('payment.cancel');
+            
+        } catch (\Exception $e) {
+            Log::error('Payment verification error: '.$e->getMessage());
+            return redirect()->route('uFormation')->with('error', 'Erreur de vérification du paiement');
+        }
+    }
+
+    public function cancel()
+    {
+        return view('payment.cancel');
+    }
 }
