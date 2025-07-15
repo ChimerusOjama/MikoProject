@@ -10,8 +10,12 @@ class Formation extends Model
     use HasFactory;
     
     protected $fillable = [
-        'libForm',
-        'Desc',
-        'image',
+        'titre',
+        'description_courte',
+        'categorie',
+        'niveau',
+        'prix',
+        'duree_mois',
+        'image_url'
     ];
 }

@@ -40,17 +40,23 @@
                                     <thead>
                                         <tr>
                                             <th>Image</th>
-                                            <th>Libellé</th>
-                                            <th>Description</th>
+                                            <th>Titre</th>
+                                            <th>Catégorie</th>
+                                            <th>Niveau</th>
+                                            <th>Status</th>
+                                            <th>Prix</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($forms as $form)
                                         <tr>
-                                            <td><img src="{{ $form->image }}" alt="" srcset=""></td>
-                                            <td>{{ $form->libForm }}</td>
-                                            <td>{{ $form->desc }}</td>
+                                            <td><img src="{{ asset($form->image_url) }}" alt="" srcset=""></td>
+                                            <td>{{ $form->titre }}</td>
+                                            <td>{{ $form->categorie }}</td>
+                                            <td>{{ $form->niveau }}</td>
                                             <td><label class="text">{{ $form->status }}</label></td>
+                                            <td>{{ $form->prix }}</td>
                                             <td>
                                                 <a href="/Modifier_formation/foramtion={{ $form->id }}" class="badge badge-info">Mettre à jour</a>
                                                 <a href="/Supprimer_formation/foramtion={{ $form->id }}" 

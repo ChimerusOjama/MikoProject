@@ -38,7 +38,7 @@ Route::middleware(['auth', 'verified'])->controller(FirstController::class)->gro
 
 // GROUPE : AdminController (routes admin)
 Route::middleware(['auth', 'verified'])->controller(AdminController::class)->group(function () {
-    Route::get('/formations', 'allForm')->name('allForm');
+    Route::get('/Liste_formations', 'allForm')->name('allForm');
     Route::get('/nouvelle_formation', 'newForm')->name('newForm');
     Route::post('/Insertion', 'storeForm')->name('storeForm');
     Route::get('/Reservations', 'reserveView')->name('allreserv');

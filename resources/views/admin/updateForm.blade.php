@@ -10,26 +10,7 @@
 @section('formation', 'active')
 
 @section('content')
-            @if(session('success'))
-              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-square">
-                      <div class="modal-content">
-                          <div class="modal-header">
-                              <h5 class="modal-title" id="exampleModalLabel">Message</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                          </div>
-                          <div class="modal-body" id="modalMessage">
-                              <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                              <!-- Message injecté par JavaScript -->
-                          </div>
-                          <div class="modal-footer justify-content-center">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          @endif
-          <!-- Modal end -->
+@include('components.alert-adModal')
           <div class="col-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
@@ -37,35 +18,56 @@
                 <form class="forms-sample" action="/Mise_a_jour/formation={{ $form->id }}" method="POST" enctype="multipart/form-data">
                   @csrf
                   <div class="form-group">
-                    <label for="exampleInputName1">Libellé</label>
-                    <input type="text" class="form-control" id="exampleInputName1" name="libForm" value="{{ $form->libForm }}" required placeholder="Libellé de la formation">
+                    <label for="titre">Titre</label>
+                    <input type="text" class="form-control" id="titre" name="titre" value="{{ $form->titre }}" required placeholder="Titre de la formation">
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputName2">Description</label>
-                    <input type="text" class="form-control" id="exampleInputName2" name="desc" value="{{ $form->desc }}" required placeholder="Description de la formation">
+                    <label for="description_courte">Description courte</label>
+                    <textarea class="form-control" id="description_courte" name="description_courte" required placeholder="Description résumée de la formation" rows="3">{{ $form->description_courte }}</textarea>
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputName3">Image actuelle</label>
-                    <img width="300 px" height="200 px" src="{{ $form->image }}" alt="{{ $form->image }}">
-                    <!-- <img width="300 px" height="200 px" src="{{ asset('template/images/page-banner3.jpg') }}" alt="{{ $form->image }}"> -->
+                    <label for="categorie">Catégorie</label>
+                    <select class="form-control" id="categorie" name="categorie" required>
+                      <option value="informatique" {{ $form->categorie == 'informatique' ? 'selected' : '' }}>Informatique</option>
+                      <option value="gestion" {{ $form->categorie == 'gestion' ? 'selected' : '' }}>Gestion</option>
+                      <option value="langues" {{ $form->categorie == 'langues' ? 'selected' : '' }}>Langues</option>
+                    </select>
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputName3">Nouvelle image</label>
-                    <input type="file" class="form-control" id="exampleInputName3" name="image">
+                    <label for="niveau">Niveau</label>
+                    <select class="form-control" id="niveau" name="niveau" required>
+                      <option value="debutant" {{ $form->niveau == 'debutant' ? 'selected' : '' }}>Débutant</option>
+                      <option value="intermediaire" {{ $form->niveau == 'intermediaire' ? 'selected' : '' }}>Intermédiaire</option>
+                      <option value="avance" {{ $form->niveau == 'avance' ? 'selected' : '' }}>Avancé</option>
+                    </select>
                   </div>
-                  <!-- <div class="form-group">
-                    <label>Image</label>
-                    <input type="file" name="image" class="file-upload-default">
-                    <div class="input-group col-xs-12">
-                      <input type="text" class="form-control file-upload-info" disabled placeholder="Chargez une image">
-                      <span class="input-group-append">
-                        <button class="file-upload-browse btn btn-primary" type="button">Ajouter</button>
-                      </span>
-                    </div>
-                  </div> -->
-                  <!-- <input type="submit" value="Soumettre"> -->
+                  <div class="form-group">
+                    <label for="prix">Prix</label>
+        
+                    <input type="number" class="form-control" id="prix" name="prix" value="{{ $form->prix }}" required min="0" max="100000" step="1000" placeholder="Prix de la formation">
+                  </div>
+                  <div class="form-group">
+                    <label for="duree_mois">Durée (mois)</label>
+  
+                    <input type="number" class="form-control" id="duree_mois" name="duree_mois" value="{{ $form->duree_mois }}" required min="1" max="24" placeholder="Durée en mois">
+                  </div>
+                  <div class="form-group">
+                    <label for="status">Statut</label>
+                    <select class="form-control" id="status" name="status" required>
+                      <option value="publiee" {{ $form->status == 'publiee' ? 'selected' : '' }}>Publiée</option>
+                      <option value="brouillon" {{ $form->status == 'brouillon' ? 'selected' : '' }}>Brouillon</option>
+                      <option value="archivee" {{ $form->status == 'archivee' ? 'selected' : '' }}>Archivée</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Image actuelle</label><br>
+                    <img width="300" height="200" src="{{ asset($form->image_url) }}" alt="Image formation">
+                  </div>
+                  <div class="form-group">
+                    <label for="image">Nouvelle image</label>
+                    <input type="file" class="form-control" id="image" name="image">
+                  </div>
                   <button type="submit" class="btn btn-primary me-2">Mettre à jour</button>
-                  <!-- <button class="btn btn-dark">Annuler</button> -->
                   <a href="{{ route('allForm') }}" class="btn btn-dark">Liste des formations</a>
                 </form>
               </div>

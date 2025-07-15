@@ -332,10 +332,30 @@
     <!-- End custom js for this page -->
     <!-- Bootstrap 5 JS (bundle includes Popper for modals) -->
     <script src="{{ asset('bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                // Injecte le message dans le modal de succès
+                document.getElementById('success-modal-body').innerHTML = `<div class="text-center"><i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i><br>{{ session('success') }}</div>`;
+                var modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+            @endif
 
-    <!-- Modal trigger (optional if you're using a button with data-bs-toggle already) -->
-    @include('layouts.partials.modalScript')
-    @include('layouts.partials.modalScript1')
+            @if(session('message2'))
+                // Pour un autre type de succès ou d'info
+                document.getElementById('success-modal-body').innerHTML = `<div class="text-center">{{ session('message2') }}</div>`;
+                var modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+            @endif
+
+            @if($errors->any())
+                // Injecte le premier message d'erreur dans le modal d'erreur
+                document.getElementById('error-modal-body').innerHTML = `<div class="alert alert-danger">{{ $errors->first() }}</div>`;
+                var modal = new bootstrap.Modal(document.getElementById('errorModal'));
+                modal.show();
+            @endif
+        });
+    </script>
     @stack('scripts')
   </body>
 </html>
