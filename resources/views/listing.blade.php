@@ -109,43 +109,37 @@
         <div class="row g-4" id="formationsContainer">
             <!-- Formation 1 -->
             @foreach($forms as $form)
-            <div class="col-lg-4 col-md-6" data-category="informatique" data-level="debutant" data-price="150000" data-duration="3">
-                <div class="card formation-card h-100 border-0 shadow-sm">
-                    <img src="{{ $form->image }}" 
-                        alt="Formation {{ $form->libForm }} à Brazzaville - Miko Formation"
-                        class="card-img-top">
-                    <div class="course-body">
-                        <h3 class="course-title" itemprop="name">{{ $form->libForm }}</h3>
-                        <div class="course-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                            <span itemprop="priceCurrency" content="XAF">40 000 FCFA</span>
-                            <meta itemprop="price" content="40000">
+                @php
+                    switch($form->categorie) {
+                        case 'informatique':
+                            $badgeClass = 'bg-primary';
+                            break;
+                        case 'gestion':
+                            $badgeClass = 'bg-success';
+                            break;
+                        case 'langues':
+                            $badgeClass = 'bg-warning text-dark';
+                            break;
+                        default:
+                            $badgeClass = 'bg-secondary';
+                    }
+                @endphp
+                <div class="col-lg-4 col-md-6" data-category="{{ $form->categorie }}" data-level="{{ $form->niveau }}" data-price="{{ $form->prix }}" data-duration="{{ $form->duree_mois }}">
+                    <div class="card formation-card h-100 border-0 shadow-sm">
+                        <img src="{{ asset($form->image_url ?? 'assets/imgs/cours1.jpg') }}" class="card-img-top" alt="Formation {{ $form->categorie }}">
+                        <div class="card-body">
+                            <span class="badge {{ $badgeClass }} mb-2">{{ ucfirst($form->categorie) }}</span>
+                            <h3 class="h5 card-title">{{ $form->titre }}</h3>
+                            <p class="card-text">{{ $form->description_courte }}</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-1"><i class="fas fa-clock text-primary me-2"></i> {{ $form->duree_mois }} mois</li>
+                                <li class="mb-1"><i class="fas fa-user-graduate text-primary me-2"></i> {{ $form->niveau }}</li>
+                                <li class="mb-3"><i class="fas fa-money-bill-wave text-primary me-2"></i> {{ $form->prix }} FCFA</li>
+                            </ul>
+                            <a href="/Reserver_votre_place/form={{ $form->id }}" class="btn btn-primary w-100" itemprop="url">Inscription</a>
                         </div>
-                        <div class="course-meta">
-                            <p itemprop="timeRequired"><i class="fas fa-clock text-primary me-2"></i> Durée : 3 mois</p>
-                        </div>
-                        <a href="/Reserver_votre_place/form={{ $form->id }}" class="btn btn-primary w-100" itemprop="url">Détails</a>
                     </div>
                 </div>
-                <!-- Pour le SEO -->
-                <script type="application/ld+json">
-                    {
-                        "@context": "https://schema.org",
-                        "@type": "Course",
-                        "name": "{{ $form->libForm }}",
-                        "description": "{{ Str::limit($form->desc, 100) }}",
-                        "provider": {
-                            "@type": "Organization",
-                            "name": "Miko Formation",
-                            "sameAs": "https://mikoformation.cg"
-                        },
-                        "offers": {
-                            "@type": "Offer",
-                            "price": "40000",
-                            "priceCurrency": "FCFA"
-                        }
-                    }
-                </script>
-            </div>
             @endforeach
 
             <!-- Formation 2 -->

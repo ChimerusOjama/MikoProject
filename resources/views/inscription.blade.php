@@ -3,10 +3,10 @@
 @section('title', 'Inscription à la Formation | Miko Formation')
 
 @section('meta')
-    <meta name="description" content="Inscrivez-vous à la formation certifiante {{ $oneForm->libForm }} chez Miko Formation. {{ $oneForm->desc }}">
+    <meta name="description" content="Inscrivez-vous à la formation certifiante {{ $oneForm->titre }} chez Miko Formation. {{ $oneForm->desc }}">
     <meta name="keywords" content="formation certifiante, formation professionnelle, inscription formation, certification, compétences, Miko Formation, cours en ligne, formation présentielle, formation bureautique, formation informatique">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="Inscription à la formation {{ $oneForm->libForm }} | Miko Formation">
+    <meta property="og:title" content="Inscription à la formation {{ $oneForm->titre }} | Miko Formation">
     <meta property="og:description" content="Rejoignez une formation certifiante adaptée à votre projet professionnel. Inscription simple, certification reconnue, cours en ligne ou en présentiel.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -30,7 +30,7 @@
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
         <div class="text-center text-md-start">
           <h1 class="display-4 fw-bold mb-3">Tout est là !</h1>
-          <p class="lead">Veuillez lire attentivement les informations relative à cette la formation</p>
+          <p class="lead">Veuillez lire attentivement les informations relative à la formation en {{ $oneForm->titre }}</p>
         </div>
         <div class="mt-3 mt-md-0">
           <a href="{{ asset('pdfs/emploiDuTemps.pdf') }}" class="btn btn-light download-program-btn" download>
@@ -47,26 +47,26 @@
       <div class="row">
         <div class="col-lg-8">
           <div class="formation-content">
-            <div class="badge bg-secondary mb-3">Informatique</div>
-            
+            <span class="badge {{ $oneForm->categorie == 'informatique' ? 'bg-primary' : ($oneForm->categorie == 'gestion' ? 'bg-success' : ($oneForm->categorie == 'langues' ? 'bg-warning text-dark' : 'bg-secondary')) }} mb-3">{{ ucfirst($oneForm->categorie) }}</span>
+
             <div class="formation-summary mb-5">
               <div class="row g-3">
                 <div class="col-6 col-md-4">
                   <div class="p-3 border rounded text-center">
                     <i class="fas fa-clock text-primary mb-2 d-block" style="font-size: 1.5rem;"></i>
-                    <strong>Durée:</strong> 3 mois
+                    <strong>Durée:</strong> {{ $oneForm->duree_mois }} mois
                   </div>
                 </div>
                 <div class="col-6 col-md-4">
                   <div class="p-3 border rounded text-center">
                     <i class="fas fa-user-graduate text-primary mb-2 d-block" style="font-size: 1.5rem;"></i>
-                    <strong>Niveau:</strong> Débutant
+                    <strong>Niveau:</strong> {{ $oneForm->niveau }}
                   </div>
                 </div>
                 <div class="col-6 col-md-4">
                   <div class="p-3 border rounded text-center">
                     <i class="fas fa-money-bill-wave text-primary mb-2 d-block" style="font-size: 1.5rem;"></i>
-                    <strong>Prix:</strong> 150 000 FCFA
+                    <strong>Prix:</strong> {{ $oneForm->prix }} FCFA
                   </div>
                 </div>
                 <div class="col-6 col-md-4">
@@ -91,8 +91,7 @@
             </div>
             
             <h2 class="mb-4">Description complète</h2>
-            <p>{{ $oneForm->desc }}.</p>
-            
+            <p>{{ $oneForm->description }}.</p>
             <h3 class="mb-3">Objectifs de la formation</h3>
             <ul class="mb-4">
               <li>Maîtriser les fonctions avancées d'Excel (rechercheV, index, matrices, etc.)</li>
@@ -304,6 +303,42 @@
     <div class="container">
       <h2 class="text-center mb-5">Vous pourriez aussi aimer</h2>
       <div class="row g-4">
+        @foreach($similarForms as $similarForm)
+                <div class="col-lg-4 col-md-6" data-category="{{ $similarForm->categorie }}" data-level="{{ $similarForm->niveau }}" data-price="{{ $similarForm->prix }}" data-duration="{{ $similarForm->duree_mois }}">
+                    <div class="card formation-card h-100 border-0 shadow-sm">
+                        <img src="{{ asset($similarForm->image_url ?? 'assets/imgs/cours1.jpg') }}" class="card-img-top" alt="Formation {{ $similarForm->categorie }}">
+                        <div class="card-body">
+                            <span class="badge {{ $similarForm->badgeClass }} mb-2">{{ ucfirst($similarForm->categorie) }}</span>
+                            <h3 class="h5 card-title">{{ $similarForm->titre }}</h3>
+                            <p class="card-text">{{ $similarForm->description_courte }}</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-1"><i class="fas fa-clock text-primary me-2"></i> {{ $similarForm->duree_mois }} mois</li>
+                                <li class="mb-1"><i class="fas fa-user-graduate text-primary me-2"></i> {{ $similarForm->niveau }}</li>
+                                <li class="mb-3"><i class="fas fa-money-bill-wave text-primary me-2"></i> {{ $similarForm->prix }} FCFA</li>
+                            </ul>
+                            <a href="/Reserver_votre_place/form={{ $similarForm->id }}" class="btn btn-primary w-100" itemprop="url">Inscription</a>
+                        </div>
+                    </div>
+                </div>
+        @endforeach
+        
+        <div class="col-md-6 col-lg-4">
+          <div class="card formation-card h-100 border-0 shadow-sm">
+            <img src="assets/imgs/cours1.jpg" class="card-img-top" alt="Formation Power BI">
+            <div class="card-body">
+              <span class="badge bg-secondary mb-2">Informatique</span>
+              <h3 class="h5 card-title">Power BI</h3>
+              <p class="card-text">Créez des tableaux de bord interactifs pour l'analyse commerciale.</p>
+              <ul class="list-unstyled">
+                <li class="mb-1"><i class="fas fa-clock text-primary me-2"></i> 2 mois</li>
+                <li class="mb-1"><i class="fas fa-user-graduate text-primary me-2"></i> Intermédiaire</li>
+                <li class="mb-3"><i class="fas fa-money-bill-wave text-primary me-2"></i> 180 000 FCFA</li>
+              </ul>
+              <a href="#" class="btn btn-outline-primary w-100">Voir détails</a>
+            </div>
+          </div>
+        </div>
+
         <div class="col-md-6 col-lg-4">
           <div class="card formation-card h-100 border-0 shadow-sm">
             <img src="assets/imgs/cours1.jpg" class="card-img-top" alt="Formation Power BI">

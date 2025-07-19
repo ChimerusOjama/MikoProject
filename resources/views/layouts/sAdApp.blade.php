@@ -101,7 +101,7 @@
                 <li class="nav-item menu-items @yield('formation')">
                     <a class="nav-link" href="{{ route('allForm') }}">
                     <span class="menu-icon">
-                        <i class="mdi mdi-speedometer"></i>
+                        <i class="mdi mdi-school"></i>
                     </span>
                     <span class="menu-title">Formations</span>
                     </a>
@@ -340,6 +340,21 @@
                 var modal = new bootstrap.Modal(document.getElementById('successModal'));
                 modal.show();
             @endif
+
+            @if(session('warning'))
+                // Injecte le message dans le modal d'avertissement
+                document.getElementById('warning-modal-body').innerHTML = `<div class="text-center text-warning"><i class="bi bi-exclamation-triangle-fill" style="font-size: 4rem;"></i><br>{{ session('warning') }}</div>`;
+                var warningModal = new bootstrap.Modal(document.getElementById('warningModal'));
+                warningModal.show();
+            @endif
+
+            @if(session('error'))
+                // Injecte un message d'erreur custom autre que les erreurs de validation
+                document.getElementById('error-modal-body').innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> {{ session('error') }}</div>`;
+                var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+            @endif
+
 
             @if(session('message2'))
                 // Pour un autre type de succès ou d'info

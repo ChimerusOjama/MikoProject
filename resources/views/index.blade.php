@@ -167,14 +167,14 @@
                 @foreach($forms as $form)
                 <div class="scroll-item">
                     <div class="course-card">
-                        <img src="{{ $form->image }}" class="course-img" alt="{{ $form->title }}">
+                        <img src="{{ $form->image_url }}" class="course-img" alt="{{ $form->titre }}">
                         <div class="course-body">
-                            <h3 class="course-title">{{ $form->libForm }}</h3>
-                            <div class="course-price">40 000 FCFA</div>
+                            <h3 class="course-title">{{ $form->titre }}</h3>
+                            <div class="course-price">{{ $form->prix }} FCFA</div>
                             <div class="course-meta">
-                            <p><i class="fas fa-clock text-primary me-2"></i> Durée : 3 mois</p>
+                            <p><i class="fas fa-clock text-primary me-2"></i> Durée : {{ $form->duree_mois }} mois</p> 
                             <p><i class="fas fa-calendar-alt text-primary me-2"></i> Horaires : 8h-10h / 13h-15h</p>
-                            <p><i class="fas fa-money-bill-wave text-primary me-2"></i> 200 000 FCFA</p>
+                            <p><i class="fas fa-user-graduate text-primary me-2"></i> Niveau : {{ ucfirst($form->niveau) }}</p>
                             </div>
                             <a href="/Reserver_votre_place/form={{ $form->id }}" class="btn btn-primary w-100">Détails</a>
                         </div>

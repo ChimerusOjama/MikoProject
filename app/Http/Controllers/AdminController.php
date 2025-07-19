@@ -20,9 +20,6 @@ class AdminController extends Controller
     public function newForm(){
         return view('admin.newForm');
     }
-
-
-
     public function storeForm(Request $req)
     {
         $validated = $req->validate([
@@ -62,12 +59,23 @@ class AdminController extends Controller
                 ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
         }
     }
+    public function supForm($id)
+    {
+        $formation = Formation::find($id);
 
-    public function supForm($id){
-        $delInsc = Formation::find($id);
-        $delInsc->delete();
+        if (!$formation) {
+            return redirect()->back()->with('error', 'Formation introuvable.');
+        }
+        $hasInscriptions = Inscription::where('formation_id', $formation->id)->exists();
+
+        if ($hasInscriptions) {
+            return redirect()->back()->with('warning', "Impossible de supprimer cette formation car des utilisateurs y sont déjà inscrits.");
+        }
+
+        $formation->delete();
         return redirect()->back()->with('message2', 'La formation a été supprimée avec succès');
     }
+
 
     public function updateView($id){
         $form = Formation::find($id);
@@ -77,7 +85,6 @@ class AdminController extends Controller
     {
         $form = Formation::find($id);
 
-        // Vérifier s'il y a déjà des inscrits à cette formation
         $hasInscriptions = Inscription::where('formation_id', $form->id)->exists();
         if ($hasInscriptions) {
             return redirect()->back()->withErrors(['error' => "Impossible de modifier cette formation car des utilisateurs y sont déjà inscrits."]);
@@ -95,7 +102,6 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Mise à jour des champs
         $form->titre = $validated['titre'];
         $form->description_courte = $validated['description_courte'];
         $form->categorie = $validated['categorie'];
@@ -104,14 +110,12 @@ class AdminController extends Controller
         $form->duree_mois = $validated['duree_mois'];
         $form->status = $validated['status'];
 
-        // Gestion de l'image si une nouvelle est envoyée
         if ($req->hasFile('image')) {
             $image = $req->file('image');
             $safeName = Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME));
             $extension = $image->getClientOriginalExtension();
             $imageName = $safeName . '_' . time() . '.' . $extension;
 
-            // Crée le dossier s'il n'existe pas
             if (!file_exists(public_path('formations'))) {
                 mkdir(public_path('formations'), 0777, true);
             }
@@ -132,26 +136,39 @@ class AdminController extends Controller
     }
 
     public function reserveView(){
-        $allInsc = Inscription::all();
+        $allInsc = Inscription::orderBy('created_at', 'desc')->get();
         return view('admin.fromUserReserve', compact('allInsc'));
     }
 
-    public function accepterRes($id){
-        $res = Inscription::find($id);
-        $stat = $res->status;
-        if ($stat == 'Accepté') {
-            return redirect()->back()->with('message', 'La demande a déjà été acceptée');
-        } else {
-            $res->status = 'Accepté';
-            $res->save();
-            return redirect()->back()->with('message2', 'Vous avez accepté la demande');
-        }  
+    public function inscsView(){
+        $allInsc = Inscription::with('formation')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                    
+        return view('admin.fromUserInscriptions', compact('allInsc'));
     }
 
-    public function rejeterRes($id){
+    public function accepterRes($id)
+    {
         $res = Inscription::find($id);
+        if ($res->status === 'Accepté') {
+            return redirect()->back()->with('warning', 'La demande a déjà été acceptée.');
+        }
+
+        $res->status = 'Accepté';
+        $res->save();
+        return redirect()->back()->with('success', 'Vous avez accepté la demande.');
+    }
+
+    public function rejeterRes($id)
+    {
+        $res = Inscription::find($id);
+        if ($res->status === 'Rejeté') {
+            return redirect()->back()->with('warning', 'La demande a déjà été rejetée.');
+        }
+
         $res->status = 'Rejeté';
         $res->save();
-        return redirect()->back()->with('etat', 'success');
+        return redirect()->back()->with('success', 'Vous avez rejeté la demande.');
     }
 }

@@ -42,10 +42,11 @@ Route::middleware(['auth', 'verified'])->controller(AdminController::class)->gro
     Route::get('/nouvelle_formation', 'newForm')->name('newForm');
     Route::post('/Insertion', 'storeForm')->name('storeForm');
     Route::get('/Reservations', 'reserveView')->name('allreserv');
-    Route::get('/Accepter_reservation/inscription={id}', 'accepterRes');
-    Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes');
-    Route::get('/Supprimer_formation/foramtion={id}', 'supForm');
-    Route::get('/Modifier_formation/foramtion={id}', 'updateView');
+    // Route::get('/Inscriptions', 'inscsView')->name('allinscriptions');
+    Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
+    Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
+    Route::get('/Supprimer_formation/foramtion={id}', 'supForm')->name('supForm');
+    Route::get('/Modifier_formation/foramtion={id}', 'updateView')->name('updateView');
     Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
 });
 

@@ -59,7 +59,24 @@ class FirstController extends Controller
 
     public function formSingle($id){
         $oneForm = Formation::find($id);
-        return view('inscription', compact('oneForm'));
+
+        $badgeColors = [
+            'informatique' => 'bg-primary',
+            'gestion' => 'bg-success',
+            'langues' => 'bg-warning text-dark',
+        ];
+
+        $similarForms = Formation::where('categorie', $oneForm->categorie)
+            ->where('id', '!=', $oneForm->id)
+            ->take(3)
+            ->get();
+
+        // Ajoute la couleur à chaque formation similaire
+        foreach ($similarForms as $form) {
+            $form->badgeClass = $badgeColors[$form->categorie] ?? 'bg-secondary';
+        }
+
+        return view('inscription', compact('oneForm', 'similarForms'));
     }
 
     public function contactView(){
@@ -116,7 +133,7 @@ class FirstController extends Controller
             $insc->address = Auth::user()->address;
             $insc->message = $req->message;
             $insc->formation_id = $formation->id;
-            $insc->choixForm = $formation->libForm; // Conserve le nom pour affichage
+            $insc->choixForm = $formation->titre; // Conserve le nom pour affichage
             $insc->montant = '14 500 FCFA';
             $insc->status = 'En attente';
             

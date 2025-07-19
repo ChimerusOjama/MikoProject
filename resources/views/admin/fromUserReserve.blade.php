@@ -10,23 +10,8 @@
 @section('inscription', 'active')
 
 @section('content')
-                    @if(session('message'))
-                      <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                          <strong>Attention!</strong> {{ session('message') }}.
-                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                          </button>
-                      </div>
-                    @elseif(session('message2'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <strong>Succès!</strong> Vous avez accepte la demande.
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    @else
+@include('components.alert-adModal')
 
-                    @endif
                     <div class="col-lg-12 grid-margin stretch-card">
                         <div class="card">
                         <div class="card-body">
@@ -41,7 +26,6 @@
                                             <th>Adresse</th>
                                             <th>Montant</th>
                                             <th>Choix</th>
-                                            <th>Message</th>
                                             <th>Statut</th>
                                             <th>Actions</th>
                                         </tr>
@@ -54,15 +38,48 @@
                                             <td>{{ $eachInsc->phone }}</td>
                                             <td>{{ $eachInsc->address }}</td>
                                             <td>{{ $eachInsc->montant }}</td>
-                                            <td>{{ $eachInsc->choixForm }}</td>
-                                            <td>{{ $eachInsc->message }}</td>
-                                            <td><label class="text">{{ $eachInsc->status }}</label></td>
+                                            <td>{{ $eachInsc->choixForm }}</td>                               
                                             <td>
+                                                @if($eachInsc->status == 'Accepté')
+                                                    <div class="badge badge-outline-success">Accepté</div>
+                                                @elseif($eachInsc->status == 'Rejeté')
+                                                    <div class="badge badge-outline-danger">Rejeté</div>
+                                                @else
+                                                    <div class="badge badge-outline-warning">En attente</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ route('accepterRes', $eachInsc->id) }}" 
+                                                    class="btn btn-sm btn-success btn-icon"
+                                                    @if($eachInsc->status != 'En attente') disabled @endif
+                                                    title="Accepter">
+                                                        <i class="mdi mdi-check"></i>
+                                                    </a>
+                                                    <a href="{{ route('rejeterRes', $eachInsc->id) }}" 
+                                                    class="btn btn-sm btn-danger btn-icon"
+                                                    onclick="return confirm('Souhaitez-vous réellement rejeter cette demande ?')"
+                                                    @if($eachInsc->status != 'En attente') disabled @endif
+                                                    title="Rejeter">
+                                                        <i class="mdi mdi-close"></i>
+                                                    </a>
+                                                    <!-- <a href="/Rejeter_reservation/inscription={{ $eachInsc->id }}" 
+                                                    class="badge badge-danger"
+                                                    onclick="return confirm('Souhaitez-vous réellement rejeter cette demande ?')">Refuser</a> -->
+                                                    <a href="#" 
+                                                    class="btn btn-sm btn-info btn-icon view-message"
+                                                    data-message="{{ $eachInsc->message }}"
+                                                    title="Voir message">
+                                                        <i class="mdi mdi-message-text"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                            <!-- <td>
                                                 <a href="/Accepter_reservation/inscription={{ $eachInsc->id }}" class="badge badge-success">Accepter</a>
                                                 <a href="/Rejeter_reservation/inscription={{ $eachInsc->id }}" 
                                                 class="badge badge-danger"
                                                 onclick="return confirm('Souhaitez-vous réellement rejeter cette demande ?')">Refuser</a>
-                                            </td>
+                                            </td> -->
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -72,13 +89,5 @@
                         </div>
                     </div>
                 </div>
+
 @endsection
-@push('scripts')
-  <script>
-    function confirmAnnulation(id) {
-        const form = document.getElementById('confirmForm');
-        form.action = `/afficher-confirmation/${id}`;
-        form.submit();
-    }
-  </script>
-@endpush
