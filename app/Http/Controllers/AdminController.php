@@ -73,7 +73,7 @@ class AdminController extends Controller
         }
 
         $formation->delete();
-        return redirect()->back()->with('message2', 'La formation a été supprimée avec succès');
+        return redirect()->back()->with('success', 'La formation a été supprimée avec succès');
     }
 
 
@@ -90,7 +90,6 @@ class AdminController extends Controller
             return redirect()->back()->withErrors(['error' => "Impossible de modifier cette formation car des utilisateurs y sont déjà inscrits."]);
         }
 
-        // Validation de tous les champs du formulaire
         $validated = $req->validate([
             'titre' => 'required|string|max:255',
             'description_courte' => 'required|string',

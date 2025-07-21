@@ -18,4 +18,9 @@ class Formation extends Model
         'duree_mois',
         'image_url'
     ];
+
+    public function inscriptions()
+    {
+        return $this->hasMany(\App\Models\Inscription::class);
+    }
 }
