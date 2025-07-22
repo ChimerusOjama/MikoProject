@@ -53,9 +53,9 @@
                   <td><span class="status-badge {{ $statusClass }}">{{ $oneInscShow->status }}</span></td>
                   <td class="actions-cell">
                     @if($oneInscShow->status === 'En attente')
-                      <form action="" method="POST" style="display: inline;">
+                      <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
                           @csrf
-                          @method('DELETE')
+                          @method('POST')
                           <button type="submit" class="btn-icon danger" title="Annuler">
                             <i class="fas fa-times-circle"></i>
                           </button>
@@ -67,9 +67,9 @@
                         title="Effectuer le paiement">
                           <i class="fas fa-money-bill"></i>
                       </a>
-                      <form action="" method="POST" style="display: inline;">
+                      <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
                           @csrf
-                          @method('DELETE')
+                          @method('POST')
                           <button type="submit" class="btn-icon danger" title="Annuler">
                             <i class="fas fa-times-circle"></i>
                           </button>
@@ -218,6 +218,17 @@
   // Scripts spécifiques au dashboard
   document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard admin chargé');
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const boutonsPaiement = document.querySelectorAll('a.btn-success');
+
+    boutonsPaiement.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        console.log("🔔 Clic sur bouton de paiement détecté !");
+      });
+    });
   });
 </script>
 @endpush

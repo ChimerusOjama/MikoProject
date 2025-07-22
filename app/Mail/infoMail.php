@@ -2,8 +2,9 @@
 
 namespace App\Mail;
 
+use App\Models\Formation;
+use App\Models\Inscription;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -14,12 +15,18 @@ class infoMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $user;
+    public $formation;
+    public $inscription;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($user, Formation $formation, Inscription $inscription)
     {
-        //
+        $this->user = $user;
+        $this->formation = $formation;
+        $this->inscription = $inscription;
     }
 
     /**
@@ -28,9 +35,9 @@ class infoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-                from: new Address('jeffrey@example.com', 'Jeffrey Way'),
-                subject: 'Order Shipped',
-            );
+            from: new Address('formation@miko.com', 'Miko Formation'),
+            subject: 'Votre pré-inscription a bien été reçue',
+        );
     }
 
     /**
@@ -39,18 +46,17 @@ class infoMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mails.infoMail',
+            view: 'emails.inscription.info',
             with: [
-                'name' => 'John Doe',
-                'message' => 'Your order has been shipped!',
+                'user' => $this->user,
+                'formation' => $this->formation,
+                'inscription' => $this->inscription,
             ],
         );
     }
 
     /**
      * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {

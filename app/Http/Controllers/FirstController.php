@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Mail;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Log;
+use App\Mail\PaymentConfirmation;
+use App\Mail\ReservationAnnulee;
 use PhpParser\Node\Stmt\If_;
 
 class FirstController extends Controller
@@ -172,7 +174,11 @@ class FirstController extends Controller
             if (!$insc) {
                 return redirect()->back()->with('error', 'Votre demande a échoué, veuillez réessayer.');
             } else {
-                Mail::to(Auth::user()->email)->send(new infoMail());
+                // Mail::to(Auth::user()->email)->send(new infoMail());
+                Mail::to(Auth::user()->email)->send(
+                    new infoMail(Auth::user(), $formation, $insc)
+                );
+
                 return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
             }
         } else {
@@ -204,16 +210,22 @@ class FirstController extends Controller
             return redirect()->back();
         }
     }
+
     public function annulerRes($id)
     {
         $delInsc = Inscription::findOrFail($id);
+        $userCopy = $delInsc->replicate();
         $delInsc->delete();
 
-        return redirect()->back()->with([
-            'message' => 'Votre réservation a bien été annulée.',
-            'type' => 'success'
-        ]);
+        if ($delInsc->status === 'Payé') {
+            return redirect()->back()->with('error', 'Cette formation a déjà été payé et ne peut pas être annulée.');
+        }
+
+        Mail::to($userCopy->email)->send(new ReservationAnnulee($userCopy));
+
+        return redirect()->back()->with('success', 'Votre réservation a été annulée avec succès.');
     }
+
     public function afficherConfirmation($id)
     {
         $route = route('annuler_reservation', ['id' => $id]);
@@ -268,31 +280,106 @@ class FirstController extends Controller
 
     // Stripe
 
+    // public function checkout($inscriptionId)
+    // {
+    //     if (!Auth::check()) {
+    //         Log::warning('Tentative non authentifiée de paiement.');
+    //         abort(403, 'Vous devez être connecté pour effectuer un paiement.');
+    //     }
+
+    //     $inscription = Inscription::find($inscriptionId);
+
+    //     if (!$inscription) {
+    //         Log::error("Inscription introuvable (ID: $inscriptionId)");
+    //         abort(404, 'Inscription non trouvée.');
+    //     }
+
+    //     if ((int)$inscription->user_id !== (int)Auth::id()) {
+    //         Log::warning('Accès interdit à une inscription appartenant à un autre utilisateur.', [
+    //             'utilisateur_connecté' => Auth::id(),
+    //             'utilisateur_inscription' => $inscription->user_id,
+    //         ]);
+    //         abort(403, 'Accès interdit.');
+    //     }
+
+
+    //     if ($inscription->status !== 'Accepté') {
+    //         Log::info("Tentative de paiement pour une inscription non acceptée (Status: {$inscription->status})", [
+    //             'inscription_id' => $inscription->id,
+    //         ]);
+    //         return redirect()->back()->with('warning', 'Le paiement n’est possible que pour les inscriptions acceptées.');
+    //     }
+
+    //     $formation = $inscription->formation;
+
+    //     if (!$formation || !$formation->stripe_price_id) {
+    //         Log::error('Formation ou prix Stripe manquant pour l’inscription.', [
+    //             'formation_id' => optional($formation)->id,
+    //             'stripe_price_id' => optional($formation)->stripe_price_id,
+    //         ]);
+    //         return redirect()->back()->with('error', 'Impossible de procéder au paiement : formation non valide.');
+    //     }
+
+    //     Stripe::setApiKey(config('services.stripe.secret'));
+
+    //     try {
+    //         $session = Session::create([
+    //             'line_items' => [[
+    //                 'price' => $formation->stripe_price_id,
+    //                 'quantity' => 1,
+    //             ]],
+    //             'mode' => 'payment',
+    //             'success_url' => route('payment.success', [
+    //                 'inscription' => $inscriptionId,
+    //                 'session_id' => '{CHECKOUT_SESSION_ID}'
+    //             ]),
+    //             'cancel_url' => route('payment.cancel'),
+    //             'metadata' => [
+    //                 'inscription_id' => $inscriptionId,
+    //                 'user_id' => Auth::id()
+    //             ]
+    //         ]);
+
+    //         Log::info('Stripe session créée avec succès.', [
+    //             'session_id' => $session->id,
+    //             'session_url' => $session->url
+    //         ]);
+
+    //         return redirect($session->url);
+
+    //     } catch (\Exception $e) {
+    //         Log::error('Stripe Checkout Error: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement. Veuillez réessayer.');
+    //     }
+
+    // }
+
     public function checkout($inscriptionId)
     {
         if (!Auth::check()) {
-            Log::warning('Tentative non authentifiée de paiement.');
+            Log::warning('❌ Utilisateur non authentifié');
             abort(403, 'Vous devez être connecté pour effectuer un paiement.');
         }
+
+        Log::info("🔁 Démarrage du paiement pour l'inscription ID: $inscriptionId");
 
         $inscription = Inscription::find($inscriptionId);
 
         if (!$inscription) {
-            Log::error("Inscription introuvable (ID: $inscriptionId)");
+            Log::error("❌ Inscription introuvable (ID: $inscriptionId)");
             abort(404, 'Inscription non trouvée.');
         }
 
         if ((int)$inscription->user_id !== (int)Auth::id()) {
-            Log::warning('Accès interdit à une inscription appartenant à un autre utilisateur.', [
-                'utilisateur_connecté' => Auth::id(),
-                'utilisateur_inscription' => $inscription->user_id,
+            Log::warning('❌ Accès interdit à une autre inscription', [
+                'connecté' => Auth::id(),
+                'propriétaire' => $inscription->user_id,
             ]);
             abort(403, 'Accès interdit.');
         }
 
-
         if ($inscription->status !== 'Accepté') {
-            Log::info("Tentative de paiement pour une inscription non acceptée (Status: {$inscription->status})", [
+            Log::info("⛔ Inscription non éligible au paiement (Status: {$inscription->status})", [
                 'inscription_id' => $inscription->id,
             ]);
             return redirect()->back()->with('warning', 'Le paiement n’est possible que pour les inscriptions acceptées.');
@@ -301,7 +388,7 @@ class FirstController extends Controller
         $formation = $inscription->formation;
 
         if (!$formation || !$formation->stripe_price_id) {
-            Log::error('Formation ou prix Stripe manquant pour l’inscription.', [
+            Log::error('❌ Formation ou prix Stripe manquant', [
                 'formation_id' => optional($formation)->id,
                 'stripe_price_id' => optional($formation)->stripe_price_id,
             ]);
@@ -311,6 +398,11 @@ class FirstController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
+            Log::info('✅ Création de session Stripe...', [
+                'formation' => $formation->id,
+                'stripe_price_id' => $formation->stripe_price_id,
+            ]);
+
             $session = Session::create([
                 'line_items' => [[
                     'price' => $formation->stripe_price_id,
@@ -328,11 +420,16 @@ class FirstController extends Controller
                 ]
             ]);
 
+            Log::info('✅ Session Stripe créée avec succès.', [
+                'session_id' => $session->id,
+                'checkout_url' => $session->url
+            ]);
+
             return redirect($session->url);
 
         } catch (\Exception $e) {
-            Log::error('Stripe Checkout Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement. Veuillez réessayer.');
+            Log::error('💥 Stripe Checkout Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement.');
         }
     }
 
@@ -340,31 +437,38 @@ class FirstController extends Controller
     public function success(Request $request)
     {
         $sessionId = $request->get('session_id');
-        
+
         try {
             Stripe::setApiKey(config('services.stripe.secret'));
             $session = Session::retrieve($sessionId);
+
             if (!$session || $session->payment_status !== 'paid') {
                 return redirect()->route('payment.cancel')->with('error', 'Le paiement n\'a pas été effectué.');
             }
+
             if ($session->payment_status === 'paid') {
                 $inscription = Inscription::findOrFail($request->get('inscription'));
+
                 $inscription->update([
                     'status' => 'Payé',
                     'payment_date' => now(),
                     'stripe_session_id' => $sessionId
                 ]);
-                
+
+                // ✉️ Envoi du mail ici
+                Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
+
                 return view('payment.success', compact('inscription'));
             }
-            
+
             return redirect()->route('payment.cancel');
-            
+
         } catch (\Exception $e) {
             Log::error('Payment verification error: '.$e->getMessage());
             return redirect()->route('uFormation')->with('error', 'Erreur de vérification du paiement');
         }
     }
+
 
     public function cancel()
     {

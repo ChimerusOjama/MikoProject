@@ -20,7 +20,6 @@ Route::controller(FirstController::class)->group(function () {
     Route::get('/A_propos', 'aboutView')->name('about');
     Route::get('/Contact', 'contactView')->name('contact');
     Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
-    Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
 });
 
 // GROUPE : FirstController (routes protégées)
@@ -28,6 +27,7 @@ Route::middleware(['auth', 'verified'])->controller(FirstController::class)->gro
     Route::get('/home', 'redirect')->name('home');
     Route::get('/Mon_tableau_de_bord', 'uAdmin')->name('uAdmin');
     Route::get('/Mes_formations', 'uFormation')->name('uFormation');
+    Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
     Route::post('/logout', 'uLogout')->name('uLogout');
