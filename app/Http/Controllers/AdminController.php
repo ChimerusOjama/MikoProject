@@ -23,14 +23,16 @@ class AdminController extends Controller
     public function storeForm(Request $req)
     {
         $validated = $req->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'titre' => 'required|string|max:255',
             'description_courte' => 'required|string',
             'categorie' => 'required|string|max:50|in:informatique,gestion,langues',
             'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
             'prix' => 'required|numeric|min:0|max:100000',
-            'status' => 'required|string|in:publiee,brouillon,archivee',
             'duree_mois' => 'required|integer|min:1|max:24',
+            // 'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^price_[a-zA-Z0-9]+$/'],
+            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^prod_[a-zA-Z0-9]+$/'],
+            'status' => 'required|string|in:publiee,brouillon,archivee',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         try {
@@ -97,6 +99,8 @@ class AdminController extends Controller
             'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
             'prix' => 'required|numeric|min:0|max:100000',
             'duree_mois' => 'required|integer|min:1|max:24',
+            // 'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^price_[a-zA-Z0-9]+$/'],
+            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^prod_[a-zA-Z0-9]+$/'],
             'status' => 'required|string|in:publiee,brouillon,archivee',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);

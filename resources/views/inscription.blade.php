@@ -174,7 +174,7 @@
                     @csrf
                     <div class="mb-3">
                       <label for="fullName" class="form-label">Nom complet <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="fullName" disabled value="{{ Auth::user()->name }}" required>
+                      <input type="text" class="form-control" id="fullName" disabled value="{{ Auth::user()->first_name . ' ' . Auth::user()->last_name }}" required>
                     </div>
                     <div class="mb-3">
                       <label for="email" class="form-label">Email <span class="text-danger">*</span></label>

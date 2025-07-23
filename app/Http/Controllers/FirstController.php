@@ -159,7 +159,7 @@ class FirstController extends Controller
             // Création de l'inscription
             $insc = new Inscription();
             $insc->user_id = Auth::id();
-            $insc->name = Auth::user()->name;
+            $insc->name = Auth::user()->first_name . ' ' . Auth::user()->last_name;
             $insc->email = Auth::user()->email;
             $insc->phone = Auth::user()->phone;
             $insc->address = Auth::user()->address;

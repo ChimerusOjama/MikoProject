@@ -52,6 +52,11 @@
                     <input type="number" class="form-control" id="duree_mois" name="duree_mois" value="{{ $form->duree_mois }}" required min="1" max="24" placeholder="Durée en mois">
                   </div>
                   <div class="form-group">
+                      <label for="stripe_price_id">Stripe ID</label>
+                      <input type="text" class="form-control" id="stripe_price_id" name="stripe_price_id" required 
+                            placeholder="Ex: price_12345" value="{{ old('stripe_price_id') }}">
+                  </div>
+                  <div class="form-group">
                     <label for="status">Statut</label>
                     <select class="form-control" id="status" name="status" required>
                       <option value="publiee" {{ $form->status == 'publiee' ? 'selected' : '' }}>Publiée</option>

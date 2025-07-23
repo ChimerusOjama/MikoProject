@@ -60,6 +60,12 @@
           <span>Support</span>
         </a>
       </div>
+      <div class="nav-item">
+        <a href="{{ route('home') }}">
+          <i class="fas fa-home"></i>
+          <span>Accueil</span>
+        </a>
+      </div>
     </div>
   </div>
   
@@ -99,10 +105,10 @@
                    class="profile-img">
             @else
               <div class="profile-img" style="background: #3F51B5; color: white; display: flex; align-items: center; justify-content: center;">
-                {{ substr(Auth::user()->name, 0, 1) }}
+                {{ substr(Auth::user()->first_name, 0, 1) }}
               </div>
             @endif
-            <span class="user-name">{{ Auth::user()->name }}</span>
+            <span class="user-name">{{ Auth::user()->first_name }}</span>
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="dropdown-menu">

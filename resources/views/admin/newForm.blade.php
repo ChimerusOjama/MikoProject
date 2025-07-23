@@ -70,6 +70,12 @@
                         </div>
                         
                         <div class="form-group">
+                            <label for="stripe_price_id">Stripe ID</label>
+                            <input type="text" class="form-control" id="stripe_price_id" name="stripe_price_id" required 
+                                  placeholder="Ex: price_12345" value="{{ old('stripe_price_id') }}">
+                        </div>
+                        
+                        <div class="form-group">
                             <label for="status">Statut</label>
                             <select class="form-select" id="status" name="status" required>
                                 <option value="">Sélectionnez un statut</option>
