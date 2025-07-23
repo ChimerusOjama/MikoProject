@@ -280,6 +280,7 @@ class FirstController extends Controller
 
     // Stripe
 
+    //Première version de la fonction checkout
     // public function checkout($inscriptionId)
     // {
     //     if (!Auth::check()) {
@@ -354,6 +355,125 @@ class FirstController extends Controller
 
     // }
 
+    //Force le client Stripe à utiliser le bon fichier de certificat
+    // public function checkout($inscriptionId)
+    // {
+    //     if (!Auth::check()) {
+    //         Log::warning('❌ Utilisateur non authentifié');
+    //         abort(403, 'Vous devez être connecté pour effectuer un paiement.');
+    //     }
+
+    //     Log::info("🔁 Démarrage du paiement pour l'inscription ID: $inscriptionId");
+
+    //     $inscription = Inscription::find($inscriptionId);
+
+    //     if (!$inscription) {
+    //         Log::error("❌ Inscription introuvable (ID: $inscriptionId)");
+    //         abort(404, 'Inscription non trouvée.');
+    //     }
+
+    //     if ((int)$inscription->user_id !== (int)Auth::id()) {
+    //         Log::warning('❌ Accès interdit à une autre inscription', [
+    //             'connecté' => Auth::id(),
+    //             'propriétaire' => $inscription->user_id,
+    //         ]);
+    //         abort(403, 'Accès interdit.');
+    //     }
+
+    //     if ($inscription->status !== 'Accepté') {
+    //         Log::info("⛔ Inscription non éligible au paiement (Status: {$inscription->status})", [
+    //             'inscription_id' => $inscription->id,
+    //         ]);
+    //         return redirect()->back()->with('warning', 'Le paiement n’est possible que pour les inscriptions acceptées.');
+    //     }
+
+    //     $formation = $inscription->formation;
+
+    //     if (!$formation || !$formation->stripe_price_id) {
+    //         Log::error('❌ Formation ou prix Stripe manquant', [
+    //             'formation_id' => optional($formation)->id,
+    //             'stripe_price_id' => optional($formation)->stripe_price_id,
+    //         ]);
+    //         return redirect()->back()->with('error', 'Impossible de procéder au paiement : formation non valide.');
+    //     }
+
+    //     // Force le client Stripe à utiliser le bon fichier de certificat
+    //     putenv('CURL_CA_BUNDLE=' . base_path('storage/app/certs/cacert.pem'));
+    //     ini_set('curl.cainfo', base_path('storage/app/certs/cacert.pem'));
+    //     ini_set('openssl.cafile', base_path('storage/app/certs/cacert.pem'));
+
+
+    //     $caBundle = env('CURL_CA_BUNDLE');
+    
+    //     if (config('app.env') === 'local') {
+    //         if ($caBundle && file_exists($caBundle)) {
+    //             \Stripe\Stripe::setCABundlePath($caBundle);
+    //             Log::info("🔒 Utilisation du bundle de certificats local: $caBundle");
+    //         } else {
+    //             // Solution de secours pour les environnements sans bundle
+    //             Log::warning("⚠️ Bundle de certificats introuvable, tentative de solution alternative");
+                
+    //             // Tentative de récupération du bundle système
+    //             $systemCaBundle = ini_get('curl.cainfo') ?: ini_get('openssl.cafile');
+                
+    //             if ($systemCaBundle && file_exists($systemCaBundle)) {
+    //                 \Stripe\Stripe::setCABundlePath($systemCaBundle);
+    //                 Log::info("🔒 Utilisation du bundle système: $systemCaBundle");
+    //             } else {
+    //                 // Désactivation SSL uniquement en dernier recours
+    //                 \Stripe\Stripe::setVerifySslCerts(false);
+    //                 Log::warning("⚠️ Vérification SSL désactivée (dernier recours)");
+    //             }
+    //         }
+    //     }
+
+    //     Stripe::setApiKey(config('services.stripe.secret'));
+
+    //     Log::info("🔒 Environnement SSL modifié manuellement : ", [
+    //         'curl.cainfo' => ini_get('curl.cainfo'),
+    //         'openssl.cafile' => ini_get('openssl.cafile'),
+    //         'CURL_CA_BUNDLE' => getenv('CURL_CA_BUNDLE')
+    //     ]);
+
+
+    //     try {
+    //         Log::info('✅ Création de session Stripe...', [
+    //             'formation' => $formation->id,
+    //             'stripe_price_id' => $formation->stripe_price_id,
+    //         ]);
+
+    //         $session = Session::create([
+    //             'line_items' => [[
+    //                 'price' => $formation->stripe_price_id,
+    //                 'quantity' => 1,
+    //             ]],
+    //             'mode' => 'payment',
+    //             'success_url' => route('payment.success', [
+    //                 'inscription' => $inscriptionId,
+    //                 'session_id' => '{CHECKOUT_SESSION_ID}'
+    //             ]),
+    //             'cancel_url' => route('payment.cancel'),
+    //             'metadata' => [
+    //                 'inscription_id' => $inscriptionId,
+    //                 'user_id' => Auth::id()
+    //             ],
+    //             'customer_email' => Auth::user()->email, // Ajout recommandé
+    //             'client_reference_id' => 'insc_'.$inscriptionId, // Ajout recommandé
+    //         ]);
+
+    //         Log::info('✅ Session Stripe créée avec succès.', [
+    //             'session_id' => $session->id,
+    //             'checkout_url' => $session->url
+    //         ]);
+
+    //         return redirect($session->url);
+
+    //     } catch (\Exception $e) {
+    //         Log::error('💥 Stripe Checkout Error: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement: '.$e->getMessage());
+    //     }
+    // }
+
     public function checkout($inscriptionId)
     {
         if (!Auth::check()) {
@@ -395,7 +515,44 @@ class FirstController extends Controller
             return redirect()->back()->with('error', 'Impossible de procéder au paiement : formation non valide.');
         }
 
+        // Force le client Stripe à utiliser le bon fichier de certificat
+        putenv('CURL_CA_BUNDLE=' . base_path('storage/app/certs/cacert.pem'));
+        ini_set('curl.cainfo', base_path('storage/app/certs/cacert.pem'));
+        ini_set('openssl.cafile', base_path('storage/app/certs/cacert.pem'));
+
+
+        $caBundle = env('CURL_CA_BUNDLE');
+    
+        if (config('app.env') === 'local') {
+            if ($caBundle && file_exists($caBundle)) {
+                \Stripe\Stripe::setCABundlePath($caBundle);
+                Log::info("🔒 Utilisation du bundle de certificats local: $caBundle");
+            } else {
+                // Solution de secours pour les environnements sans bundle
+                Log::warning("⚠️ Bundle de certificats introuvable, tentative de solution alternative");
+                
+                // Tentative de récupération du bundle système
+                $systemCaBundle = ini_get('curl.cainfo') ?: ini_get('openssl.cafile');
+                
+                if ($systemCaBundle && file_exists($systemCaBundle)) {
+                    \Stripe\Stripe::setCABundlePath($systemCaBundle);
+                    Log::info("🔒 Utilisation du bundle système: $systemCaBundle");
+                } else {
+                    // Désactivation SSL uniquement en dernier recours
+                    \Stripe\Stripe::setVerifySslCerts(false);
+                    Log::warning("⚠️ Vérification SSL désactivée (dernier recours)");
+                }
+            }
+        }
+
         Stripe::setApiKey(config('services.stripe.secret'));
+
+        Log::info("🔒 Environnement SSL modifié manuellement : ", [
+            'curl.cainfo' => ini_get('curl.cainfo'),
+            'openssl.cafile' => ini_get('openssl.cafile'),
+            'CURL_CA_BUNDLE' => getenv('CURL_CA_BUNDLE')
+        ]);
+
 
         try {
             Log::info('✅ Création de session Stripe...', [
@@ -417,7 +574,9 @@ class FirstController extends Controller
                 'metadata' => [
                     'inscription_id' => $inscriptionId,
                     'user_id' => Auth::id()
-                ]
+                ],
+                'customer_email' => Auth::user()->email, // Ajout recommandé
+                'client_reference_id' => 'insc_'.$inscriptionId, // Ajout recommandé
             ]);
 
             Log::info('✅ Session Stripe créée avec succès.', [
@@ -429,9 +588,11 @@ class FirstController extends Controller
 
         } catch (\Exception $e) {
             Log::error('💥 Stripe Checkout Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement.');
+            return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement: '.$e->getMessage());
         }
     }
+
+
 
 
     public function success(Request $request)
