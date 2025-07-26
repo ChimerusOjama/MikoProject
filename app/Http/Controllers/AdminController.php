@@ -7,11 +7,31 @@ use App\Models\Inscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
     //
+    public function index()
+    {
+        return view('admin.index');
+    }
+
+    public function logout(Request $req){
+    if(Auth::id()){
+        Auth::logout();
+        $req->session()->invalidate();
+        $req->session()->regenerateToken();
+        $forms = Formation::all();
+        return redirect('/');
+    }else{
+        $forms = Formation::where('status', 'publiee')->get();
+        return view('index', compact('forms'));
+    }
+    }
+    
     public function allForm(){
         $forms = Formation::all();
         return view('admin.allForm', compact('forms'));

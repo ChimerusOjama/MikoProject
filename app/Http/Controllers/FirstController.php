@@ -34,27 +34,52 @@ class FirstController extends Controller
         }
     }
 
-
     public function redirect()
-    {
-        if (Auth::id()) {
-            $usertype = Auth()->user()->usertype;
-
-            if ($usertype === 'user') {
-                $forms = Formation::where('status', 'publiee')
-                    ->withCount('inscriptions')
-                    ->orderByDesc('inscriptions_count')
-                    ->take(3)
-                    ->get();
-
-                return view('index', compact('forms'));
-            } elseif ($usertype === 'admin') {
-                return view('admin.index');
-            } else {
-                return redirect()->back();
-            }
-        }
+{
+    if (!Auth::check()) {
+        return redirect('/');
     }
+
+    $usertype = Auth::user()->usertype;
+
+    switch ($usertype) {
+        case 'admin':
+            return view('admin.index');
+        case 'user':
+            $forms = Formation::where('status', 'publiee')
+                ->withCount('inscriptions')
+                ->orderByDesc('inscriptions_count')
+                ->take(3)
+                ->get();
+            return redirect()->route('home', compact('forms'));
+        default:
+            Auth::logout();
+            return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');
+    }
+}
+
+
+
+    // public function redirect()
+    // {
+    //     if (Auth::id()) {
+    //         $usertype = Auth()->user()->usertype;
+
+    //         if ($usertype === 'user') {
+    //             $forms = Formation::where('status', 'publiee')
+    //                 ->withCount('inscriptions')
+    //                 ->orderByDesc('inscriptions_count')
+    //                 ->take(3)
+    //                 ->get();
+
+    //             return view('index', compact('forms'));
+    //         } elseif ($usertype === 'admin') {
+    //             return view('admin.index');
+    //         } else {
+    //             return redirect()->back();
+    //         }
+    //     }
+    // }
 
 
 
@@ -167,8 +192,7 @@ class FirstController extends Controller
             $insc->formation_id = $formation->id;
             $insc->choixForm = $formation->titre;
             $insc->montant = '14 500 FCFA';
-            $insc->status = 'En attente';
-
+            $insc->status = 'Accepté'; 
             $insc->save();
 
             if (!$insc) {

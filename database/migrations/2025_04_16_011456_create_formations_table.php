@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('categorie', 50);
             $table->string('niveau', 20);
             $table->integer('prix');
-            $table->string('status')->default('brouillon');
+            $table->string('status')->nullable();
             $table->integer('duree_mois');
             $table->string('image_url');
             $table->timestamps();

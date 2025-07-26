@@ -11,7 +11,7 @@ use App\Http\Controllers\MainController;
 |--------------------------------------------------------------------------
 */
 
-// GROUPE : FirstController (public routes)
+// GROUPE : Routes publiques (FirstController)
 Route::controller(FirstController::class)->group(function () {
     Route::get('/', 'index')->name('uHome');
     Route::get('/Nos_formations', 'formListing')->name('listing');
@@ -22,57 +22,35 @@ Route::controller(FirstController::class)->group(function () {
     Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
 });
 
-// GROUPE : FirstController (routes protégées)
-Route::middleware(['auth', 'verified'])->controller(FirstController::class)->group(function () {
-    Route::get('/home', 'redirect')->name('home');
+// GROUPE : Routes partagées (auth + redirect)
+Route::middleware(['auth', 'verified'])->get('/home', [FirstController::class, 'redirect'])->name('home');
+
+// GROUPE : Utilisateur simple (usertype = user)
+Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
     Route::get('/Mon_tableau_de_bord', 'uAdmin')->name('uAdmin');
     Route::get('/Mes_formations', 'uFormation')->name('uFormation');
     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
-    Route::get('/Support', 'uSupport')->name('uSupport');
     Route::post('/logout', 'uLogout')->name('uLogout');
+    Route::get('/Support', 'uSupport')->name('uSupport');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
-    Route::get('/payment/success','success')->name('payment.success');
+    Route::get('/payment/success', 'success')->name('payment.success');
     Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
 });
 
-// GROUPE : AdminController (routes admin)
-Route::middleware(['auth', 'verified'])->controller(AdminController::class)->group(function () {
+// GROUPE : Administrateur (usertype = admin)
+Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::class)->group(function () {
     Route::get('/Liste_formations', 'allForm')->name('allForm');
     Route::get('/nouvelle_formation', 'newForm')->name('newForm');
     Route::post('/Insertion', 'storeForm')->name('storeForm');
     Route::get('/Reservations', 'reserveView')->name('allreserv');
-    // Route::get('/Inscriptions', 'inscsView')->name('allinscriptions');
     Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
     Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
     Route::get('/Supprimer_formation/foramtion={id}', 'supForm')->name('supForm');
     Route::get('/Modifier_formation/foramtion={id}', 'updateView')->name('updateView');
     Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
+    Route::post('/logout', 'logout')->name('aLogout');
 });
 
-// Route de test mail (isolée)
+// Route test (facultative)
 Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
-
-
-
-// Route::get('/test-mail', function () {
-//     Mail::to('berchebaisrael@gmail.com')->send(new TestMail());
-//     return 'E-mail envoyé !';
-// });
-
-
-
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-// Route::middleware([
-//     'auth:sanctum',
-//     config('jetstream.auth_session'),
-//     'verified',
-// ])->group(function () {
-//     Route::get('/dashboard', function () {
-//         return view('dashboard');
-//     })->name('dashboard');
-// });
-

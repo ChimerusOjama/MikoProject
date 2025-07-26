@@ -20,7 +20,6 @@
     <!-- endinject -->
     <!-- Layout styles -->
     <link rel="stylesheet" href="{{ asset('admin/assets/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/assets/css/mycss.css') }}">
     <!-- End layout styles -->
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -270,7 +269,7 @@
                     </div>
                 </li>
                 <li class="nav-item dropdown">
-                    <form action="{{route('uLogout')}}" method="post">
+                    <form action="{{route('aLogout')}}" method="post">
                         @csrf
                         <button type="submit" class="btn btn-danger">Déconnection</button>
                     </form>

@@ -91,7 +91,7 @@
             </div>
             
             <h2 class="mb-4">Description complète</h2>
-            <p>{{ $oneForm->description }}.</p>
+            <p>{{ $oneForm->description_courte }}.</p>
             <h3 class="mb-3">Objectifs de la formation</h3>
             <ul class="mb-4">
               <li>Maîtriser les fonctions avancées d'Excel (rechercheV, index, matrices, etc.)</li>
