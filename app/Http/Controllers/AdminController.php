@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Formation;
 use App\Models\Inscription;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Hash;
+
 
 class AdminController extends Controller
 {
@@ -194,4 +197,118 @@ class AdminController extends Controller
         $res->save();
         return redirect()->back()->with('success', 'Vous avez rejeté la demande.');
     }
+
+    public function usersView()
+    {
+        $users = User::where('usertype', 'user')->get();
+        return view('admin.allUsers', compact('users'));
+    }
+    public function newUser()
+    {
+        return view('admin.newUser');
+    }
+
+    public function storeUser(Request $req)
+    {
+        $validated = $req->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|same:password',
+            'usertype' => 'required|string|in:admin,formateur,agent,user',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        try {
+            $userData = [
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'password' => Hash::make($validated['password']),
+                'usertype' => $validated['usertype'],
+            ];
+
+            // Gestion de la photo de profil
+            if ($req->hasFile('profile_photo')) {
+                $file = $req->file('profile_photo');
+                $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                $extension = $file->getClientOriginalExtension();
+                $imageName = $safeName . '_' . time() . '.' . $extension;
+
+                $path = $file->storeAs('profile-photos', $imageName, 'public');
+                $userData['profile_photo_path'] = Storage::url($path);
+            } else {
+                // Photo par défaut si aucune n'est fournie
+                $userData['profile_photo_path'] = '/images/default-avatar.png';
+            }
+
+            // Création de l'utilisateur
+            User::create($userData);
+
+            return redirect()->back()->with('success', 'Utilisateur créé avec succès');
+
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
+        }
+    }
+
+    // public function storeUser(Request $req)
+    // {
+    //     $validated = $req->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|unique:users,email',
+    //         'password' => 'required|string|min:8|confirmed',
+    //         'role' => ['required', Rule::in(['user', 'admin'])],
+    //     ]);
+
+    //     $user = User::create([
+    //         'name' => $validated['name'],
+    //         'email' => $validated['email'],
+    //         'password' => bcrypt($validated['password']),
+    //         'role' => $validated['role'],
+    //     ]);
+
+    //     return redirect()->back()->with('success', 'Utilisateur créé avec succès');
+    // }
+
+    public function updateUserView($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return redirect()->back()->with('error', 'Utilisateur introuvable.');
+        }
+        return view('admin.updateUser', compact('user'));
+    }
+
+    public function archiveForm($id)
+    {
+        $form = Formation::find($id);
+        if (!$form) {
+            return redirect()->back()->with('error', 'Formation introuvable.');
+        }
+
+        $hasInscriptions = Inscription::where('formation_id', $form->id)->exists();
+        if ($hasInscriptions) {
+            return redirect()->back()->with('warning', "Impossible d'archiver cette formation car des apprenants y sont déjà inscrits.");
+        }
+
+        $form->status = 'archivee';
+        $form->save();
+
+        return redirect()->back()->with('success', 'La formation a été archivée avec succès');
+    }
+
+    public function archiveView()
+    {
+        $forms = Formation::where('status', 'archivee')->get();
+        return view('admin.archiveForm', compact('forms'));
+    }
+
 }

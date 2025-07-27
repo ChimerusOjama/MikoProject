@@ -49,6 +49,12 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::
     Route::get('/Supprimer_formation/foramtion={id}', 'supForm')->name('supForm');
     Route::get('/Modifier_formation/foramtion={id}', 'updateView')->name('updateView');
     Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
+    Route::get('/Liste_utilisateurs', 'usersView')->name('allUsers');
+    Route::get('/nouvel_utilisateur', 'newUser')->name('newUser');
+    Route::post('/Insertion_utilisateur', 'storeUser')->name('storeUser');
+    Route::get('/Supprimer_utilisateur/utilisateur={id}', 'supUser')->name('supUser');
+    Route::get('/Modifier_utilisateur/utilisateur={id}', 'updateUserView')->name('updateUserView');
+    Route::post('/Mise_a_jour/utilisateur={id}', 'updateUser')->name('updateUser');
     Route::post('/logout', 'logout')->name('aLogout');
 });
 
