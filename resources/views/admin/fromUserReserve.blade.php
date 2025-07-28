@@ -16,6 +16,7 @@
                         <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Liste des Inscriptions</h4>
+                                <a href="{{ route('inscView') }}" class="btn btn-primary addLink">Inscription manuelle</a>
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
@@ -63,9 +64,6 @@
                                                     title="Rejeter">
                                                         <i class="mdi mdi-close"></i>
                                                     </a>
-                                                    <!-- <a href="/Rejeter_reservation/inscription={{ $eachInsc->id }}" 
-                                                    class="badge badge-danger"
-                                                    onclick="return confirm('Souhaitez-vous réellement rejeter cette demande ?')">Refuser</a> -->
                                                     <a href="#" 
                                                     class="btn btn-sm btn-info btn-icon view-message"
                                                     data-message="{{ $eachInsc->message }}"
@@ -74,12 +72,6 @@
                                                     </a>
                                                 </div>
                                             </td>
-                                            <!-- <td>
-                                                <a href="/Accepter_reservation/inscription={{ $eachInsc->id }}" class="badge badge-success">Accepter</a>
-                                                <a href="/Rejeter_reservation/inscription={{ $eachInsc->id }}" 
-                                                class="badge badge-danger"
-                                                onclick="return confirm('Souhaitez-vous réellement rejeter cette demande ?')">Refuser</a>
-                                            </td> -->
                                         </tr>
                                         @endforeach
                                     </tbody>

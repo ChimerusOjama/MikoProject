@@ -40,21 +40,34 @@ Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::c
 
 // GROUPE : Administrateur (usertype = admin)
 Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::class)->group(function () {
+    // Formations
     Route::get('/Liste_formations', 'allForm')->name('allForm');
     Route::get('/nouvelle_formation', 'newForm')->name('newForm');
     Route::post('/Insertion', 'storeForm')->name('storeForm');
     Route::get('/Reservations', 'reserveView')->name('allreserv');
+    Route::get('/Supprimer_formation/formation={id}', 'supForm')->name('supForm');
+    Route::get('/Modifier_formation/formation={id}', 'updateView')->name('updateView');
+    Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
     Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
     Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
-    Route::get('/Supprimer_formation/foramtion={id}', 'supForm')->name('supForm');
-    Route::get('/Modifier_formation/foramtion={id}', 'updateView')->name('updateView');
-    Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
+    // Inscriptions
+    Route::get('/Nouvelle_inscription', 'inscView')->name('inscView');
+    Route::post('/Insertion_inscription', 'storeInsc')->name('storeInsc');
+    // Utilisateurs
     Route::get('/Liste_utilisateurs', 'usersView')->name('allUsers');
     Route::get('/nouvel_utilisateur', 'newUser')->name('newUser');
     Route::post('/Insertion_utilisateur', 'storeUser')->name('storeUser');
     Route::get('/Supprimer_utilisateur/utilisateur={id}', 'supUser')->name('supUser');
     Route::get('/Modifier_utilisateur/utilisateur={id}', 'updateUserView')->name('updateUserView');
     Route::post('/Mise_a_jour/utilisateur={id}', 'updateUser')->name('updateUser');
+    // Paiements
+    Route::get('/Liste_paiements', 'allPayments')->name('allPayments');
+    Route::get('/nouveau_paiement', 'newPayment')->name('newPayment');
+    Route::post('/Insertion_paiement', 'storePayment')->name('storePayment');
+    Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
+    Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
+    Route::post('/Mise_a_jour/paiement={id}', 'updatePayment')->name('updatePayment');
+    // Logout
     Route::post('/logout', 'logout')->name('aLogout');
 });
 

@@ -24,8 +24,6 @@
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
-    <!-- <link rel="stylesheet" href="{{ asset('bootstrap-5.3.3/css/bootstrap.min.css') }}"> -->
-
     <link rel="shortcut icon" href="{{ asset('admin/assets/images/favicon.png') }}" />
   </head>
 <body>
@@ -114,7 +112,7 @@
                     </a>
                 </li>
                 <li class="nav-item menu-items @yield('paiement')">
-                    <a class="nav-link" href="">
+                    <a class="nav-link" href="{{ route('allPayments') }}">
                     <span class="menu-icon">
                         <i class="mdi mdi-cash"></i>
                     </span>
