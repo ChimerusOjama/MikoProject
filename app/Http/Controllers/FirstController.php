@@ -35,52 +35,28 @@ class FirstController extends Controller
     }
 
     public function redirect()
-{
-    if (!Auth::check()) {
-        return redirect('/');
+    {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+
+        $usertype = Auth::user()->usertype;
+
+        switch ($usertype) {
+            case 'admin':
+                return view('admin.index');
+            case 'user':
+                $forms = Formation::where('status', 'publiee')
+                    ->withCount('inscriptions')
+                    ->orderByDesc('inscriptions_count')
+                    ->take(3)
+                    ->get();
+                return view('index', compact('forms'));
+            default:
+                Auth::logout();
+                return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');
+        }
     }
-
-    $usertype = Auth::user()->usertype;
-
-    switch ($usertype) {
-        case 'admin':
-            return view('admin.index');
-        case 'user':
-            $forms = Formation::where('status', 'publiee')
-                ->withCount('inscriptions')
-                ->orderByDesc('inscriptions_count')
-                ->take(3)
-                ->get();
-            return redirect()->route('home', compact('forms'));
-        default:
-            Auth::logout();
-            return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');
-    }
-}
-
-
-
-    // public function redirect()
-    // {
-    //     if (Auth::id()) {
-    //         $usertype = Auth()->user()->usertype;
-
-    //         if ($usertype === 'user') {
-    //             $forms = Formation::where('status', 'publiee')
-    //                 ->withCount('inscriptions')
-    //                 ->orderByDesc('inscriptions_count')
-    //                 ->take(3)
-    //                 ->get();
-
-    //             return view('index', compact('forms'));
-    //         } elseif ($usertype === 'admin') {
-    //             return view('admin.index');
-    //         } else {
-    //             return redirect()->back();
-    //         }
-    //     }
-    // }
-
 
 
     public function uLogout(Request $req){
@@ -110,14 +86,22 @@ class FirstController extends Controller
         }
 
         $badgeColors = [
-            'informatique' => 'bg-primary',
-            'gestion' => 'bg-success',
-            'langues' => 'bg-warning text-dark',
+            'developpement' => 'bg-primary',
+            'bureautique'   => 'bg-secondary',
+            'gestion'       => 'bg-success',
+            'langues'       => 'bg-warning text-dark',
+            'marketing'     => 'bg-info text-dark',
+            'design'        => 'bg-purple text-white',
+            'informatique'  => 'bg-indigo text-white',
+            'finance'       => 'bg-teal text-white',
         ];
+
+        // Ajout de la classe de badge à la formation principale
+        $oneForm->badgeClass = $badgeColors[$oneForm->categorie] ?? 'bg-secondary';
 
         $similarForms = Formation::where('categorie', $oneForm->categorie)
             ->where('id', '!=', $oneForm->id)
-            ->where('status', 'publiee') // ← filtre ici aussi
+            ->where('status', 'publiee')
             ->take(3)
             ->get();
 
@@ -158,16 +142,13 @@ class FirstController extends Controller
     public function formInsc(Request $req)
     {
         if (Auth::id()) {
-            // Validation
+
             $req->validate([
                 'formation_id' => 'required|exists:formations,id',
                 'message' => 'nullable|string|max:500',
             ]);
 
-            // Récupère la formation
             $formation = Formation::findOrFail($req->formation_id);
-
-            // ✅ Vérification du statut
             if ($formation->status !== 'publiee') {
                 return redirect()->back()->with('error', 'Cette formation n\'est pas disponible pour l\'inscription.');
             }
@@ -181,7 +162,6 @@ class FirstController extends Controller
                 return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
             }
 
-            // Création de l'inscription
             $insc = new Inscription();
             $insc->user_id = Auth::id();
             $insc->name = Auth::user()->first_name . ' ' . Auth::user()->last_name;
@@ -198,7 +178,6 @@ class FirstController extends Controller
             if (!$insc) {
                 return redirect()->back()->with('error', 'Votre demande a échoué, veuillez réessayer.');
             } else {
-                // Mail::to(Auth::user()->email)->send(new infoMail());
                 Mail::to(Auth::user()->email)->send(
                     new infoMail(Auth::user(), $formation, $insc)
                 );
@@ -659,4 +638,60 @@ class FirstController extends Controller
     {
         return view('payment.cancel');
     }
+
+    public function generateStripeLink($inscriptionId)
+    {
+        $inscription = Inscription::findOrFail($inscriptionId);
+        $user = $inscription->user;
+        
+        if (!$user || !$user->email) {
+            Log::warning("Utilisateur introuvable ou email manquant pour l’inscription ID {$inscriptionId}");
+            return null;
+        }
+
+        if ($inscription->status !== 'Accepté') {
+            return null;
+        }
+
+        $formation = $inscription->formation;
+
+        if (!$formation || !$formation->stripe_price_id) {
+            return null;
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            $session = Session::create([
+                'line_items' => [[
+                    'price' => $formation->stripe_price_id,
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => route('payment.success', [
+                    'inscription' => $inscriptionId,
+                    'session_id' => '{CHECKOUT_SESSION_ID}'
+                ]),
+                'cancel_url' => route('payment.cancel'),
+                'metadata' => [
+                    'inscription_id' => $inscriptionId,
+                    'user_id' => $user->id
+                ],
+                'customer_email' => $user->email,
+                'client_reference_id' => 'insc_' . $inscriptionId,
+            ]);
+
+            if (is_null($lienPaiement)) {
+                Log::info("Lien Stripe non généré pour l'inscription #{$inscriptionId}");
+            }
+
+            return $session->url;
+
+        } catch (\Exception $e) {
+            Log::error('Erreur Stripe (link generation): ' . $e->getMessage());
+            return null;
+        }
+    }
+
+
 }

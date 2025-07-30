@@ -115,7 +115,7 @@
             <a href="" class="dropdown-item">
               <i class="fas fa-user"></i> Mon Profil
             </a>
-            <form action="{{ route('uLogout') }}" method="POST">
+            <form action="{{ route('logout-user') }}" method="POST">
               @csrf
               <button type="submit" class="dropdown-item logout" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
                 <i class="fas fa-sign-out-alt"></i> Se déconnecter

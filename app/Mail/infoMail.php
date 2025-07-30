@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Address;
+use App\Http\Controllers\FirstController;
 
 class infoMail extends Mailable
 {
@@ -18,6 +19,7 @@ class infoMail extends Mailable
     public $user;
     public $formation;
     public $inscription;
+    public $lienPaiement;
 
     /**
      * Create a new message instance.
@@ -27,6 +29,7 @@ class infoMail extends Mailable
         $this->user = $user;
         $this->formation = $formation;
         $this->inscription = $inscription;
+        $this->lienPaiement = app(FirstController::class)->generateStripeLink($inscription->id);
     }
 
     /**
@@ -51,9 +54,12 @@ class infoMail extends Mailable
                 'user' => $this->user,
                 'formation' => $this->formation,
                 'inscription' => $this->inscription,
+                'lienPaiement' => $this->lienPaiement, // 👈 important
             ],
         );
     }
+
+
 
     /**
      * Get the attachments for the message.

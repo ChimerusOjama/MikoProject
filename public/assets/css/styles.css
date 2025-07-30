@@ -12,6 +12,20 @@
   --card-shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.15);
 }
 
+/* Classes de couleur supplémentaires */
+.bg-purple { background-color: #6f42c1; }
+.bg-indigo { background-color: #6610f2; }
+.bg-teal { background-color: #20c997; }
+.bg-pink { background-color: #d63384; }
+.bg-orange { background-color: #fd7e14; }
+.bg-brown { background-color: #795548; }
+.bg-cyan { background-color: #0dcaf0; }
+.bg-deep-orange { background-color: #ff5722; }
+.bg-deep-purple { background-color: #673ab7; }
+.bg-light-gray { background-color: #e0e0e0; }
+.text-white { color: white; }
+.text-dark { color: #212529; }
+
 /* ======= Styles de base ======= */
 body {
   font-family: 'Inter', sans-serif;

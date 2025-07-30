@@ -112,7 +112,7 @@
                 @if(Route::has('login'))
                 @auth
                   <li><a class="dropdown-item login-btn" href="{{route('uAdmin')}}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                  <form action="{{route('uLogout')}}" method="post">
+                  <form action="{{route('logout-user')}}" method="post">
                     @csrf
                     <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
                   </form>
@@ -134,7 +134,7 @@
           @if(Route::has('login'))
             @auth
               <a class="nav-link login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
-              <form action="{{route('uLogout')}}" method="post">
+              <form action="{{route('logout-user')}}" method="post">
                 @csrf
                 <button type="submit" class="nav-link logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
               </form>

@@ -111,14 +111,32 @@
             @foreach($forms as $form)
                 @php
                     switch($form->categorie) {
-                        case 'informatique':
+                        case 'developpement':
                             $badgeClass = 'bg-primary';
+                            break;
+                        case 'bureautique':
+                            $badgeClass = 'bg-secondary';
                             break;
                         case 'gestion':
                             $badgeClass = 'bg-success';
                             break;
                         case 'langues':
                             $badgeClass = 'bg-warning text-dark';
+                            break;
+                        case 'marketing':
+                            $badgeClass = 'bg-info text-dark';
+                            break;
+                        case 'design':
+                            $badgeClass = 'bg-purple text-white';
+                            break;
+                        case 'finance':
+                            $badgeClass = 'bg-teal text-white';
+                            break;
+                        case 'communication':
+                            $badgeClass = 'bg-pink text-white';
+                            break;
+                        case 'management':
+                            $badgeClass = 'bg-orange text-white';
                             break;
                         default:
                             $badgeClass = 'bg-secondary';

@@ -192,11 +192,14 @@
         </div>
       </div>
       
-      <div style="text-align: center;">
-        <a href="" class="cta-button">
-          Payer en ligne maintenant
-        </a>
-      </div>
+      @if(isset($lienPaiement))
+          <p>
+              <a href="{{ $lienPaiement }}" style="display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;">
+                  💳 Payer en ligne maintenant
+              </a>
+          </p>
+      @endif
+
       
       <p>Nous vous remercions de votre intérêt et restons disponibles pour toute information complémentaire.</p>
       

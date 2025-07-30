@@ -37,25 +37,30 @@ class AdminController extends Controller
     
     public function allForm(){
         $forms = Formation::all();
-        return view('admin.allForm', compact('forms'));
+        return view('admin.forms.allForm', compact('forms'));
     }
 
     public function newForm(){
-        return view('admin.newForm');
+        return view('admin.forms.newForm');
     }
+
     public function storeForm(Request $req)
     {
         $validated = $req->validate([
             'titre' => 'required|string|max:255',
-            'description_courte' => 'required|string',
-            'categorie' => 'required|string|max:50|in:informatique,gestion,langues',
+            'description_courte' => 'required|string|max:200',
+            'description_longue' => 'nullable|string',
+            'categorie' => 'required|string|max:50|in:developpement,bureautique,gestion,langues,marketing,design',
             'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
-            'prix' => 'required|numeric|min:0|max:100000',
-            'duree_mois' => 'required|integer|min:1|max:24',
-            // 'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^price_[a-zA-Z0-9]+$/'],
-            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^prod_[a-zA-Z0-9]+$/'],
+            'prix' => 'required|numeric|min:0|max:1000000',
+            'duree_mois' => 'required|integer|min:1|max:36',
+            'places_disponibles' => 'nullable|integer|min:0|max:1000',
+            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+            'stripe_product_id' => ['nullable', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
             'status' => 'required|string|in:publiee,brouillon,archivee',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'date_debut' => 'nullable|date',
+            'date_fin' => 'nullable|date|after_or_equal:date_debut',
+            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         try {
@@ -65,14 +70,21 @@ class AdminController extends Controller
 
             $path = $req->image->storeAs('formations', $imageName, 'public');
 
+            // Création de la formation
             Formation::create([
                 'titre' => $validated['titre'],
                 'description_courte' => $validated['description_courte'],
+                'description_longue' => $validated['description_longue'] ?? null,
                 'categorie' => $validated['categorie'],
                 'niveau' => $validated['niveau'],
                 'prix' => $validated['prix'],
                 'duree_mois' => $validated['duree_mois'],
+                'places_disponibles' => $validated['places_disponibles'] ?? null,
                 'status' => $validated['status'],
+                'stripe_price_id' => $validated['stripe_price_id'],
+                'stripe_product_id' => $validated['stripe_product_id'] ?? null,
+                'date_debut' => $validated['date_debut'] ?? null,
+                'date_fin' => $validated['date_fin'] ?? null,
                 'image_url' => Storage::url($path),
             ]);
 
@@ -84,6 +96,7 @@ class AdminController extends Controller
                 ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
         }
     }
+    
     public function supForm($id)
     {
         $formation = Formation::find($id);
@@ -104,37 +117,34 @@ class AdminController extends Controller
 
     public function updateView($id){
         $form = Formation::find($id);
-        return view('admin.updateForm', compact('form'));
+        return view('admin.forms.updateForm', compact('form'));
     }
     public function updateForm(Request $req, $id)
     {
-        $form = Formation::find($id);
+        $form = Formation::findOrFail($id);
 
-        $hasInscriptions = Inscription::where('formation_id', $form->id)->exists();
-        if ($hasInscriptions) {
+        if (Inscription::where('formation_id', $form->id)->exists()) {
             return redirect()->back()->withErrors(['error' => "Impossible de modifier cette formation car des utilisateurs y sont déjà inscrits."]);
         }
 
         $validated = $req->validate([
             'titre' => 'required|string|max:255',
-            'description_courte' => 'required|string',
-            'categorie' => 'required|string|max:50|in:informatique,gestion,langues',
-            'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
-            'prix' => 'required|numeric|min:0|max:100000',
-            'duree_mois' => 'required|integer|min:1|max:24',
-            // 'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^price_[a-zA-Z0-9]+$/'],
-            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^prod_[a-zA-Z0-9]+$/'],
+            'description_courte' => 'required|string|max:200',
+            'description_longue' => 'nullable|string',
+            'categorie' => 'required|string|in:developpement,bureautique,gestion,langues,marketing,design',
+            'niveau' => 'required|string|in:debutant,intermediaire,avance',
+            'prix' => 'required|numeric|min:0|max:1000000',
+            'duree_mois' => 'required|integer|min:1|max:36',
+            'places_disponibles' => 'nullable|integer|min:1|max:100',
+            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price_|prod_)[a-zA-Z0-9]+$/'],
+            'stripe_product_id' => 'nullable|string|max:255',
             'status' => 'required|string|in:publiee,brouillon,archivee',
+            'date_debut' => 'nullable|date',
+            'date_fin' => 'nullable|date|after_or_equal:date_debut',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $form->titre = $validated['titre'];
-        $form->description_courte = $validated['description_courte'];
-        $form->categorie = $validated['categorie'];
-        $form->niveau = $validated['niveau'];
-        $form->prix = $validated['prix'];
-        $form->duree_mois = $validated['duree_mois'];
-        $form->status = $validated['status'];
+        $form->fill($validated);
 
         if ($req->hasFile('image')) {
             $image = $req->file('image');
@@ -147,19 +157,16 @@ class AdminController extends Controller
             }
 
             $image->move(public_path('formations'), $imageName);
-            $imagePath = 'formations/' . $imageName;
-
-            $form->image_url = $imagePath;
+            $form->image_url = 'formations/' . $imageName;
         }
 
-        $result = $form->save();
-
-        if ($result) {
-            return redirect()->back()->with('success', 'La formation a été mise à jour avec succès');
+        if ($form->save()) {
+            return redirect()->route('allForm')->with('success', 'La formation a été mise à jour avec succès.');
         } else {
             return redirect()->back()->withErrors(['error' => "Erreur lors de la mise à jour."]);
         }
     }
+
 
     public function reserveView(){
         $allInsc = Inscription::orderBy('created_at', 'desc')->get();

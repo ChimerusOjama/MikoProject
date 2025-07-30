@@ -24,6 +24,7 @@ Route::controller(FirstController::class)->group(function () {
 
 // GROUPE : Routes partagées (auth + redirect)
 Route::middleware(['auth', 'verified'])->get('/home', [FirstController::class, 'redirect'])->name('home');
+Route::middleware(['auth', 'verified'])->post('/logout-user', [FirstController::class, 'uLogout'])->name('logout-user');
 
 // GROUPE : Utilisateur simple (usertype = user)
 Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
@@ -31,7 +32,6 @@ Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::c
     Route::get('/Mes_formations', 'uFormation')->name('uFormation');
     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
-    Route::post('/logout', 'uLogout')->name('uLogout');
     Route::get('/Support', 'uSupport')->name('uSupport');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
     Route::get('/payment/success', 'success')->name('payment.success');

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Laravel\Jetstream\Jetstream;
+use Illuminate\Support\Facades\DB;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -17,6 +18,7 @@ class CreateNewUser implements CreatesNewUsers
      *
      * @param  array<string, string>  $input
      */
+
     public function create(array $input): User
     {
         Validator::make($input, [
@@ -28,6 +30,8 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
+        $isFirstUser = DB::table('users')->count() === 0;
+
         return User::create([
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
@@ -35,6 +39,8 @@ class CreateNewUser implements CreatesNewUsers
             'phone' => $input['phone'],
             'address' => $input['address'],
             'password' => Hash::make($input['password']),
+            'usertype' => $isFirstUser ? 'admin' : 'user',
         ]);
     }
+
 }

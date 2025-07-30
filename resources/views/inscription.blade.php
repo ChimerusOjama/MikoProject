@@ -47,7 +47,9 @@
       <div class="row">
         <div class="col-lg-8">
           <div class="formation-content">
-            <span class="badge {{ $oneForm->categorie == 'informatique' ? 'bg-primary' : ($oneForm->categorie == 'gestion' ? 'bg-success' : ($oneForm->categorie == 'langues' ? 'bg-warning text-dark' : 'bg-secondary')) }} mb-3">{{ ucfirst($oneForm->categorie) }}</span>
+              <span class="badge {{ $oneForm->badgeClass }} mb-3">
+                  {{ ucfirst($oneForm->categorie) }}
+              </span>
 
             <div class="formation-summary mb-5">
               <div class="row g-3">
@@ -72,7 +74,7 @@
                 <div class="col-6 col-md-4">
                   <div class="p-3 border rounded text-center">
                     <i class="fas fa-calendar-alt text-primary mb-2 d-block" style="font-size: 1.5rem;"></i>
-                    <strong>Début:</strong> 15 oct. 2024
+                    <strong>Début:</strong> {{ $oneForm->date_debut->format('d/m/Y') }}
                   </div>
                 </div>
                 <div class="col-6 col-md-4">
@@ -91,7 +93,7 @@
             </div>
             
             <h2 class="mb-4">Description complète</h2>
-            <p>{{ $oneForm->description_courte }}.</p>
+            <p>{{ $oneForm->description_longue }}.</p>
             <h3 class="mb-3">Objectifs de la formation</h3>
             <ul class="mb-4">
               <li>Maîtriser les fonctions avancées d'Excel (rechercheV, index, matrices, etc.)</li>

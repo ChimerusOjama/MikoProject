@@ -12,12 +12,25 @@ class Formation extends Model
     protected $fillable = [
         'titre',
         'description_courte',
+        'description_longue',
         'categorie',
         'niveau',
         'prix',
         'duree_mois',
-        'image_url'
+        'places_disponibles',
+        'stripe_price_id',
+        'stripe_product_id',
+        'status',
+        'image_url',
+        'date_debut',
+        'date_fin'
     ];
+
+    protected $casts = [
+        'date_debut' => 'date',
+        'date_fin' => 'date',
+    ];
+
 
     public function inscriptions()
     {
