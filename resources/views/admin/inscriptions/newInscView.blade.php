@@ -58,7 +58,7 @@
               <select class="form-select" id="choixForm" name="choixForm" required>
                 <option value="">Sélectionnez une formation</option>
                 @foreach($formations as $formation)
-                <option value="{{ $formation->id }}" {{ old('choixForm') == $formation->id ? 'selected' : '' }}>
+                <option value="{{ $formation->titre }}" {{ old('choixForm') == $formation->titre ? 'selected' : '' }}>
                   {{ $formation->titre }}
                 </option>
                 @endforeach

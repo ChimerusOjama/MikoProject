@@ -44,13 +44,13 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::
     Route::get('/Liste_formations', 'allForm')->name('allForm');
     Route::get('/nouvelle_formation', 'newForm')->name('newForm');
     Route::post('/Insertion', 'storeForm')->name('storeForm');
-    Route::get('/Reservations', 'reserveView')->name('allreserv');
     Route::get('/Supprimer_formation/formation={id}', 'supForm')->name('supForm');
     Route::get('/Modifier_formation/formation={id}', 'updateView')->name('updateView');
     Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
     Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
     Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
     // Inscriptions
+    Route::get('/Inscriptions', 'reserveView')->name('allreserv');
     Route::get('/Nouvelle_inscription', 'inscView')->name('inscView');
     Route::post('/Insertion_inscription', 'storeInsc')->name('storeInsc');
     // Utilisateurs

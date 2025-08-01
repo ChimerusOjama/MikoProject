@@ -70,7 +70,6 @@ class AdminController extends Controller
 
             $path = $req->image->storeAs('formations', $imageName, 'public');
 
-            // Création de la formation
             Formation::create([
                 'titre' => $validated['titre'],
                 'description_courte' => $validated['description_courte'],
@@ -170,9 +169,14 @@ class AdminController extends Controller
 
     public function reserveView(){
         $allInsc = Inscription::orderBy('created_at', 'desc')->get();
-        return view('admin.fromUserReserve', compact('allInsc'));
+        return view('admin.inscriptions.allInscriptions', compact('allInsc'));
     }
-    public function aInscUser(Request $request)
+    public function inscView()
+    {
+        $formations = Formation::all();
+        return view('admin.inscriptions.newInscView', compact('formations'));
+    }
+    public function storeInsc(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -185,16 +189,26 @@ class AdminController extends Controller
         ]);
 
         try {
-            // Création d'une nouvelle inscription
-            $inscription = new Inscription();
-            $inscription->name = $validated['name'];
-            $inscription->email = $validated['email'];
-            $inscription->phone = $validated['phone'];
-            $inscription->address = $validated['address'] ?? null;
-            $inscription->montant = $validated['montant'];
-            $inscription->choixForm = $validated['choixForm'];
-            $inscription->message = $validated['message'] ?? null;
-            $inscription->status = 'En attente'; // Statut par défaut
+            $existingInscription = Inscription::where('choixForm', $validated['choixForm'])
+                ->where(function($query) use ($validated) {
+                    $query->where('email', $validated['email'])
+                        ->orWhere('phone', $validated['phone']);
+                })
+                ->first();
+
+            if ($existingInscription) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'warning' => 'Cette personne est déjà inscrite à cette formation. Veuillez vérifier.',
+                        'existing_id' => $existingInscription->id
+                    ]);
+            }
+
+            $inscription = new Inscription($validated);
+            
+            // Ajout des propriétés supplémentaires
+            // $inscription->status = 'accepté';
             
             $inscription->save();
 
@@ -370,11 +384,7 @@ class AdminController extends Controller
     }
 
 
-    public function inscView()
-    {
-        $formations = Formation::all();
-        return view('admin.newInscView', compact('formations'));
-    }
+
 
     public function allPayments()
     {
