@@ -41,7 +41,7 @@
                                             <td><label class="text">{{ $form->status }}</label></td>
                                             <td>{{ $form->prix }}</td>
                                             <td>
-                                                <a href="#" class="badge badge-primary" 
+                                                <a href="#" title="Voir détails" class="badge badge-primary" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#formationDetailsModal"
                                                     data-titre="{{ $form->titre }}"
@@ -56,12 +56,12 @@
                                                     data-status="{{ $form->status }}"
                                                     data-image="{{ asset($form->image_url) }}"
                                                     onclick="loadFormationDetails(this)">
-                                                    Voir détails
+                                                    <i class="mdi mdi-eye"></i>
                                                 </a>
-                                                    <a href="/Modifier_formation/formation={{ $form->id }}" class="badge badge-info">Mettre à jour</a>
+                                                    <a href="/Modifier_formation/formation={{ $form->id }}" class="badge badge-info" title="Modifier"><i class="mdi mdi-border-color"></i></a>
                                                     <a href="/Supprimer_formation/formation={{ $form->id }}" 
                                                     class="badge badge-danger"
-                                                    onclick="return confirm('Souhaitez-vous réellement supprimer cette formation ?')">Supprimer</a>
+                                                    onclick="return confirm('Souhaitez-vous réellement supprimer cette formation ?')" title="Supprimer"><i class="mdi mdi-delete"></i></a>
                                             </td>
                                         </tr>
                                         @endforeach

@@ -29,9 +29,9 @@ class Inscription extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     public function setStatusAttribute($value)
     {
-        $this->attributes['status'] = $value ?? 'accepté';
+        $this->attributes['status'] = $value ?? 'Accepté';
     }
 }

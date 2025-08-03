@@ -50,9 +50,10 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::
     Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
     Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
     // Inscriptions
-    Route::get('/Inscriptions', 'reserveView')->name('allreserv');
+    // Route::get('/Inscriptions', 'reserveView')->name('allreserv');
     Route::get('/Nouvelle_inscription', 'inscView')->name('inscView');
     Route::post('/Insertion_inscription', 'storeInsc')->name('storeInsc');
+    Route::get('/admin/inscriptions', 'inscriptions')->name('admin.inscriptions');
     // Utilisateurs
     Route::get('/Liste_utilisateurs', 'usersView')->name('allUsers');
     Route::get('/nouvel_utilisateur', 'newUser')->name('newUser');

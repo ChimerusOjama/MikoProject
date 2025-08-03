@@ -4,7 +4,7 @@
 @section('page-title', 'Inscription - nouvelle inscription')
 @section('breadcrumb')
   <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('allreserv') }}">Inscriptions</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('admin.inscriptions') }}">Inscriptions</a></li>
   <li class="breadcrumb-item active" aria-current="page">Nouvelle inscription</li>
 @endsection
 
@@ -90,7 +90,7 @@
           <button type="submit" class="btn btn-primary">
             <i class="mdi mdi-account-plus me-1"></i> Enregistrer l'inscription
           </button>
-          <a href="{{ route('allreserv') }}" class="btn btn-dark">
+          <a href="{{ route('admin.inscriptions') }}" class="btn btn-dark">
             <i class="mdi mdi-format-list-bulleted me-1"></i> Liste des inscriptions
           </a>
         </div>

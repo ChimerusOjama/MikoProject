@@ -104,7 +104,7 @@
                     </a>
                 </li>
                 <li class="nav-item menu-items @yield('inscription')">
-                    <a class="nav-link" href="{{ route('allreserv') }}">
+                    <a class="nav-link" href="{{ route('admin.inscriptions') }}">
                     <span class="menu-icon">
                         <i class="mdi mdi-table-large"></i>
                     </span>

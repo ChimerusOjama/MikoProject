@@ -167,10 +167,39 @@ class AdminController extends Controller
     }
 
 
-    public function reserveView(){
-        $allInsc = Inscription::orderBy('created_at', 'desc')->get();
-        return view('admin.inscriptions.allInscriptions', compact('allInsc'));
+    // public function reserveView(){
+    //     $allInsc = Inscription::orderBy('created_at', 'desc')->get();
+    //     return view('admin.inscriptions.allInscriptions', compact('allInsc'));
+    // }
+
+    public function inscriptions(Request $request)
+    {
+        $query = Inscription::query();
+
+        if ($request->filled('nom')) {
+            $query->where('name', 'like', '%' . $request->nom . '%');
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        if ($request->filled('statut')) {
+            $query->where('status', $request->statut);
+        }
+
+        if ($request->filled('tri')) {
+            $query->orderBy('montant', $request->tri);
+        }
+
+        // Retourner directement le résultat paginé
+        $inscriptions = $query->paginate(10)->withQueryString();
+
+        return view('admin.inscriptions.allInscriptions', [
+            'allInsc' => $inscriptions
+        ]);
     }
+
     public function inscView()
     {
         $formations = Formation::all();
@@ -221,6 +250,7 @@ class AdminController extends Controller
                 ->withErrors(['error' => 'Erreur lors de l\'ajout: ' . $e->getMessage()]);
         }
     }
+
 
 
     public function accepterRes($id)
