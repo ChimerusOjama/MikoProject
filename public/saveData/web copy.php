@@ -29,6 +29,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // GROUPE : Utilisateur simple (usertype = user)
+// Route::prefix('MikoFormation')->middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
+//     Route::get('/acceuil', 'index')->name('index');
+//     Route::get('/dashboard', 'uAdmin')->name('uAdmin');
+//     Route::get('/Mes_formations', 'uFormation')->name('uFormation');
+//     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
+//     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
+//     Route::get('/Support', 'uSupport')->name('uSupport');
+//     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
+//     Route::get('/payment/success', 'success')->name('payment.success');
+//     Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+// });
 Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
     Route::get('/acceuil', 'index')->name('index');
     Route::get('/dashboard', 'uAdmin')->name('uAdmin');
@@ -44,6 +55,9 @@ Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::c
 // GROUPE : Administrateur (usertype = admin)
 Route::prefix('admin')->middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::class)->group(function () {
     // Tableau de bord
+    // Route::get('/dashboard', function () {
+    //     return view('admin.index');
+    // })->name('admin.dashboard');
     Route::get('/dashboard', 'aIndex')->name('admin.dashboard');
 
     // Formations

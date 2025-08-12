@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
     //
-    public function index()
+    public function aIndex()
     {
         return view('admin.index');
     }

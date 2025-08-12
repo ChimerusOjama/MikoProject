@@ -19,7 +19,11 @@ class IsUser
         if (Auth::check() && Auth::user()->usertype === 'user') {
             return $next($request);
         }
+        
+        if (Auth::check()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Accès refusé : réservé aux utilisateurs.');
+        }
 
-        return redirect('/')->with('error', 'Accès refusé : réservé aux utilisateurs.');
+        return redirect()->route('login')->with('error', 'Veuillez vous connecter en tant qu\'utilisateur.');
     }
 }

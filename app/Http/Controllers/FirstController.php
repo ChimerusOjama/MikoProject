@@ -21,18 +21,49 @@ class FirstController extends Controller
 
     public function index()
     {
-        if (Auth::id()) {
-            return redirect('home');
-        } else {
-            $forms = Formation::where('status', 'publiee')
-                ->withCount('inscriptions')
-                ->orderByDesc('inscriptions_count')
-                ->take(3)
-                ->get();
+        $forms = Formation::where('status', 'publiee')
+        ->withCount('inscriptions')
+        ->orderByDesc('inscriptions_count')
+        ->take(3)
+        ->get();
 
-            return view('index', compact('forms'));
-        }
+        return view('index', compact('forms'));
+        // if (Auth::id()) {
+        //     return redirect('home');
+        // } else {
+        //     $forms = Formation::where('status', 'publiee')
+        //         ->withCount('inscriptions')
+        //         ->orderByDesc('inscriptions_count')
+        //         ->take(3)
+        //         ->get();
+
+        //     return view('index', compact('forms'));
+        // }
     }
+
+    // public function redirect()
+    // {
+    //     if (!Auth::check()) {
+    //         return redirect('/');
+    //     }
+
+    //     $usertype = Auth::user()->usertype;
+
+    //     switch ($usertype) {
+    //         case 'admin':
+    //             return view('admin.index');
+    //         case 'user':
+    //             $forms = Formation::where('status', 'publiee')
+    //                 ->withCount('inscriptions')
+    //                 ->orderByDesc('inscriptions_count')
+    //                 ->take(3)
+    //                 ->get();
+    //             return view('index', compact('forms'));
+    //         default:
+    //             Auth::logout();
+    //             return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');
+    //     }
+    // }
 
     public function redirect()
     {
@@ -44,14 +75,9 @@ class FirstController extends Controller
 
         switch ($usertype) {
             case 'admin':
-                return view('admin.index');
+                return redirect()->route('admin.dashboard');
             case 'user':
-                $forms = Formation::where('status', 'publiee')
-                    ->withCount('inscriptions')
-                    ->orderByDesc('inscriptions_count')
-                    ->take(3)
-                    ->get();
-                return view('index', compact('forms'));
+                return redirect()->route('index');
             default:
                 Auth::logout();
                 return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');

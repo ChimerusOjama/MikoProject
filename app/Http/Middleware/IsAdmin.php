@@ -19,7 +19,11 @@ class IsAdmin
         if (Auth::check() && Auth::user()->usertype === 'admin') {
             return $next($request);
         }
+        
+        if (Auth::check()) {
+            return redirect()->route('uAdmin')->with('error', 'Accès refusé : réservé aux administrateurs.');
+        }
 
-        return redirect('/')->with('error', 'Accès refusé : réservé aux administrateurs.');
+        return redirect()->route('login')->with('error', 'Veuillez vous connecter en tant qu\'administrateur.');
     }
 }
