@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::c
 });
 
 // GROUPE : Administrateur (usertype = admin)
-Route::prefix('admin')->middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::class)->group(function () {
+Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::class)->group(function () {
     // Tableau de bord
     Route::get('/dashboard', 'aIndex')->name('admin.dashboard');
 

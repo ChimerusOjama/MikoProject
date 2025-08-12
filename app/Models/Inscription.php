@@ -17,6 +17,8 @@ class Inscription extends Model
         'address',
         'montant',
         'choixForm',
+        'stripe_session_id',
+        'statut_paiement',
         'message',
         'status',
     ];
@@ -28,6 +30,11 @@ class Inscription extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function paiements()
+    {
+        return $this->hasMany(Paiement::class);
     }
 
     public function setStatusAttribute($value)

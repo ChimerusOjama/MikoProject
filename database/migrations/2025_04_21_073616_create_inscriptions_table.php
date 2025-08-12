@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Crée la table des inscriptions avec toutes les colonnes nécessaires
-     */
     public function up(): void
     {
         Schema::create('inscriptions', function (Blueprint $table) {
@@ -19,21 +16,23 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->string('address');
-            $table->integer('montant')->unsigned();
-            $table->string('stripe_session_id')->nullable();
-            $table->string('receipt_path')->nullable()->comment('Chemin vers le reçu de paiement');
             $table->string('choixForm');
+            $table->integer('montant')->unsigned();
             $table->text('message')->nullable();
-            $table->string('status')->nullable()->default('accepté')->comment('Statut de l\'inscription : en attente, accepté, rejeté');
+            $table->string('status')->default('en_attente')->comment('Statut de l\'inscription: en_attente, accepté, rejeté');
+            $table->enum('statut_paiement', [
+                'non_payé', 
+                'acompte', 
+                'complet'
+            ])->default('non_payé')->comment('Statut du paiement');
+            $table->string('stripe_session_id')->nullable()->comment('ID de session Stripe pour paiement en ligne');
             $table->timestamps();
             $table->index('status');
+            $table->index('statut_paiement');
             $table->index('created_at');
         });
     }
 
-    /**
-     * Supprime la table des inscriptions
-     */
     public function down(): void
     {
         Schema::dropIfExists('inscriptions');

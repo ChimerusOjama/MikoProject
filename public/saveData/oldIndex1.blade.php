@@ -1,5 +1,3 @@
-@extends('layouts.sAdApp')
-
 @section('title', 'Tableau de Bord')
 @section('page-title', 'Tableau de Bord')
 @section('breadcrumb')
@@ -62,11 +60,7 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Inscriptions par Mois</h4>
-                @if($inscriptions->isNotEmpty())
-                    <canvas id="inscriptionsChart" style="height:300px;"></canvas>
-                @else
-                    <p class="text-muted">Aucune donnée disponible</p>
-                @endif
+                <canvas id="inscriptionsChart" style="height:300px;"></canvas>
             </div>
         </div>
     </div>
@@ -76,11 +70,7 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Répartition des Statuts</h4>
-                @if($statutCounts->isNotEmpty())
-                    <canvas id="statutChart" style="height:300px;"></canvas>
-                @else
-                    <p class="text-muted">Aucune donnée disponible</p>
-                @endif
+                <canvas id="statutChart" style="height:300px;"></canvas>
             </div>
         </div>
     </div>
@@ -92,11 +82,7 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Revenus Mensuels</h4>
-                @if($revenusMensuels->isNotEmpty())
-                    <canvas id="revenusChart" style="height:300px;"></canvas>
-                @else
-                    <p class="text-muted">Aucune donnée disponible</p>
-                @endif
+                <canvas id="revenusChart" style="height:300px;"></canvas>
             </div>
         </div>
     </div>
@@ -106,11 +92,7 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Modes de Paiement</h4>
-                @if($paiementModes->isNotEmpty())
-                    <canvas id="paiementChart" style="height:300px;"></canvas>
-                @else
-                    <p class="text-muted">Aucune donnée disponible</p>
-                @endif
+                <canvas id="paiementChart" style="height:300px;"></canvas>
             </div>
         </div>
     </div>
@@ -128,8 +110,7 @@
                             <tr>
                                 <th>Nom</th>
                                 <th>Formation</th>
-                                <th>Montant payé</th>
-                                <th>Mode de paiement</th>
+                                <th>Montant</th>
                                 <th>Date</th>
                                 <th>Statut</th>
                             </tr>
@@ -139,8 +120,7 @@
                                 <tr>
                                     <td>{{ $insc->name }}</td>
                                     <td>{{ $insc->choixForm }}</td>
-                                    <td>{{ number_format($insc->paiements->sum('montant'), 0, ',', ' ') }} FCFA</td>
-                                    <td>{{ $insc->paiements->first()->mode ?? 'N/A' }}</td>
+                                    <td>{{ number_format($insc->montant, 0, ',', ' ') }} FCFA</td>
                                     <td>{{ $insc->created_at->format('d/m/Y') }}</td>
                                     <td>
                                         @if($insc->status == 'Accepté')
@@ -154,7 +134,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Aucune inscription récente</td>
+                                    <td colspan="5" class="text-center">Aucune inscription récente</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -171,65 +151,57 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
       // Inscriptions par mois
-      @if($inscriptions->isNotEmpty())
-        new Chart(document.getElementById('inscriptionsChart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($inscriptions->pluck('month')) !!},
-                datasets: [{
-                    label: 'Inscriptions',
-                    data: {!! json_encode($inscriptions->pluck('count')) !!},
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            }
-        });
-      @endif
+      new Chart(document.getElementById('inscriptionsChart').getContext('2d'), {
+          type: 'line',
+          data: {
+              labels: {!! json_encode($inscriptions->pluck('month')) !!},
+              datasets: [{
+                  label: 'Inscriptions',
+                  data: {!! json_encode($inscriptions->pluck('count')) !!},
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                  fill: true,
+                  tension: 0.4
+              }]
+          }
+      });
 
       // Statuts
-      @if($statutCounts->isNotEmpty())
-        new Chart(document.getElementById('statutChart').getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: {!! json_encode($statutCounts->pluck('status')) !!},
-                datasets: [{
-                    data: {!! json_encode($statutCounts->pluck('count')) !!},
-                    backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-                }]
-            }
-        });
-      @endif
+      new Chart(document.getElementById('statutChart').getContext('2d'), {
+          type: 'doughnut',
+          data: {
+              labels: {!! json_encode($statutCounts->pluck('status')) !!},
+              datasets: [{
+                  data: {!! json_encode($statutCounts->pluck('count')) !!},
+                  backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+              }]
+          }
+      });
 
       // Revenus mensuels
-      @if($revenusMensuels->isNotEmpty())
-        new Chart(document.getElementById('revenusChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($revenusMensuels->pluck('month')) !!},
-                datasets: [{
-                    label: 'Revenus (FCFA)',
-                    data: {!! json_encode($revenusMensuels->pluck('total')) !!},
-                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
-                }]
-            }
-        });
-      @endif
+      new Chart(document.getElementById('revenusChart').getContext('2d'), {
+          type: 'bar',
+          data: {
+              labels: {!! json_encode($revenusMensuels->pluck('month')) !!},
+              datasets: [{
+                  label: 'Revenus (FCFA)',
+                  data: {!! json_encode($revenusMensuels->pluck('total')) !!},
+                  backgroundColor: 'rgba(75, 192, 192, 0.7)'
+              }]
+          }
+      });
 
       // Modes de paiement
-      @if($paiementModes->isNotEmpty())
-        new Chart(document.getElementById('paiementChart').getContext('2d'), {
-            type: 'pie',
-            data: {
-                labels: {!! json_encode($paiementModes->pluck('mode')) !!},
-                datasets: [{
-                    data: {!! json_encode($paiementModes->pluck('count')) !!},
-                    backgroundColor: ['#007bff', '#17a2b8', '#6f42c1', '#ffc107']
-                }]
-            }
-        });
-      @endif
+      new Chart(document.getElementById('paiementChart').getContext('2d'), {
+          type: 'pie',
+          data: {
+              labels: {!! json_encode($paiementModes->pluck('mode_paiement')) !!},
+              datasets: [{
+                  data: {!! json_encode($paiementModes->pluck('count')) !!},
+                  backgroundColor: ['#007bff', '#17a2b8', '#6f42c1', '#ffc107']
+              }]
+          }
+      });
   });
 </script>
 @endpush
