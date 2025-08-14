@@ -3,7 +3,7 @@
 @section('title', 'Nouvelle formation - Tableau de Bord')
 @section('page-title', 'Formation - nouvelle formation')
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
   <li class="breadcrumb-item"><a href="{{ route('allForm') }}">Formations</a></li>
   <li class="breadcrumb-item active" aria-current="page">Nouvelle formation</li>
 @endsection

@@ -166,90 +166,96 @@
           </div>
         </div>
         
-        @if(Route::has('login'))
-            @auth
-              <!-- Formulaire d'inscription -->
-              <div class="col-lg-4">
-                <div class="registration-form bg-light p-4 rounded shadow-sm sticky-top">
-                  <h3 class="h4 mb-4 text-center">Inscription</h3>
-                  <form id="formationRegistration" action="{{ route('inscForm') }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                      <label for="fullName" class="form-label">Nom complet <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="fullName" disabled value="{{ Auth::user()->first_name . ' ' . Auth::user()->last_name }}" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                      <input type="email" class="form-control" id="email" disabled value="{{ Auth::user()->email }}" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="phone" class="form-label">Téléphone <span class="text-danger">*</span></label>
-                      <input type="tel" class="form-control" id="phone" disabled value="{{ Auth::user()->phone }}" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="address" class="form-label">Adresse <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="address" disabled value="{{ Auth::user()->address }}" required>
-                    </div>
-                    <input type="hidden" name="formation_id" value="{{ $oneForm->id }}">
-                    <div class="mb-4">
-                      <label for="message" class="form-label">Message (optionnel)</label>
-                      <textarea class="form-control" id="message" rows="3"></textarea>
-                    </div>
-                    <div class="d-grid">
-                      <button type="submit" class="btn btn-primary btn-lg">S'inscrire maintenant</button>
-                    </div>
-                    <div class="text-center mt-3">
-                      <small class="text-muted">En cliquant, vous acceptez nos <a href="#">conditions générales</a></small>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            @else
-              <!-- Auth Required Card -->
-              <div class="col-lg-4">
-                <div class="auth-required-card bg-light p-4 rounded shadow-sm sticky-top">
-                  <div class="text-center">
-                    <i class="fas fa-lock fa-3x text-primary mb-3"></i>
-                    <h3 class="h4 mb-3">Inscription requise</h3>
-                    <p class="mb-4">Pour vous inscrire à cette formation, vous devez avoir un compte. Connectez-vous ou créez un compte gratuitement.</p>
-                    
-                    <div class="d-grid gap-2">
-                      <a href="{{ route('login') }}" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
-                      </a>
-                      <a href="{{ route('register') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-user-plus me-2"></i>Créer un compte
-                      </a>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <div class="benefits">
-                      <h4 class="h5 mb-3">Avantages d'un compte :</h4>
-                      <ul class="list-unstyled">
-                        <li class="mb-2">
-                          <i class="fas fa-check-circle text-success me-2"></i>
-                          Accès à toutes nos formations
-                        </li>
-                        <li class="mb-2">
-                          <i class="fas fa-check-circle text-success me-2"></i>
-                          Suivi de votre progression
-                        </li>
-                        <li class="mb-2">
-                          <i class="fas fa-check-circle text-success me-2"></i>
-                          Téléchargement des ressources
-                        </li>
-                        <li class="mb-2">
-                          <i class="fas fa-check-circle text-success me-2"></i>
-                          Support prioritaire
-                        </li>
-                      </ul>
-                    </div>
+          @if(Route::has('login'))
+              @auth
+                  @if(Auth::user()->usertype === 'user')
+                      <!-- Formulaire d'inscription pour les utilisateurs standards -->
+                      <div class="col-lg-4">
+                          <div class="registration-form bg-light p-4 rounded shadow-sm sticky-top">
+                              <h3 class="h4 mb-4 text-center">Inscription</h3>
+                              <form id="formationRegistration" action="{{ route('inscForm') }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                  <label for="fullName" class="form-label">Nom complet <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="fullName" disabled value="{{ Auth::user()->first_name . ' ' . Auth::user()->last_name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                  <input type="email" class="form-control" id="email" disabled value="{{ Auth::user()->email }}" required>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="phone" class="form-label">Téléphone <span class="text-danger">*</span></label>
+                                  <input type="tel" class="form-control" id="phone" disabled value="{{ Auth::user()->phone }}" required>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="address" class="form-label">Adresse <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="address" disabled value="{{ Auth::user()->address }}" required>
+                                </div>
+                                <input type="hidden" name="formation_id" value="{{ $oneForm->id }}">
+                                <input type="hidden" name="formation_prix" value="{{ $oneForm->prix }}">
+                                <div class="mb-4">
+                                  <label for="message" class="form-label">Message (optionnel)</label>
+                                  <textarea class="form-control" id="message" rows="3"></textarea>
+                                </div>
+                                <div class="d-grid">
+                                  <button type="submit" class="btn btn-primary btn-lg">S'inscrire maintenant</button>
+                                </div>
+                                <div class="text-center mt-3">
+                                  <small class="text-muted">En cliquant, vous acceptez nos <a href="#">conditions générales</a></small>
+                                </div>
+                              </form>
+                          </div>
+                      </div>
+                  @else
+                      <!-- Message pour les administrateurs -->
+                      <div class="col-lg-4">
+                          <div class="auth-required-card bg-light p-4 rounded shadow-sm sticky-top">
+                              <div class="text-center">
+                                  <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                                  <h3 class="h4 mb-3">Compte Administrateur</h3>
+                                  <p class="mb-4">
+                                      Votre compte est de type administrateur. Pour vous inscrire à une formation,
+                                      veuillez utiliser un compte utilisateur standard.
+                                  </p>
+                                  
+                                  <div class="d-grid gap-2">
+                                      <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">
+                                          <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                                      </a>
+                                      <a href="{{ route('alogout') }}" class="btn btn-outline-primary"
+                                          onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                          <i class="fas fa-sign-out-alt me-2"></i>Changer de compte
+                                      </a>
+                                      <form id="logout-form" action="{{ route('alogout') }}" method="POST" class="d-none">
+                                          @csrf
+                                      </form>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  @endif
+              @else
+                  <!-- Auth Required Card pour les non-connectés -->
+                  <div class="col-lg-4">
+                      <div class="auth-required-card bg-light p-4 rounded shadow-sm sticky-top">
+                          <div class="text-center">
+                              <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                              <h3 class="h4 mb-3">Inscription requise</h3>
+                              <p class="mb-4">Pour vous inscrire à cette formation, vous devez avoir un compte utilisateur. Connectez-vous ou créez un compte gratuitement.</p>
+                              
+                              <div class="d-grid gap-2">
+                                  <a href="{{ route('login') }}" class="btn btn-primary">
+                                      <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                  </a>
+                                  <a href="{{ route('register') }}" class="btn btn-outline-primary">
+                                      <i class="fas fa-user-plus me-2"></i>Créer un compte
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
                   </div>
-                </div>
-              </div>
-            @endauth
-        @endif
+              @endauth
+          @endif
 
       </div>
     </div>

@@ -11,7 +11,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
-                <a href="{{ route('home') }}" class="btn btn-success">Voir mes formations</a>
+                <a href="{{ route('uFormation') }}" class="btn btn-success">Voir mes formations</a>
             </div>
         </div>
     </div>

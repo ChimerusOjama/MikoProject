@@ -91,9 +91,9 @@
                             <td>{{ $eachInsc->montant }}</td>
                             <td>{{ $eachInsc->choixForm }}</td>                               
                             <td>
-                                @if($eachInsc->status == 'accepté')
+                                @if($eachInsc->status == 'Accepté')
                                     <div class="badge badge-outline-success">Accepté</div>
-                                @elseif($eachInsc->status == 'rejeté')
+                                @elseif($eachInsc->status == 'Rejeté')
                                     <div class="badge badge-outline-danger">Rejeté</div>
                                 @else
                                     <div class="badge badge-outline-warning">En attente</div>

@@ -16,7 +16,6 @@ Route::controller(FirstController::class)->group(function () {
     Route::get('/', 'index')->name('uHome');
     Route::get('/Nos_formations', 'formListing')->name('listing');
     Route::get('/Reserver_votre_place/form={id}', 'formSingle')->name('inscription');
-    Route::post('/Inscription', 'formInsc')->name('inscForm');
     Route::get('/A_propos', 'aboutView')->name('about');
     Route::get('/Contact', 'contactView')->name('contact');
     Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
@@ -31,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // GROUPE : Utilisateur simple (usertype = user)
 Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
     Route::get('/acceuil', 'index')->name('index');
+    Route::post('/Inscription', 'formInsc')->name('inscForm');
     Route::get('/dashboard', 'uAdmin')->name('uAdmin');
     Route::get('/Mes_formations', 'uFormation')->name('uFormation');
     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
@@ -76,6 +76,11 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::
     Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
     Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
     Route::post('/Mise_a_jour/paiement={id}', 'updatePayment')->name('updatePayment');
+
+    // Routes pour les détails et édition des paiements
+    Route::get('/admin/payments/{id}/details', 'showDetails')->name('admin.payments.details');
+    Route::get('/admin/payments/{id}/edit', 'edit')->name('admin.payments.edit');
+    Route::put('/admin/payments/{id}', 'update')->name('admin.payments.update');
     
     // Logout
     Route::post('/logout', 'logout')->name('aLogout');

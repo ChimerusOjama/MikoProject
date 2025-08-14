@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address');
             $table->string('choixForm');
-            $table->integer('montant')->unsigned();
+            $table->decimal('montant', 10, 2)->unsigned();
             $table->text('message')->nullable();
             $table->string('status')->default('en_attente')->comment('Statut de l\'inscription: en_attente, accepté, rejeté');
             $table->enum('statut_paiement', [

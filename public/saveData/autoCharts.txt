@@ -1,0 +1,448 @@
+### Vue Complète avec Mise à Jour Automatique des Graphiques (Temps Réel)
+
+```blade
+@extends('layouts.sAdApp')
+
+@section('title', 'Tableau de Bord')
+@section('page-title', 'Tableau de Bord')
+@section('breadcrumb')
+  <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Accueil</li>
+@endsection
+
+@section('dashboard', 'active')
+
+@section('content')
+<div class="row">
+    <!-- Carte Total Formations -->
+    <div class="col-sm-3 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h5>Total Formations</h5>
+                <h2 id="total-formations" class="mb-0">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Total Inscriptions -->
+    <div class="col-sm-3 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h5>Total Inscriptions</h5>
+                <h2 id="total-inscriptions" class="mb-0">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Total Paiements -->
+    <div class="col-sm-3 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h5>Total Paiements</h5>
+                <h2 id="total-paiements" class="mb-0">0 FCFA</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Formation la plus populaire -->
+    <div class="col-sm-3 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h5>Formation Populaire</h5>
+                <h6 id="popular-formation">Chargement...</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Graphique Inscriptions par mois -->
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Inscriptions par Mois</h4>
+                <div id="inscriptions-chart-container">
+                    <canvas id="inscriptionsChart" style="height:300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique Statuts -->
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Répartition des Statuts</h4>
+                <div id="statut-chart-container">
+                    <canvas id="statutChart" style="height:300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Graphique Revenus -->
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Revenus Mensuels</h4>
+                <div id="revenus-chart-container">
+                    <canvas id="revenusChart" style="height:300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique Modes de paiement -->
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Modes de Paiement</h4>
+                <div id="paiement-chart-container">
+                    <canvas id="paiementChart" style="height:300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Tableau dernières inscriptions -->
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Dernières Inscriptions</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Formation</th>
+                                <th>Montant payé</th>
+                                <th>Mode de paiement</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="latest-inscriptions-body">
+                            <tr>
+                                <td colspan="6" class="text-center">Chargement des données...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script src="{{ asset('admin/assets/vendors/chart.js/Chart.min.js') }}"></script>
+<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+<script>
+    // Variables globales pour les graphiques
+    let inscriptionsChart, statutChart, revenusChart, paiementChart;
+
+    // Initialiser Pusher
+    const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+        cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+        encrypted: true
+    });
+
+    // Canal pour les mises à jour en temps réel
+    const channel = pusher.subscribe('dashboard-updates');
+
+    // Écouter les événements de mise à jour
+    channel.bind('App\\Events\\NewInscription', () => fetchDashboardData());
+    channel.bind('App\\Events\\NewPayment', () => fetchDashboardData());
+    channel.bind('App\\Events\\StatusUpdated', () => fetchDashboardData());
+
+    // Formatage des nombres
+    const formatNumber = (num) => new Intl.NumberFormat('fr-FR').format(num);
+    
+    // Fonction pour récupérer les données du dashboard
+    function fetchDashboardData() {
+        fetch('{{ route('admin.dashboard.data') }}')
+            .then(response => response.json())
+            .then(data => {
+                updateSummaryCards(data);
+                updateCharts(data);
+                updateLatestRegistrations(data.dernieresInscriptions);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Mettre à jour les cartes de résumé
+    function updateSummaryCards(data) {
+        document.getElementById('total-formations').textContent = formatNumber(data.totalFormations);
+        document.getElementById('total-inscriptions').textContent = formatNumber(data.totalInscriptions);
+        document.getElementById('total-paiements').textContent = `${formatNumber(data.totalPaiements)} FCFA`;
+        
+        const popularEl = document.getElementById('popular-formation');
+        if (data.topFormations.length > 0) {
+            popularEl.innerHTML = `${data.topFormations[0].choixForm} <small>(${formatNumber(data.topFormations[0].count)} inscrits)</small>`;
+        } else {
+            popularEl.textContent = 'Aucune donnée';
+        }
+    }
+
+    // Mettre à jour les graphiques
+    function updateCharts(data) {
+        // Détruire les anciens graphiques s'ils existent
+        if (inscriptionsChart) inscriptionsChart.destroy();
+        if (statutChart) statutChart.destroy();
+        if (revenusChart) revenusChart.destroy();
+        if (paiementChart) paiementChart.destroy();
+
+        // Graphique Inscriptions par mois
+        if (data.inscriptions.length > 0) {
+            inscriptionsChart = new Chart(document.getElementById('inscriptionsChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: data.inscriptions.map(item => item.month),
+                    datasets: [{
+                        label: 'Inscriptions',
+                        data: data.inscriptions.map(item => item.count),
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                }
+            });
+        } else {
+            document.getElementById('inscriptions-chart-container').innerHTML = '<p class="text-muted">Aucune donnée disponible</p>';
+        }
+
+        // Graphique Statuts
+        if (data.statutCounts.length > 0) {
+            statutChart = new Chart(document.getElementById('statutChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.statutCounts.map(item => item.status),
+                    datasets: [{
+                        data: data.statutCounts.map(item => item.count),
+                        backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                    }]
+                }
+            });
+        } else {
+            document.getElementById('statut-chart-container').innerHTML = '<p class="text-muted">Aucune donnée disponible</p>';
+        }
+
+        // Graphique Revenus
+        if (data.revenusMensuels.length > 0) {
+            revenusChart = new Chart(document.getElementById('revenusChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: data.revenusMensuels.map(item => item.month),
+                    datasets: [{
+                        label: 'Revenus (FCFA)',
+                        data: data.revenusMensuels.map(item => item.total),
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                    }]
+                }
+            });
+        } else {
+            document.getElementById('revenus-chart-container').innerHTML = '<p class="text-muted">Aucune donnée disponible</p>';
+        }
+
+        // Graphique Modes de paiement
+        if (data.paiementModes.length > 0) {
+            paiementChart = new Chart(document.getElementById('paiementChart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: data.paiementModes.map(item => item.mode),
+                    datasets: [{
+                        data: data.paiementModes.map(item => item.count),
+                        backgroundColor: ['#007bff', '#17a2b8', '#6f42c1', '#ffc107']
+                    }]
+                }
+            });
+        } else {
+            document.getElementById('paiement-chart-container').innerHTML = '<p class="text-muted">Aucune donnée disponible</p>';
+        }
+    }
+
+    // Mettre à jour le tableau des dernières inscriptions
+    function updateLatestRegistrations(inscriptions) {
+        const tbody = document.getElementById('latest-inscriptions-body');
+        tbody.innerHTML = '';
+
+        if (inscriptions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucune inscription récente</td></tr>';
+            return;
+        }
+
+        inscriptions.forEach(insc => {
+            const row = document.createElement('tr');
+            const paidAmount = insc.paiements.reduce((sum, payment) => sum + parseFloat(payment.montant), 0);
+            const paymentMethod = insc.paiements.length > 0 ? insc.paiements[0].mode : 'N/A';
+            const date = new Date(insc.created_at).toLocaleDateString('fr-FR');
+            
+            let statusBadge;
+            if (insc.status === 'Accepté') {
+                statusBadge = '<span class="badge badge-outline-success">Accepté</span>';
+            } else if (insc.status === 'Rejeté') {
+                statusBadge = '<span class="badge badge-outline-danger">Rejeté</span>';
+            } else {
+                statusBadge = '<span class="badge badge-outline-warning">En attente</span>';
+            }
+
+            row.innerHTML = `
+                <td>${insc.name}</td>
+                <td>${insc.choixForm}</td>
+                <td>${formatNumber(paidAmount)} FCFA</td>
+                <td>${paymentMethod}</td>
+                <td>${date}</td>
+                <td>${statusBadge}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+
+    // Initialiser le dashboard au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchDashboardData();
+        
+        // Actualiser les données toutes les 5 minutes (fallback)
+        setInterval(fetchDashboardData, 300000);
+    });
+</script>
+@endpush
+```
+
+### Configuration Requise côté Serveur
+
+#### 1. Ajouter une route API (routes/web.php)
+```php
+Route::get('/admin/dashboard/data', [DashboardController::class, 'getDashboardData'])
+     ->name('admin.dashboard.data');
+```
+
+#### 2. Créer la méthode getDashboardData (DashboardController.php)
+```php
+public function getDashboardData()
+{
+    // Utiliser des requêtes compatibles PostgreSQL
+    $data = [
+        'totalFormations' => Formation::count(),
+        'totalInscriptions' => Inscription::count(),
+        'totalPaiements' => Paiement::sum('montant'),
+        'topFormations' => Inscription::select('choixForm', DB::raw('COUNT(*) as count'))
+            ->groupBy('choixForm')
+            ->orderByDesc('count')
+            ->get(),
+        
+        'inscriptions' => Inscription::select(
+                DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get(),
+            
+        'statutCounts' => Inscription::select('status', DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->get(),
+            
+        'revenusMensuels' => Paiement::select(
+                DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"),
+                DB::raw('SUM(montant) as total')
+            )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get(),
+            
+        'paiementModes' => Paiement::select('mode', DB::raw('COUNT(*) as count'))
+            ->groupBy('mode')
+            ->get(),
+            
+        'dernieresInscriptions' => Inscription::with('paiements')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+    ];
+
+    return response()->json($data);
+}
+```
+
+#### 3. Configurer les événements (Events)
+
+Créer un événement pour les nouvelles inscriptions :
+```bash
+php artisan make:event NewInscription
+```
+
+**app/Events/NewInscription.php**
+```php
+<?php
+
+namespace App\Events;
+
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
+class NewInscription implements ShouldBroadcast
+{
+    public function broadcastOn()
+    {
+        return new Channel('dashboard-updates');
+    }
+
+    public function broadcastAs()
+    {
+        return 'NewInscription';
+    }
+}
+```
+
+#### 4. Déclencher les événements
+
+Dans votre contrôleur d'inscription :
+```php
+// Après une inscription réussie
+event(new NewInscription());
+```
+
+Dans votre contrôleur de paiement :
+```php
+// Après un paiement réussi
+event(new NewPayment());
+```
+
+### Configuration Pusher (.env)
+```dotenv
+BROADCAST_DRIVER=pusher
+PUSHER_APP_ID=your_app_id
+PUSHER_APP_KEY=your_app_key
+PUSHER_APP_SECRET=your_app_secret
+PUSHER_APP_CLUSTER=mt1
+```
+
+### Fonctionnalités implémentées
+
+1. **Mise à jour en temps réel** :
+   - Actualisation automatique lors de nouvelles inscriptions/paiements
+   - Diffusion via WebSockets (Pusher)
+   - Fallback par polling toutes les 5 minutes
+
+2. **Optimisation des performances** :
+   - Une seule requête API pour toutes les données
+   - Destruction/reconstruction efficace des graphiques
+   - Formatage côté client pour réduire la charge serveur
+
+3. **Gestion des erreurs** :
+   - Affichage de messages quand aucune donnée n'est disponible
+   - Fallback visuel pendant le chargement
+   - Gestion des erreurs de requête API
+
+4. **Compatibilité PostgreSQL** :
+   - Utilisation des fonctions `TO_CHAR` pour le formatage des dates
+   - Requêtes optimisées pour PostgreSQL
+
+Cette implémentation transforme votre dashboard en un outil de monitoring en temps réel professionnel qui s'actualise automatiquement à chaque nouvelle interaction dans le système.

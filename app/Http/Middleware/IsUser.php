@@ -21,7 +21,7 @@ class IsUser
         }
         
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard')->with('error', 'Accès refusé : réservé aux utilisateurs.');
+            return redirect()->back()->with('error', 'Accès refusé : réservé aux utilisateurs.');
         }
 
         return redirect()->route('login')->with('error', 'Veuillez vous connecter en tant qu\'utilisateur.');

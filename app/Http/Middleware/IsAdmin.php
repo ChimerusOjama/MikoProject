@@ -21,7 +21,7 @@ class IsAdmin
         }
         
         if (Auth::check()) {
-            return redirect()->route('uAdmin')->with('error', 'Accès refusé : réservé aux administrateurs.');
+            return redirect()->back()->with('error', 'Accès refusé : réservé aux administrateurs.');
         }
 
         return redirect()->route('login')->with('error', 'Veuillez vous connecter en tant qu\'administrateur.');

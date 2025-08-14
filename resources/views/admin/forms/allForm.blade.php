@@ -3,7 +3,7 @@
 @section('title', 'Formations - Tableau de Bord')
 @section('page-title', 'Formations')
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
   <li class="breadcrumb-item active" aria-current="page">Formations</li>
 @endsection
 

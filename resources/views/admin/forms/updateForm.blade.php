@@ -3,7 +3,7 @@
 @section('title', isset($form) ? 'Mise à jour formation' : 'Nouvelle formation - Tableau de Bord')
 @section('page-title', isset($form) ? 'Formation - mise à jour' : 'Formation - nouvelle formation')
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
   <li class="breadcrumb-item"><a href="{{ route('allForm') }}">Formations</a></li>
   <li class="breadcrumb-item active" aria-current="page">{{ isset($form) ? 'Mise à jour formation' : 'Nouvelle formation' }}</li>
 @endsection

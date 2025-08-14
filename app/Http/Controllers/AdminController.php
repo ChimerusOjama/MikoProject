@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Formation;
 use App\Models\Inscription;
 use App\Models\User;
@@ -198,17 +199,19 @@ class AdminController extends Controller
 
 
     public function logout(Request $req){
-    if(Auth::id()){
-        Auth::logout();
-        $req->session()->invalidate();
-        $req->session()->regenerateToken();
-        $forms = Formation::all();
-        return redirect('/');
-    }else{
-        $forms = Formation::where('status', 'publiee')->get();
-        return view('index', compact('forms'));
+        if(Auth::id()){
+            Auth::logout();
+            $req->session()->invalidate();
+            $req->session()->regenerateToken();
+            $forms = Formation::all();
+            return redirect('/');
+        }else{
+            $forms = Formation::where('status', 'publiee')->get();
+            return view('index', compact('forms'));
+        }
     }
-    }
+
+    // Formations
     
     public function allForm(){
         $forms = Formation::all();
@@ -341,11 +344,7 @@ class AdminController extends Controller
         }
     }
 
-
-    // public function reserveView(){
-    //     $allInsc = Inscription::orderBy('created_at', 'desc')->get();
-    //     return view('admin.inscriptions.allInscriptions', compact('allInsc'));
-    // }
+    // inscriptions
 
     public function inscriptions(Request $request)
     {
@@ -451,6 +450,8 @@ class AdminController extends Controller
         $res->save();
         return redirect()->back()->with('success', 'Vous avez rejeté la demande.');
     }
+
+    // Utilisateurs
 
     public function usersView()
     {
@@ -588,15 +589,147 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'L\'utilisateur a été supprimé avec succès');
     }
 
+    // Paiements
+
+    // public function allPayments()
+    // {
+    //     // $payments = Payment::all();
+    //     // return view('admin.allPayments', compact('payments'));
+    //     return view('admin.allPayments');
+    // }
 
 
 
-    public function allPayments()
-    {
-        // $payments = Payment::all();
-        // return view('admin.allPayments', compact('payments'));
-        return view('admin.allPayments');
+// public function index()
+public function allPayments()
+{
+
+    // Récupération des formations distinctes
+    $formations = Inscription::distinct('choixForm')
+                             ->pluck('choixForm')
+                             ->toArray();
+
+    // Récupération des paiements avec pagination et filtres
+    $paiements = Paiement::with('inscription')
+        ->when(request('status'), function($query, $status) {
+            return $query->where('statut', $status);
+        })
+        ->when(request('formation'), function($query, $formation) {
+            return $query->whereHas('inscription', function($q) use ($formation) {
+                $q->where('choixForm', $formation);
+            });
+        })
+        ->when(request('start_date'), function($query, $startDate) {
+            return $query->where('date_paiement', '>=', $startDate);
+        })
+        ->when(request('end_date'), function($query, $endDate) {
+            return $query->where('date_paiement', '<=', $endDate);
+        })
+        ->when(request('search'), function($query, $search) {
+            return $query->whereHas('inscription', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('choixForm', 'like', "%{$search}%");
+            });
+        })
+        ->orderBy('date_paiement', 'desc')
+        ->paginate(10);
+
+    // Données pour les cartes
+    $totalPaiements = Paiement::sum('montant');
+    $paiementEvolution = $this->calculatePaymentEvolution();
+    $paiementsEnAttente = Paiement::where('statut', 'En attente')->count();
+    $montantEnAttente = Paiement::where('statut', 'En attente')->sum('montant');
+    $paiementsReussis = Paiement::where('statut', 'Payé')->count();
+    $tauxReussite = $this->calculateSuccessRate();
+    $reussiteEvolution = $this->calculateSuccessEvolution();
+
+    // Données pour les graphiques
+    $paymentTrends = Paiement::select(
+            DB::raw("TO_CHAR(date_paiement, 'YYYY-MM') as month"),
+            DB::raw('SUM(montant) as total')
+        )
+        ->where('statut', 'Payé')
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+
+    $paymentMethods = Paiement::select('mode', DB::raw('COUNT(*) as count'))
+        ->groupBy('mode')
+        ->get();
+
+    return view('admin.payments.allPayments', compact(
+        'paiements',
+        'totalPaiements',
+        'paiementEvolution',
+        'paiementsEnAttente',
+        'montantEnAttente',
+        'paiementsReussis',
+        'tauxReussite',
+        'reussiteEvolution',
+        'paymentTrends',
+        'paymentMethods',
+        'formations'
+    ));
+}
+
+private function calculatePaymentEvolution()
+{
+    $currentMonth = now()->format('Y-m');
+    $lastMonth = now()->subMonth()->format('Y-m');
+    
+    $currentMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)
+        ->where('statut', 'Payé')
+        ->sum('montant');
+    
+    $lastMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)
+        ->where('statut', 'Payé')
+        ->sum('montant');
+    
+    if ($lastMonthTotal == 0) {
+        return $currentMonthTotal > 0 ? 100 : 0;
     }
+    
+    return round(($currentMonthTotal - $lastMonthTotal) / $lastMonthTotal * 100, 1);
+}
+
+private function calculateSuccessRate()
+{
+    $totalPaiements = Paiement::count();
+    $successfulPaiements = Paiement::where('statut', 'Payé')->count();
+    
+    if ($totalPaiements == 0) return 0;
+    
+    return round(($successfulPaiements / $totalPaiements) * 100, 1);
+}
+
+private function calculateSuccessEvolution()
+{
+    $currentMonth = now()->format('Y-m');
+    $lastMonth = now()->subMonth()->format('Y-m');
+    
+    // Taux de réussite du mois courant
+    $currentMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)->count();
+    $currentMonthSuccess = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)
+        ->where('statut', 'Payé')
+        ->count();
+    
+    $currentRate = $currentMonthTotal > 0 ? ($currentMonthSuccess / $currentMonthTotal) * 100 : 0;
+    
+    // Taux de réussite du mois précédent
+    $lastMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)->count();
+    $lastMonthSuccess = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)
+        ->where('statut', 'Payé')
+        ->count();
+    
+    $lastRate = $lastMonthTotal > 0 ? ($lastMonthSuccess / $lastMonthTotal) * 100 : 0;
+    
+    if ($lastRate == 0) {
+        return $currentRate > 0 ? 100 : 0;
+    }
+    
+    return round(($currentRate - $lastRate) / $lastRate * 100, 1);
+}
+
     public function newPayment()
     {
         return view('admin.newPayment');

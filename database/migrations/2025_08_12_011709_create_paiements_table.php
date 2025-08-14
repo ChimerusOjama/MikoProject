@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('paiements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inscription_id')->constrained()->onDelete('cascade');
-            $table->decimal('montant', 10, 2);
+            $table->decimal('montant', 10, 2)->unsigned()->comment('Montant du paiement');
             $table->enum('mode', ['carte', 'virement', 'espèce', 'mobile']);
             $table->string('reference')->unique();
             $table->enum('statut', ['complet', 'partiel', 'en_attente', 'annulé']);
