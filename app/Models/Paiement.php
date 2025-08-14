@@ -21,4 +21,9 @@ class Paiement extends Model
     {
         return $this->belongsTo(Inscription::class);
     }
+
+    public function getFormattedDatePaiementAttribute()
+    {
+        return \Carbon\Carbon::parse($this->date_paiement)->format('d/m/Y');
+    }
 }

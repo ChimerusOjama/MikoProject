@@ -186,7 +186,7 @@
                   <td>{{ $paiement->inscription->name ?? 'N/A' }}</td>
                   <td>{{ $paiement->inscription->choixForm ?? 'N/A' }}</td>
                   <td>{{ number_format($paiement->montant, 0, ',', ' ') }} FCFA</td>
-                  <td>{{ $paiement->date_paiement->format('d/m/Y') }}</td>
+                  <td>{{ $paiement->formatted_date_paiement }}</td>
                   <td>{{ $paiement->mode }}</td>
                   <td>{{ $paiement->updated_at->format('d/m/Y H:i') }}</td>
                   <td>

@@ -63,6 +63,8 @@
   </script>
 @endsection
 
+@php($hideLoader = true)
+
 @section('content')
     <!-- Hero Carousel -->
     <section class="hero-carousel">

@@ -24,14 +24,13 @@ Route::controller(FirstController::class)->group(function () {
 // GROUPE : Routes partagées (auth + redirect)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [FirstController::class, 'redirect'])->name('home');
-    Route::post('/logout-user', [FirstController::class, 'uLogout'])->name('logout-user');
 });
 
 // GROUPE : Utilisateur simple (usertype = user)
 Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
     Route::get('/acceuil', 'index')->name('index');
     Route::post('/Inscription', 'formInsc')->name('inscForm');
-    Route::get('/dashboard', 'uAdmin')->name('uAdmin');
+    Route::get('/user_dashboard', 'uAdmin')->name('uAdmin');
     Route::get('/Mes_formations', 'uFormation')->name('uFormation');
     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
@@ -39,6 +38,7 @@ Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::c
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
     Route::get('/payment/success', 'success')->name('payment.success');
     Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    Route::post('/logout-user', 'uLogout')->name('logout-user');
 });
 
 // GROUPE : Administrateur (usertype = admin)
@@ -72,6 +72,7 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::
     // Paiements
     Route::get('/Liste_paiements', 'allPayments')->name('allPayments');
     Route::get('/nouveau_paiement', 'newPayment')->name('newPayment');
+    Route::get('/admin/payments/search-inscriptions', 'searchInscriptions')->name('admin.payments.search');
     Route::post('/Insertion_paiement', 'storePayment')->name('storePayment');
     Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
     Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');

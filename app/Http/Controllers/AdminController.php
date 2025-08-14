@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\manualPaymentConfirmation;
 use Carbon\Carbon;
 use App\Models\Formation;
 use App\Models\Inscription;
 use App\Models\User;
 use App\Models\Paiement;
+use App\Mail\PaymentConfirmation;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -344,6 +348,30 @@ class AdminController extends Controller
         }
     }
 
+    public function archiveForm($id)
+    {
+        $form = Formation::find($id);
+        if (!$form) {
+            return redirect()->back()->with('error', 'Formation introuvable.');
+        }
+
+        $hasInscriptions = Inscription::where('formation_id', $form->id)->exists();
+        if ($hasInscriptions) {
+            return redirect()->back()->with('warning', "Impossible d'archiver cette formation car des apprenants y sont déjà inscrits.");
+        }
+
+        $form->status = 'archivee';
+        $form->save();
+
+        return redirect()->back()->with('success', 'La formation a été archivée avec succès');
+    }
+
+    public function archiveView()
+    {
+        $forms = Formation::where('status', 'archivee')->get();
+        return view('admin.archiveForm', compact('forms'));
+    }
+
     // inscriptions
 
     public function inscriptions(Request $request)
@@ -598,165 +626,432 @@ class AdminController extends Controller
     //     return view('admin.allPayments');
     // }
 
+    public function allPayments()
+    {
 
+        // Récupération des formations distinctes
+        $formations = Inscription::distinct('choixForm')
+                                ->pluck('choixForm')
+                                ->toArray();
 
-// public function index()
-public function allPayments()
-{
+        // Récupération des paiements avec pagination et filtres
+        $paiements = Paiement::with('inscription')
+            ->when(request('status'), function($query, $status) {
+                return $query->where('statut', $status);
+            })
+            ->when(request('formation'), function($query, $formation) {
+                return $query->whereHas('inscription', function($q) use ($formation) {
+                    $q->where('choixForm', $formation);
+                });
+            })
+            ->when(request('start_date'), function($query, $startDate) {
+                return $query->where('date_paiement', '>=', $startDate);
+            })
+            ->when(request('end_date'), function($query, $endDate) {
+                return $query->where('date_paiement', '<=', $endDate);
+            })
+            ->when(request('search'), function($query, $search) {
+                return $query->whereHas('inscription', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('choixForm', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('date_paiement', 'desc')
+            ->paginate(10);
 
-    // Récupération des formations distinctes
-    $formations = Inscription::distinct('choixForm')
-                             ->pluck('choixForm')
-                             ->toArray();
+        // Données pour les cartes
+        $totalPaiements = Paiement::sum('montant');
+        $paiementEvolution = $this->calculatePaymentEvolution();
+        $paiementsEnAttente = Paiement::where('statut', 'En attente')->count();
+        $montantEnAttente = Paiement::where('statut', 'En attente')->sum('montant');
+        $paiementsReussis = Paiement::where('statut', 'Payé')->count();
+        $tauxReussite = $this->calculateSuccessRate();
+        $reussiteEvolution = $this->calculateSuccessEvolution();
 
-    // Récupération des paiements avec pagination et filtres
-    $paiements = Paiement::with('inscription')
-        ->when(request('status'), function($query, $status) {
-            return $query->where('statut', $status);
-        })
-        ->when(request('formation'), function($query, $formation) {
-            return $query->whereHas('inscription', function($q) use ($formation) {
-                $q->where('choixForm', $formation);
-            });
-        })
-        ->when(request('start_date'), function($query, $startDate) {
-            return $query->where('date_paiement', '>=', $startDate);
-        })
-        ->when(request('end_date'), function($query, $endDate) {
-            return $query->where('date_paiement', '<=', $endDate);
-        })
-        ->when(request('search'), function($query, $search) {
-            return $query->whereHas('inscription', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('choixForm', 'like', "%{$search}%");
-            });
-        })
-        ->orderBy('date_paiement', 'desc')
-        ->paginate(10);
+        // Données pour les graphiques
+        $paymentTrends = Paiement::select(
+                DB::raw("TO_CHAR(date_paiement, 'YYYY-MM') as month"),
+                DB::raw('SUM(montant) as total')
+            )
+            ->where('statut', 'Payé')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
 
-    // Données pour les cartes
-    $totalPaiements = Paiement::sum('montant');
-    $paiementEvolution = $this->calculatePaymentEvolution();
-    $paiementsEnAttente = Paiement::where('statut', 'En attente')->count();
-    $montantEnAttente = Paiement::where('statut', 'En attente')->sum('montant');
-    $paiementsReussis = Paiement::where('statut', 'Payé')->count();
-    $tauxReussite = $this->calculateSuccessRate();
-    $reussiteEvolution = $this->calculateSuccessEvolution();
+        $paymentMethods = Paiement::select('mode', DB::raw('COUNT(*) as count'))
+            ->groupBy('mode')
+            ->get();
 
-    // Données pour les graphiques
-    $paymentTrends = Paiement::select(
-            DB::raw("TO_CHAR(date_paiement, 'YYYY-MM') as month"),
-            DB::raw('SUM(montant) as total')
-        )
-        ->where('statut', 'Payé')
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get();
-
-    $paymentMethods = Paiement::select('mode', DB::raw('COUNT(*) as count'))
-        ->groupBy('mode')
-        ->get();
-
-    return view('admin.payments.allPayments', compact(
-        'paiements',
-        'totalPaiements',
-        'paiementEvolution',
-        'paiementsEnAttente',
-        'montantEnAttente',
-        'paiementsReussis',
-        'tauxReussite',
-        'reussiteEvolution',
-        'paymentTrends',
-        'paymentMethods',
-        'formations'
-    ));
-}
-
-private function calculatePaymentEvolution()
-{
-    $currentMonth = now()->format('Y-m');
-    $lastMonth = now()->subMonth()->format('Y-m');
-    
-    $currentMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)
-        ->where('statut', 'Payé')
-        ->sum('montant');
-    
-    $lastMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)
-        ->where('statut', 'Payé')
-        ->sum('montant');
-    
-    if ($lastMonthTotal == 0) {
-        return $currentMonthTotal > 0 ? 100 : 0;
+        return view('admin.payments.allPayments', compact(
+            'paiements',
+            'totalPaiements',
+            'paiementEvolution',
+            'paiementsEnAttente',
+            'montantEnAttente',
+            'paiementsReussis',
+            'tauxReussite',
+            'reussiteEvolution',
+            'paymentTrends',
+            'paymentMethods',
+            'formations'
+        ));
     }
-    
-    return round(($currentMonthTotal - $lastMonthTotal) / $lastMonthTotal * 100, 1);
-}
 
-private function calculateSuccessRate()
-{
-    $totalPaiements = Paiement::count();
-    $successfulPaiements = Paiement::where('statut', 'Payé')->count();
-    
-    if ($totalPaiements == 0) return 0;
-    
-    return round(($successfulPaiements / $totalPaiements) * 100, 1);
-}
-
-private function calculateSuccessEvolution()
-{
-    $currentMonth = now()->format('Y-m');
-    $lastMonth = now()->subMonth()->format('Y-m');
-    
-    // Taux de réussite du mois courant
-    $currentMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)->count();
-    $currentMonthSuccess = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)
-        ->where('statut', 'Payé')
-        ->count();
-    
-    $currentRate = $currentMonthTotal > 0 ? ($currentMonthSuccess / $currentMonthTotal) * 100 : 0;
-    
-    // Taux de réussite du mois précédent
-    $lastMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)->count();
-    $lastMonthSuccess = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)
-        ->where('statut', 'Payé')
-        ->count();
-    
-    $lastRate = $lastMonthTotal > 0 ? ($lastMonthSuccess / $lastMonthTotal) * 100 : 0;
-    
-    if ($lastRate == 0) {
-        return $currentRate > 0 ? 100 : 0;
+    private function calculatePaymentEvolution()
+    {
+        $currentMonth = now()->format('Y-m');
+        $lastMonth = now()->subMonth()->format('Y-m');
+        
+        $currentMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)
+            ->where('statut', 'Payé')
+            ->sum('montant');
+        
+        $lastMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)
+            ->where('statut', 'Payé')
+            ->sum('montant');
+        
+        if ($lastMonthTotal == 0) {
+            return $currentMonthTotal > 0 ? 100 : 0;
+        }
+        
+        return round(($currentMonthTotal - $lastMonthTotal) / $lastMonthTotal * 100, 1);
     }
-    
-    return round(($currentRate - $lastRate) / $lastRate * 100, 1);
-}
+
+    private function calculateSuccessRate()
+    {
+        $totalPaiements = Paiement::count();
+        $successfulPaiements = Paiement::where('statut', 'Payé')->count();
+        
+        if ($totalPaiements == 0) return 0;
+        
+        return round(($successfulPaiements / $totalPaiements) * 100, 1);
+    }
+
+    private function calculateSuccessEvolution()
+    {
+        $currentMonth = now()->format('Y-m');
+        $lastMonth = now()->subMonth()->format('Y-m');
+        
+        // Taux de réussite du mois courant
+        $currentMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)->count();
+        $currentMonthSuccess = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $currentMonth)
+            ->where('statut', 'Payé')
+            ->count();
+        
+        $currentRate = $currentMonthTotal > 0 ? ($currentMonthSuccess / $currentMonthTotal) * 100 : 0;
+        
+        // Taux de réussite du mois précédent
+        $lastMonthTotal = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)->count();
+        $lastMonthSuccess = Paiement::where(DB::raw("TO_CHAR(date_paiement, 'YYYY-MM')"), $lastMonth)
+            ->where('statut', 'Payé')
+            ->count();
+        
+        $lastRate = $lastMonthTotal > 0 ? ($lastMonthSuccess / $lastMonthTotal) * 100 : 0;
+        
+        if ($lastRate == 0) {
+            return $currentRate > 0 ? 100 : 0;
+        }
+        
+        return round(($currentRate - $lastRate) / $lastRate * 100, 1);
+    }
+
+    // public function newPayment()
+    // {
+    //     return view('admin.payments.newPayment');
+    // }
 
     public function newPayment()
     {
-        return view('admin.newPayment');
+        // Charger quelques inscriptions par défaut
+        $defaultInscriptions = Inscription::with('user')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('admin.payments.newPayment', [
+            'defaultInscriptions' => $defaultInscriptions
+        ]);
     }
 
-    public function archiveForm($id)
+    public function searchInscriptions(Request $request)
     {
-        $form = Formation::find($id);
-        if (!$form) {
-            return redirect()->back()->with('error', 'Formation introuvable.');
+        $searchTerm = $request->input('query');
+
+        $inscriptions = Inscription::with('user')
+            ->where(function($query) use ($searchTerm) {
+                $query->where('name', 'like', "%$searchTerm%")
+                    ->orWhere('email', 'like', "%$searchTerm%")
+                    ->orWhere('choixForm', 'like', "%$searchTerm%")
+                    ->orWhere('phone', 'like', "%$searchTerm%");
+            })
+            ->get()
+            ->map(function($inscription) {
+                // Calculer le montant total payé pour cette inscription
+                $paidAmount = Paiement::where('inscription_id', $inscription->id)->sum('montant');
+                $remaining = $inscription->montant - $paidAmount;
+
+                return [
+                    'id' => $inscription->id,
+                    'name' => $inscription->name,
+                    'email' => $inscription->email,
+                    'formation' => $inscription->choixForm,
+                    'totalAmount' => $inscription->montant,
+                    'paidAmount' => $paidAmount,
+                    'remaining' => $remaining
+                ];
+            });
+
+        return response()->json($inscriptions);
+    }
+
+    // public function storePayment(Request $request)
+    // {
+    //     $request->validate([
+    //         'inscription_id' => 'required|exists:inscriptions,id',
+    //         'amount' => 'required|numeric|min:1',
+    //         'payment_date' => 'required|date',
+    //         'payment_method' => 'required|string',
+    //         'user_email' => 'required|email',
+    //         'reference' => 'nullable|string|max:100',
+    //         'notes' => 'nullable|string|max:500'
+    //     ]);
+
+    //     // Créer le paiement
+    //     $paiement = new Paiement();
+    //     $paiement->inscription_id = $request->inscription_id;
+    //     $paiement->montant = $request->amount;
+    //     $paiement->date_paiement = $request->payment_date;
+    //     $paiement->mode = 'manuel';
+    //     $paiement->reference = $request->reference;
+    //     $paiement->notes = $request->notes;
+    //     $paiement->save();
+
+    //     // Envoyer l'email de confirmation
+    //     try {
+    //         Mail::to($request->user_email)->send(new PaymentConfirmation($paiement));
+    //     } catch (\Exception $e) {
+    //         // Logger l'erreur mais ne pas interrompre le processus
+    //         \Log::error('Erreur envoi email confirmation paiement: ' . $e->getMessage());
+    //     }
+
+    //     return redirect()->route('allPayments')->with('success', 'Paiement enregistré et notification envoyée !');
+    // }
+
+
+    // public function storePayment(Request $request)
+    // {
+    //     // Activer le logging détaillé
+    //     Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
+
+    //     try {
+    //         // Validation améliorée avec messages personnalisés
+    //         $validated = $request->validate([
+    //             'inscription_id' => 'required|exists:inscriptions,id',
+    //             'amount' => 'required|numeric|min:1',
+    //             'statut' => 'required|in:complet,partiel,en_attente,annulé',
+    //             'date_paiement' => 'required|date',
+    //             'mode' => 'required|in:mobile,carte,virement,espèce,cheque,autre',
+    //             'reference' => 'required|unique:paiements,reference|max:100',
+    //             'user_email' => 'required|email',
+    //             'notes' => 'nullable|string|max:500',
+    //             'numeric_remaining' => 'required|numeric|min:0'
+    //         ], [
+    //             'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
+    //             'amount.min' => 'Le montant doit être supérieur à 0',
+    //             'statut.in' => 'Statut de paiement invalide'
+    //         ]);
+
+    //         // Vérification cohérence montant
+    //         $montantSaisi = $request->amount;
+    //         $resteAPayer = $request->numeric_remaining;
+            
+    //         if ($montantSaisi > $resteAPayer) {
+    //             Log::warning('Montant incohérent', [
+    //                 'saisi' => $montantSaisi,
+    //                 'reste' => $resteAPayer
+    //             ]);
+                
+    //             return redirect()->back()
+    //                 ->with('error', 'Le montant saisi dépasse le reste à payer!')
+    //                 ->withInput();
+    //         }
+
+    //         // Création du paiement
+    //         $paiement = new Paiement();
+    //         $paiement->inscription_id = $validated['inscription_id'];
+    //         $paiement->montant = $validated['amount'];
+    //         $paiement->mode = $validated['mode'];
+    //         $paiement->reference = $validated['reference'];
+    //         $paiement->statut = $validated['statut'];
+    //         $paiement->date_paiement = $validated['date_paiement'];
+    //         $paiement->notes = $validated['notes'];
+    //         $paiement->save();
+
+    //         Log::info('Paiement enregistré', ['id' => $paiement->id]);
+
+    //         // Envoi email avec gestion d'erreur
+    //         try {
+    //             Mail::to($validated['user_email'])->send(new PaymentConfirmation($paiement));
+    //             Log::info('Email envoyé', ['email' => $validated['user_email']]);
+    //         } catch (\Exception $e) {
+    //             Log::error('Erreur envoi email', ['error' => $e->getMessage()]);
+    //         }
+
+    //         return redirect()->route('allPayments')->with([
+    //             'success' => 'Paiement enregistré avec succès!',
+    //             'payment_id' => $paiement->id
+    //         ]);
+
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         // Récupération des erreurs de validation
+    //         $errors = $e->validator->errors()->all();
+    //         Log::error('Erreur validation', ['errors' => $errors]);
+            
+    //         return redirect()->back()
+    //             ->withErrors($e->validator)
+    //             ->with('error', implode('<br>', $errors))
+    //             ->withInput();
+                
+    //     } catch (\Exception $e) {
+    //         // Gestion des autres exceptions
+    //         Log::critical('Erreur système', [
+    //             'error' => $e->getMessage(),
+    //             'file' => $e->getFile(),
+    //             'line' => $e->getLine()
+    //         ]);
+            
+    //         return redirect()->back()
+    //             ->with('error', 'Erreur système: ' . $e->getMessage())
+    //             ->with('error', implode('<br>', $errors))
+    //             ->withInput();
+
+    //     } catch (\Exception $e) {
+    //         // Gestion des autres exceptions
+    //         Log::critical('Erreur système', [
+    //             'error' => $e->getMessage(),
+    //             'file' => $e->getFile(),
+    //             'line' => $e->getLine()
+    //         ]);
+
+    //         return redirect()->back()
+    //             ->with('error', 'Erreur système: ' . $e->getMessage())
+    //             ->withInput();
+    //     }
+    // }
+
+    public function storePayment(Request $request)
+{
+    // Activation du logging détaillé
+    Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
+
+    try {
+        // Validation améliorée avec messages personnalisés
+        $validated = $request->validate([
+            'inscription_id' => 'required|exists:inscriptions,id',
+            'amount' => 'required|numeric|min:0',
+            'statut' => 'required|in:complet,partiel,en_attente,annulé',
+            'date_paiement' => 'required|date',
+            'mode' => 'required|in:mobile,carte,virement,espèce,cheque,autre',
+            'reference' => 'required|unique:paiements,reference|max:100',
+            'user_email' => 'required|email',
+            'numeric_remaining' => 'required|numeric|min:0'
+        ], [
+            'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
+            'amount.min' => 'Le montant doit être supérieur ou égal à 0',
+            'statut.in' => 'Statut de paiement invalide',
+            'inscription_id.exists' => 'L\'inscription sélectionnée n\'existe pas'
+        ]);
+
+        // Journalisation des données validées
+        Log::channel('payments')->debug('Données validées', [
+            'validated' => $validated,
+            'resteAPayer' => $validated['numeric_remaining']
+        ]);
+
+        // Vérification cohérence montant
+        $montantSaisi = $validated['amount'];
+        $resteAPayer = $validated['numeric_remaining'];
+        $statut = $validated['statut'];
+        
+        // Contrôle spécifique pour les paiements annulés
+        if ($statut === 'annulé' && $montantSaisi != 0) {
+            Log::channel('payments')->warning('Montant incohérent pour annulé', [
+                'saisi' => $montantSaisi,
+                'reste' => $resteAPayer
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Pour un paiement annulé, le montant doit être 0!')
+                ->withInput();
+        }
+        
+        // Contrôle pour les autres statuts
+        if ($statut !== 'annulé' && $montantSaisi > $resteAPayer) {
+            Log::channel('payments')->warning('Montant incohérent', [
+                'saisi' => $montantSaisi,
+                'reste' => $resteAPayer,
+                'statut' => $statut
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Le montant saisi dépasse le reste à payer!')
+                ->withInput();
         }
 
-        $hasInscriptions = Inscription::where('formation_id', $form->id)->exists();
-        if ($hasInscriptions) {
-            return redirect()->back()->with('warning', "Impossible d'archiver cette formation car des apprenants y sont déjà inscrits.");
+        // Création du paiement
+        $paiement = new Paiement();
+        $paiement->inscription_id = $validated['inscription_id'];
+        $paiement->montant = $validated['amount'];
+        $paiement->mode = $validated['mode'];
+        $paiement->reference = $validated['reference'];
+        $paiement->statut = $validated['statut'];
+        $paiement->date_paiement = $validated['date_paiement'];
+        $paiement->save();
+
+        Log::channel('payments')->info('Paiement enregistré', ['id' => $paiement->id]);
+
+        // Envoi email avec gestion d'erreur
+        try {
+            if ($statut !== 'annulé') {
+                Mail::to($validated['user_email'])->send(new manualPaymentConfirmation($paiement));
+                Log::channel('payments')->info('Email envoyé', ['email' => $validated['user_email']]);
+            } else {
+                Log::channel('payments')->info('Aucun email envoyé pour paiement annulé');
+            }
+        } catch (\Exception $e) {
+            Log::channel('payments')->error('Erreur envoi email', [
+                'error' => $e->getMessage(),
+                'email' => $validated['user_email']
+            ]);
         }
 
-        $form->status = 'archivee';
-        $form->save();
+        return redirect()->route('allPayments')->with([
+            'success' => 'Paiement enregistré avec succès!',
+            'payment_id' => $paiement->id
+        ]);
 
-        return redirect()->back()->with('success', 'La formation a été archivée avec succès');
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Récupération des erreurs de validation
+        $errors = $e->validator->errors()->all();
+        Log::channel('payments')->error('Erreur validation', ['errors' => $errors]);
+        
+        return redirect()->back()
+            ->withErrors($e->validator)
+            ->with('error', implode('<br>', $errors))
+            ->withInput();
+            
+    } catch (\Exception $e) {
+        // Gestion des autres exceptions
+        Log::channel('payments')->critical('Erreur système', [
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+        
+        return redirect()->back()
+            ->with('error', 'Erreur système: ' . $e->getMessage())
+            ->withInput();
     }
-
-    public function archiveView()
-    {
-        $forms = Formation::where('status', 'archivee')->get();
-        return view('admin.archiveForm', compact('forms'));
-    }
+}
 
 }

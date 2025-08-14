@@ -108,16 +108,21 @@
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
               <i class="fas fa-user-circle me-1"></i> Mon compte
             </a>
+
             <ul class="dropdown-menu dropdown-menu-end">
-                @if(Route::has('login'))
-                @auth
-                  <li><a class="dropdown-item login-btn" href="{{route('index')}}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                  <form action="{{route('logout-user')}}" method="post">
-                    @csrf
-                    <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
+              @if(Route::has('login'))
+              @auth
+                  @if(auth()->user()->usertype === 'user')
+                      <li><a class="dropdown-item login-btn" href="{{ route('uAdmin') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                  @else
+                      <li><a class="dropdown-item login-btn" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</a></li>
+                  @endif
+                  
+                  <form action="{{ auth()->user()->usertype === 'user' ? route('logout-user') : route('aLogout') }}" method="post">
+                      @csrf
+                      <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
                   </form>
-                </li>
-                @else
+              @else
                 <li><a class="dropdown-item login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a></li>
                 <li><a class="dropdown-item register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a></li>
                 @endauth
@@ -131,14 +136,19 @@
 
         <!-- Liens compte pour mobile -->
         <div class="mobile-account-links">
-          @if(Route::has('login'))
-            @auth
-              <a class="nav-link login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
-              <form action="{{route('logout-user')}}" method="post">
-                @csrf
-                <button type="submit" class="nav-link logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
-              </form>
-            @else
+            @if(Route::has('login'))
+                @auth
+                    @if(auth()->user()->usertype === 'user')
+                        <a class="nav-link login-btn" href="{{ route('uAdmin') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                    @else
+                        <a class="nav-link login-btn" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</a>
+                    @endif
+                    
+                    <form action="{{ auth()->user()->usertype === 'user' ? route('logout-user') : route('aLogout') }}" method="post">
+                        @csrf
+                        <button type="submit" class="nav-link logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
+                    </form>
+                @else
               <a class="nav-link login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
               <a class="nav-link register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a>
             @endauth

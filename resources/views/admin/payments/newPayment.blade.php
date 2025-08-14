@@ -18,7 +18,7 @@
     <div class="card-body">
       <h4 class="card-title mb-4">Formulaire d'enregistrement de paiement</h4>
       
-      <form class="forms-sample" action="{{ route('storePayment') }}" method="POST">
+      <form class="forms-sample" action="{{ route('storePayment') }}" method="POST" id="paymentForm">
         @csrf
         
         <div class="row mb-4">
@@ -26,10 +26,10 @@
             <h5 class="mb-3 text-primary"><i class="mdi mdi-magnify me-1"></i> Rechercher l'inscription</h5>
             
             <div class="form-group">
-              <label for="searchClient">Rechercher par nom ou formation</label>
+              <label for="searchClient">Rechercher par nom, email, formation ou téléphone</label>
               <div class="input-group">
                 <input type="text" class="form-control" id="searchClient" 
-                      placeholder="Saisissez un nom ou une formation...">
+                      placeholder="Saisissez un nom, email, formation ou téléphone...">
                 <button class="btn btn-outline-secondary" type="button" id="searchButton">
                   <i class="mdi mdi-magnify"></i> Rechercher
                 </button>
@@ -44,51 +44,22 @@
                       <tr>
                         <th>Sélection</th>
                         <th>Nom</th>
+                        <th>Email</th>
                         <th>Formation</th>
                         <th>Montant total</th>
                         <th>Déjà payé</th>
                         <th>Reste</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="inscription_id" id="insc1" value="1">
-                          </div>
-                        </td>
-                        <td>Marie Dupont</td>
-                        <td>Marketing Digital</td>
-                        <td>150 000 FCFA</td>
-                        <td>50 000 FCFA</td>
-                        <td>100 000 FCFA</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="inscription_id" id="insc2" value="2">
-                          </div>
-                        </td>
-                        <td>Jean Martin</td>
-                        <td>Développement Web</td>
-                        <td>200 000 FCFA</td>
-                        <td>100 000 FCFA</td>
-                        <td>100 000 FCFA</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="inscription_id" id="insc3" value="3">
-                          </div>
-                        </td>
-                        <td>Thomas Bernard</td>
-                        <td>Marketing Digital</td>
-                        <td>150 000 FCFA</td>
-                        <td>0 FCFA</td>
-                        <td>150 000 FCFA</td>
-                      </tr>
+                    <tbody id="resultsBody">
+                      <!-- Les résultats seront chargés ici dynamiquement -->
                     </tbody>
                   </table>
+                </div>
+                <div id="loadingIndicator" style="display: none; text-align: center; padding: 10px;">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -136,36 +107,50 @@
             <div class="form-group">
               <label for="paymentAmount">Montant à payer (FCFA) <span class="text-danger">*</span></label>
               <input type="number" class="form-control" id="paymentAmount" name="amount" required 
-                    min="1" step="1000" placeholder="Ex: 50000">
+                    min="0" step="1000" placeholder="Ex: 50000">
+              <small class="text-muted">Le montant peut être partiel ou 0 pour annulé</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="paymentStatus">Statut du paiement <span class="text-danger">*</span></label>
+              <select class="form-select" id="paymentStatus" name="statut" required>
+                <option value="partiel">Partiel</option>
+                <option value="complet">Complet</option>
+                <option value="en_attente">En attente</option>
+                <option value="annulé">Annulé</option>
+              </select>
+              <small class="text-muted">Sélectionnez "Complet" si le montant couvre le reste dû</small>
             </div>
             
             <div class="form-group">
               <label for="paymentDate">Date du paiement <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" id="paymentDate" name="payment_date" required 
+              <input type="date" class="form-control" id="paymentDate" name="date_paiement" required 
                     value="{{ date('Y-m-d') }}">
             </div>
             
             <div class="form-group">
               <label for="paymentMethod">Mode de paiement <span class="text-danger">*</span></label>
-              <select class="form-select" id="paymentMethod" name="payment_method" required>
+              <select class="form-select" id="paymentMethod" name="mode" required>
                 <option value="">Sélectionnez un mode</option>
-                <option value="mobile_money">Mobile Money</option>
-                <option value="carte_bancaire">Carte bancaire</option>
+                <option value="mobile">Mobile Money</option>
+                <option value="carte">Carte bancaire</option>
                 <option value="virement">Virement bancaire</option>
-                <option value="especes">Espèces</option>
+                <option value="espèce">Espèces</option>
                 <option value="cheque">Chèque</option>
+                <option value="autre">Autre</option>
               </select>
             </div>
             
             <div class="form-group">
-              <label for="paymentReference">Référence du paiement</label>
+              <label for="paymentReference">Référence du paiement <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="paymentReference" name="reference" 
-                    placeholder="Référence de transaction">
+                    placeholder="Référence de transaction" value="{{ 'MAN-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(2))) }}" required readonly>
+              <small class="text-muted">Numéro de transaction ou référence unique</small>
             </div>
           </div>
         </div>
         
-        <div class="row mb-4">
+        <!-- <div class="row mb-4">
           <div class="col-12">
             <h5 class="mb-3 text-primary"><i class="mdi mdi-note-text-outline me-1"></i> Notes additionnelles</h5>
             
@@ -175,7 +160,12 @@
                         placeholder="Notes supplémentaires sur le paiement" rows="4"></textarea>
             </div>
           </div>
-        </div>
+        </div> -->
+        
+        <!-- Champs cachés -->
+        <input type="hidden" id="inscriptionIdInput" name="inscription_id">
+        <input type="hidden" id="userEmail" name="user_email">
+        <input type="hidden" id="numericRemaining" name="numeric_remaining">
         
         <div class="d-flex justify-content-between mt-4">
           <button type="submit" class="btn btn-primary">
@@ -228,54 +218,165 @@
 @push('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Recherche d'inscription
+    // Éléments DOM
     const searchButton = document.getElementById('searchButton');
+    const searchInput = document.getElementById('searchClient');
     const searchResults = document.getElementById('searchResults');
-    
-    searchButton.addEventListener('click', function() {
-      searchResults.style.display = 'block';
-    });
-    
-    // Sélection d'une inscription
-    const inscriptionRadios = document.querySelectorAll('input[name="inscription_id"]');
-    const clientName = document.getElementById('clientName');
-    const clientFormation = document.getElementById('clientFormation');
-    const totalAmount = document.getElementById('totalAmount');
-    const paidAmount = document.getElementById('paidAmount');
-    const remainingAmount = document.getElementById('remainingAmount');
+    const resultsBody = document.getElementById('resultsBody');
+    const loadingIndicator = document.getElementById('loadingIndicator');
     const paymentAmount = document.getElementById('paymentAmount');
-    
-    inscriptionRadios.forEach(radio => {
-      radio.addEventListener('change', function() {
-        const row = this.closest('tr');
-        const name = row.cells[1].textContent;
-        const formation = row.cells[2].textContent;
-        const total = row.cells[3].textContent;
-        const paid = row.cells[4].textContent;
-        const remaining = row.cells[5].textContent;
+    const paymentStatus = document.getElementById('paymentStatus');
+    const paymentForm = document.getElementById('paymentForm');
+
+    // Recherche d'inscription
+    searchButton.addEventListener('click', function() {
+        const query = searchInput.value.trim();
         
-        clientName.value = name;
-        clientFormation.value = formation;
-        totalAmount.value = total;
-        paidAmount.value = paid;
-        remainingAmount.value = remaining;
-        
-        // Suggérer le montant à payer
-        paymentAmount.value = remaining.replace(/\D/g, '');
-      });
+        if (query.length < 2) {
+            alert('Veuillez saisir au moins 2 caractères');
+            return;
+        }
+
+        // Afficher le chargement
+        loadingIndicator.style.display = 'block';
+        resultsBody.innerHTML = '';
+        searchResults.style.display = 'block';
+
+        // Requête AJAX
+        fetch(`/admin/payments/search-inscriptions?query=${encodeURIComponent(query)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur réseau: ' + response.statusText);
+                return response.json();
+            })
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+
+                if (data.length === 0) {
+                    resultsBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">Aucune inscription trouvée</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                data.forEach(inscription => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="inscription_id" 
+                                    value="${inscription.id}" data-inscription='${JSON.stringify(inscription)}'>
+                            </div>
+                        </td>
+                        <td>${inscription.name}</td>
+                        <td>${inscription.email}</td>
+                        <td>${inscription.formation}</td>
+                        <td>${inscription.totalAmount.toLocaleString()} FCFA</td>
+                        <td>${inscription.paidAmount.toLocaleString()} FCFA</td>
+                        <td>${inscription.remaining.toLocaleString()} FCFA</td>
+                    `;
+                    resultsBody.appendChild(row);
+                });
+
+                // Gérer la sélection d'une inscription
+                document.querySelectorAll('input[name="inscription_id"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const inscription = JSON.parse(this.getAttribute('data-inscription'));
+                        
+                        document.getElementById('clientName').value = inscription.name;
+                        document.getElementById('clientFormation').value = inscription.formation;
+                        document.getElementById('totalAmount').value = inscription.totalAmount.toLocaleString() + ' FCFA';
+                        document.getElementById('paidAmount').value = inscription.paidAmount.toLocaleString() + ' FCFA';
+                        document.getElementById('remainingAmount').value = inscription.remaining.toLocaleString() + ' FCFA';
+                        document.getElementById('numericRemaining').value = inscription.remaining;
+                        document.getElementById('inscriptionIdInput').value = inscription.id;
+                        
+                        // Ajustement automatique du montant
+                        if (paymentStatus.value === 'annulé') {
+                            paymentAmount.value = 0;
+                        } else {
+                            paymentAmount.value = inscription.remaining;
+                        }
+                        
+                        // Mettre à jour le statut automatiquement
+                        paymentStatus.value = inscription.remaining > 0 ? 'partiel' : 'complet';
+                        
+                        // Stocker l'email pour l'envoi de notification
+                        document.getElementById('userEmail').value = inscription.email;
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                loadingIndicator.style.display = 'none';
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">
+                            Erreur lors de la recherche: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            });
     });
-    
+
+    // Gestion du changement de statut
+    paymentStatus.addEventListener('change', function() {
+        const numericRemaining = parseFloat(document.getElementById('numericRemaining').value) || 0;
+        
+        if (this.value === 'annulé') {
+            paymentAmount.value = 0;
+            paymentAmount.disabled = true;
+        } else if (this.value === 'complet') {
+            paymentAmount.value = numericRemaining;
+            paymentAmount.disabled = false;
+        } else {
+            paymentAmount.disabled = false;
+            if (paymentAmount.value === "0") {
+                paymentAmount.value = numericRemaining;
+            }
+        }
+    });
+
     // Validation du montant à payer
-    paymentAmount.addEventListener('change', function() {
-      const maxAmount = parseInt(remainingAmount.value.replace(/\D/g, ''));
-      const enteredAmount = parseInt(this.value) || 0;
-      
-      if (enteredAmount > maxAmount) {
-        alert('Le montant saisi dépasse le reste à payer de ' + maxAmount.toLocaleString() + ' FCFA');
-        this.value = maxAmount;
-      }
+    paymentAmount.addEventListener('input', function() {
+        const numericRemaining = parseFloat(document.getElementById('numericRemaining').value) || 0;
+        const enteredAmount = parseFloat(this.value) || 0;
+        
+        if (enteredAmount > numericRemaining && paymentStatus.value !== 'annulé') {
+            alert('Le montant saisi dépasse le reste à payer de ' + numericRemaining.toLocaleString() + ' FCFA');
+            this.value = numericRemaining;
+        }
+        
+        // Mettre à jour le statut automatiquement
+        if (enteredAmount === numericRemaining && enteredAmount > 0) {
+            paymentStatus.value = 'complet';
+        } else if (enteredAmount > 0 && enteredAmount < numericRemaining) {
+            paymentStatus.value = 'partiel';
+        }
     });
     
+    // Validation avant soumission
+    paymentForm.addEventListener('submit', function(e) {
+        const inscriptionId = document.getElementById('inscriptionIdInput').value;
+        if (!inscriptionId) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une inscription avant de soumettre');
+            return false;
+        }
+        
+        const paymentStatusValue = document.getElementById('paymentStatus').value;
+        const paymentAmountValue = parseFloat(document.getElementById('paymentAmount').value) || 0;
+        
+        if (paymentStatusValue === 'annulé' && paymentAmountValue !== 0) {
+            e.preventDefault();
+            alert('Pour un paiement annulé, le montant doit être 0');
+            return false;
+        }
+        
+        return true;
+    });
+
     // Validation de la date
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('paymentDate').max = today;

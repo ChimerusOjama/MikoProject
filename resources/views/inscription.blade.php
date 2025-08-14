@@ -222,13 +222,6 @@
                                       <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">
                                           <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
                                       </a>
-                                      <a href="{{ route('alogout') }}" class="btn btn-outline-primary"
-                                          onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                          <i class="fas fa-sign-out-alt me-2"></i>Changer de compte
-                                      </a>
-                                      <form id="logout-form" action="{{ route('alogout') }}" method="POST" class="d-none">
-                                          @csrf
-                                      </form>
                                   </div>
                               </div>
                           </div>
