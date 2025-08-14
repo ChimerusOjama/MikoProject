@@ -940,118 +940,121 @@ class AdminController extends Controller
     // }
 
     public function storePayment(Request $request)
-{
-    // Activation du logging détaillé
-    Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
+    {
+        // Activation du logging détaillé
+        Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
 
-    try {
-        // Validation améliorée avec messages personnalisés
-        $validated = $request->validate([
-            'inscription_id' => 'required|exists:inscriptions,id',
-            'amount' => 'required|numeric|min:0',
-            'statut' => 'required|in:complet,partiel,en_attente,annulé',
-            'date_paiement' => 'required|date',
-            'mode' => 'required|in:mobile,carte,virement,espèce,cheque,autre',
-            'reference' => 'required|unique:paiements,reference|max:100',
-            'user_email' => 'required|email',
-            'numeric_remaining' => 'required|numeric|min:0'
-        ], [
-            'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
-            'amount.min' => 'Le montant doit être supérieur ou égal à 0',
-            'statut.in' => 'Statut de paiement invalide',
-            'inscription_id.exists' => 'L\'inscription sélectionnée n\'existe pas'
-        ]);
-
-        // Journalisation des données validées
-        Log::channel('payments')->debug('Données validées', [
-            'validated' => $validated,
-            'resteAPayer' => $validated['numeric_remaining']
-        ]);
-
-        // Vérification cohérence montant
-        $montantSaisi = $validated['amount'];
-        $resteAPayer = $validated['numeric_remaining'];
-        $statut = $validated['statut'];
-        
-        // Contrôle spécifique pour les paiements annulés
-        if ($statut === 'annulé' && $montantSaisi != 0) {
-            Log::channel('payments')->warning('Montant incohérent pour annulé', [
-                'saisi' => $montantSaisi,
-                'reste' => $resteAPayer
-            ]);
-            
-            return redirect()->back()
-                ->with('error', 'Pour un paiement annulé, le montant doit être 0!')
-                ->withInput();
-        }
-        
-        // Contrôle pour les autres statuts
-        if ($statut !== 'annulé' && $montantSaisi > $resteAPayer) {
-            Log::channel('payments')->warning('Montant incohérent', [
-                'saisi' => $montantSaisi,
-                'reste' => $resteAPayer,
-                'statut' => $statut
-            ]);
-            
-            return redirect()->back()
-                ->with('error', 'Le montant saisi dépasse le reste à payer!')
-                ->withInput();
-        }
-
-        // Création du paiement
-        $paiement = new Paiement();
-        $paiement->inscription_id = $validated['inscription_id'];
-        $paiement->montant = $validated['amount'];
-        $paiement->mode = $validated['mode'];
-        $paiement->reference = $validated['reference'];
-        $paiement->statut = $validated['statut'];
-        $paiement->date_paiement = $validated['date_paiement'];
-        $paiement->save();
-
-        Log::channel('payments')->info('Paiement enregistré', ['id' => $paiement->id]);
-
-        // Envoi email avec gestion d'erreur
         try {
-            if ($statut !== 'annulé') {
-                Mail::to($validated['user_email'])->send(new manualPaymentConfirmation($paiement));
-                Log::channel('payments')->info('Email envoyé', ['email' => $validated['user_email']]);
-            } else {
-                Log::channel('payments')->info('Aucun email envoyé pour paiement annulé');
-            }
-        } catch (\Exception $e) {
-            Log::channel('payments')->error('Erreur envoi email', [
-                'error' => $e->getMessage(),
-                'email' => $validated['user_email']
+            // Validation améliorée avec messages personnalisés
+            $validated = $request->validate([
+                'inscription_id' => 'required|exists:inscriptions,id',
+                'amount' => 'required|numeric|min:0',
+                'statut' => 'required|in:complet,partiel,en_attente,annulé',
+                'date_paiement' => 'required|date',
+                'mode' => 'required|in:mobile,carte,virement,espèce,cheque,autre',
+                'reference' => 'required|unique:paiements,reference|max:100',
+                'user_email' => 'required|email',
+                'numeric_remaining' => 'required|numeric|min:0'
+            ], [
+                'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
+                'amount.min' => 'Le montant doit être supérieur ou égal à 0',
+                'statut.in' => 'Statut de paiement invalide',
+                'inscription_id.exists' => 'L\'inscription sélectionnée n\'existe pas'
             ]);
-        }
 
-        return redirect()->route('allPayments')->with([
-            'success' => 'Paiement enregistré avec succès!',
-            'payment_id' => $paiement->id
-        ]);
+            // Journalisation des données validées
+            Log::channel('payments')->debug('Données validées', [
+                'validated' => $validated,
+                'resteAPayer' => $validated['numeric_remaining']
+            ]);
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Récupération des erreurs de validation
-        $errors = $e->validator->errors()->all();
-        Log::channel('payments')->error('Erreur validation', ['errors' => $errors]);
-        
-        return redirect()->back()
-            ->withErrors($e->validator)
-            ->with('error', implode('<br>', $errors))
-            ->withInput();
+            // Vérification cohérence montant
+            $montantSaisi = $validated['amount'];
+            $resteAPayer = $validated['numeric_remaining'];
+            $statut = $validated['statut'];
             
-    } catch (\Exception $e) {
-        // Gestion des autres exceptions
-        Log::channel('payments')->critical('Erreur système', [
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ]);
-        
-        return redirect()->back()
-            ->with('error', 'Erreur système: ' . $e->getMessage())
-            ->withInput();
+            // Contrôle spécifique pour les paiements annulés
+            if ($statut === 'annulé' && $montantSaisi != 0) {
+                Log::channel('payments')->warning('Montant incohérent pour annulé', [
+                    'saisi' => $montantSaisi,
+                    'reste' => $resteAPayer
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', 'Pour un paiement annulé, le montant doit être 0!')
+                    ->withInput();
+            }
+            
+            // Contrôle pour les autres statuts
+            if ($statut !== 'annulé' && $montantSaisi > $resteAPayer) {
+                Log::channel('payments')->warning('Montant incohérent', [
+                    'saisi' => $montantSaisi,
+                    'reste' => $resteAPayer,
+                    'statut' => $statut
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', 'Le montant saisi dépasse le reste à payer!')
+                    ->withInput();
+            }
+
+            // Création du paiement
+            $paiement = new Paiement();
+            $paiement->inscription_id = $validated['inscription_id'];
+            $paiement->montant = $validated['amount'];
+            $paiement->mode = $validated['mode'];
+            $paiement->reference = $validated['reference'];
+            $paiement->statut = $validated['statut'];
+            $paiement->date_paiement = $validated['date_paiement'];
+            $paiement->save();
+
+            Log::channel('payments')->info('Paiement enregistré', ['id' => $paiement->id]);
+
+            // Envoi email avec gestion d'erreur
+            try {
+                if ($statut !== 'annulé') {
+                    $paiement->load('inscription');
+                    Mail::to($validated['user_email'])->send(new manualPaymentConfirmation($paiement));
+                    Log::channel('payments')->info('Email envoyé', ['email' => $validated['user_email']]);
+                } else {
+                    Log::channel('payments')->info('Aucun email envoyé pour paiement annulé');
+                }
+            } catch (\Exception $e) {
+                Log::channel('payments')->error('Erreur envoi email', [
+                    'error' => $e->getMessage(),
+                    'email' => $validated['user_email']
+                ]);
+            }
+
+            return redirect()->route('allPayments')->with([
+                'success' => 'Paiement enregistré avec succès!',
+                'payment_id' => $paiement->id
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Récupération des erreurs de validation
+            $errors = $e->validator->errors()->all();
+            Log::channel('payments')->error('Erreur validation', ['errors' => $errors]);
+            
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->with('error', implode('<br>', $errors))
+                ->withInput();
+                
+        } catch (\Exception $e) {
+            // Gestion des autres exceptions
+            Log::channel('payments')->critical('Erreur système', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Erreur système: ' . $e->getMessage())
+                ->withInput();
+        }
     }
-}
+
+    
 
 }

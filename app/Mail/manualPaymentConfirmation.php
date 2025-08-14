@@ -8,17 +8,21 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Paiement; // Ajout de l'import
+use Carbon\Carbon; // Import pour la gestion des dates
 
 class manualPaymentConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $paiement; // Variable publique pour la vue
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(Paiement $paiement) // Injection du modèle
     {
-        //
+        $this->paiement = $paiement;
     }
 
     /**
@@ -27,7 +31,7 @@ class manualPaymentConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Manual Payment Confirmation',
+            subject: 'Confirmation de votre paiement', // Sujet en français
         );
     }
 
@@ -36,8 +40,15 @@ class manualPaymentConfirmation extends Mailable
      */
     public function content(): Content
     {
+        // Formatage de la date pour la vue
+        $dateFormatted = Carbon::parse($this->paiement->date_paiement)->format('d/m/Y');
+        
         return new Content(
             view: 'emails.payment.manual_payment_confirmation',
+            with: [
+                'paiement' => $this->paiement, // Passage de la variable
+                'dateFormatted' => $dateFormatted // Date pré-formatée
+            ]
         );
     }
 

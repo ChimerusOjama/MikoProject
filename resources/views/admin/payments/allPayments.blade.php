@@ -200,8 +200,20 @@
                   </td>
                   <td>
                     <div class="btn-group" role="group">
-                      <button class="btn btn-sm btn-info btn-icon view-payment" 
-                              data-id="{{ $paiement->id }}" title="Détails paiement">
+                      <button class="btn btn-sm btn-info btn-icon" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#paymentDetailsModal"
+                              data-id="{{ $paiement->id }}"
+                              data-client="{{ $paiement->inscription->name ?? 'N/A' }}"
+                              data-email="{{ $paiement->inscription->email ?? 'N/A' }}"
+                              data-phone="{{ $paiement->inscription->phone ?? 'N/A' }}"
+                              data-formation="{{ $paiement->inscription->choixForm ?? 'N/A' }}"
+                              data-montant="{{ number_format($paiement->montant, 0, ',', ' ') }}"
+                              data-date-paiement="{{ $paiement->formatted_date_paiement }}"
+                              data-mode="{{ $paiement->mode }}"
+                              data-updated-at="{{ $paiement->updated_at->format('d/m/Y H:i') }}"
+                              data-statut="{{ $paiement->statut }}"
+                              onclick="loadPaymentDetails(this)">
                         <i class="mdi mdi-eye"></i>
                       </button>
                       <button class="btn btn-sm btn-warning btn-icon edit-payment" 
@@ -239,30 +251,48 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Détails du paiement</h5>
+        <h5 class="modal-title">Détails du paiement #<span id="detailId"></span></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="payment-details-content">
-        <!-- Contenu chargé dynamiquement via AJAX -->
+      <div class="modal-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6>Informations client</h6>
+            <ul class="list-group">
+              <li class="list-group-item"><strong>Nom :</strong> <span id="detailClient"></span></li>
+              <li class="list-group-item"><strong>Email :</strong> <span id="detailEmail"></span></li>
+              <li class="list-group-item"><strong>Téléphone :</strong> <span id="detailPhone"></span></li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>Détails paiement</h6>
+            <ul class="list-group">
+              <li class="list-group-item"><strong>Formation :</strong> <span id="detailFormation"></span></li>
+              <li class="list-group-item"><strong>Montant :</strong> <span id="detailMontant"></span> FCFA</li>
+              <li class="list-group-item"><strong>Mode :</strong> <span id="detailMode"></span></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Dates</h6>
+            <ul class="list-group">
+              <li class="list-group-item"><strong>Date paiement :</strong> <span id="detailDatePaiement"></span></li>
+              <li class="list-group-item"><strong>Dernière mise à jour :</strong> <span id="detailUpdatedAt"></span></li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>Statut</h6>
+            <div class="alert" id="detailStatutAlert">
+              <span id="detailStatut"></span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
         <button type="button" class="btn btn-primary" id="edit-payment-btn">Modifier</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal d'édition -->
-<div class="modal fade" id="editPaymentModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Modifier le paiement</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="edit-payment-content">
-        <!-- Formulaire chargé dynamiquement -->
       </div>
     </div>
   </div>
@@ -356,6 +386,35 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // Fonction pour charger les détails dans le modal
+  function loadPaymentDetails(el) {
+    document.getElementById('detailId').textContent = el.dataset.id;
+    document.getElementById('detailClient').textContent = el.dataset.client;
+    document.getElementById('detailEmail').textContent = el.dataset.email;
+    document.getElementById('detailPhone').textContent = el.dataset.phone;
+    document.getElementById('detailFormation').textContent = el.dataset.formation;
+    document.getElementById('detailMontant').textContent = el.dataset.montant;
+    document.getElementById('detailDatePaiement').textContent = el.dataset.datePaiement;
+    document.getElementById('detailMode').textContent = el.dataset.mode;
+    document.getElementById('detailUpdatedAt').textContent = el.dataset.updatedAt;
+    document.getElementById('detailStatut').textContent = el.dataset.statut;
+    
+    // Mise à jour du style selon le statut
+    const statusAlert = document.getElementById('detailStatutAlert');
+    statusAlert.className = 'alert';
+    
+    if (el.dataset.statut === 'Payé') {
+      statusAlert.classList.add('alert-success');
+    } else if (el.dataset.statut === 'En attente') {
+      statusAlert.classList.add('alert-warning');
+    } else {
+      statusAlert.classList.add('alert-danger');
+    }
+    
+    // Mise à jour de l'ID pour le bouton Modifier
+    document.getElementById('edit-payment-btn').dataset.id = el.dataset.id;
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     // Initialisation des graphiques avec conteneurs dédiés
     const initCharts = function() {
@@ -443,17 +502,7 @@
     // Initialiser les graphiques
     initCharts();
     
-    // Gestion des modals
-    $('.view-payment').click(function() {
-      const paymentId = $(this).data('id');
-      $.get(`/admin/payments/${paymentId}/details`, function(data) {
-        $('#payment-details-content').html(data);
-        $('#edit-payment-btn').data('id', paymentId);
-        const modal = new bootstrap.Modal(document.getElementById('paymentDetailsModal'));
-        modal.show();
-      });
-    });
-    
+    // Gestion de la modification (inchangée)
     $('#edit-payment-btn').click(function() {
       const paymentId = $(this).data('id');
       $.get(`/admin/payments/${paymentId}/edit`, function(data) {
@@ -473,7 +522,7 @@
       });
     });
     
-    // Filtrage des paiements
+    // Filtrage des paiements (inchangé)
     const filterStatus = document.getElementById('filter-status');
     const filterFormation = document.getElementById('filter-formation');
     const filterStartDate = document.getElementById('filter-start-date');
@@ -507,9 +556,8 @@
       };
     }
 
-    // Redimensionnement des graphiques lors du redimensionnement de la fenêtre
+    // Redimensionnement des graphiques
     window.addEventListener('resize', function() {
-      // Détruire et recréer les graphiques
       if (typeof Chart !== 'undefined') {
         Chart.helpers.each(Chart.instances, function(instance) {
           instance.destroy();
