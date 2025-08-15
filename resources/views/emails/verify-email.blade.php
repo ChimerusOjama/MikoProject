@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vérification de votre email - Miko Formation</title>
   <style>
     :root {
       --primary: #3F51B5;
@@ -223,17 +220,16 @@
 </head>
 <body>
   <div class="email-container">
-    <!-- En-tête corrigé -->
     <header class="email-header">
       <div class="logo">MIKO<span>FORMATION</span></div>
       <div class="email-date">{{ now()->format('d M Y') }}</div>
     </header>
     
-    <!-- Corps -->
     <main class="email-body">
       <h2 class="email-title">Vérification de votre adresse email</h2>
       
-      <p>Bonjour,</p>
+      <!-- Correction : Utilisation de full_name avec emoji -->
+      <p>Bonjour <strong>{{ $full_name }}</strong> 👋,</p>
       
       <p>Merci de vous être inscrit sur <strong class="highlight">Miko Formation</strong> ! Pour accéder à toutes les fonctionnalités de notre plateforme, nous avons besoin de vérifier votre adresse email.</p>
       
@@ -277,11 +273,10 @@
         </p>
       </div>
       
-      <p style="margin-top: 25px;">Cordialement,</p>
-      <p><strong>L'équipe Miko Formation</strong></p>
+      <!-- Correction : Utilisation dynamique de la salutation -->
+      <p style="margin-top: 25px;">{{ $salutation }}</p>
     </main>
     
-    <!-- Pied de page -->
     <footer class="email-footer">
       <p>Miko Formation – Connaissance, Compétence, Excellence</p>
       <div class="footer-links">

@@ -1,0 +1,35 @@
+Ayant remis la DB à zéro, je voudrais que tu me génère les description longues des de ces descriptions courtes : 
+Desc 1 : Maîtrisez le développement web moderne avec HTML, CSS, JavaScript, PHP et Laravel. Créez des sites dynamiques et responsives, de l'idée au déploiement.
+Desc 2 : Maîtrisez l'anglais professionnel avec grammaire, vocabulaire technique et conversation. Communiquez avec aisance en contexte international, du travail aux voyages.
+Desc 3 : Maîtrisez la création d'apps mobiles avec React Native, Flutter et les APIs REST. Développez des applications iOS/Android performantes et intuitives.
+Desc 4 : Maîtrisez l'anglais professionnel avec le vocabulaire financier, la négociation et les présentations. Communiquez efficacement dans un contexte business.
+
+Voici les **descriptions longues** générées à partir de tes descriptions courtes, avec un style professionnel et vendeur, prêt à intégrer dans ta base de données :
+
+---
+
+### 🔹 **Description longue 1 – Développement Web Moderne**
+
+> Cette formation vous offre un parcours complet dans le développement web, en vous enseignant les langages et outils indispensables : HTML pour la structure, CSS pour le design responsive, JavaScript pour l’interactivité, PHP pour le back-end, et Laravel pour un développement rapide, sécurisé et professionnel. À l’issue du programme, vous serez capable de concevoir, coder et déployer des sites web dynamiques de bout en bout, répondant aux standards actuels du web et adaptés à tous les supports (ordinateur, tablette, mobile).
+
+---
+
+### 🔹 **Description longue 2 – Anglais Professionnel Général**
+
+> Ce programme intensif d’anglais professionnel vous permettra de renforcer vos compétences linguistiques à travers des modules ciblés sur la grammaire, le vocabulaire de l’entreprise et les situations de communication courantes. Grâce à des mises en situation pratiques, vous gagnerez en aisance pour échanger lors de réunions, rédiger des e-mails, passer des entretiens ou encore voyager à l’international. Idéal pour les étudiants, les professionnels ou toute personne souhaitant booster son employabilité à l’échelle mondiale.
+
+---
+
+### 🔹 **Description longue 3 – Développement Mobile Multiplateforme**
+
+> Apprenez à développer des applications mobiles performantes pour Android et iOS grâce aux frameworks les plus populaires du marché : React Native et Flutter. Cette formation vous guide étape par étape dans la conception d’interfaces mobiles fluides, l’intégration des APIs REST pour une connectivité optimale, et le déploiement de vos applications. Vous apprendrez également à optimiser l’expérience utilisateur (UX) et à exploiter les capacités natives des smartphones pour des apps modernes, intuitives et professionnelles.
+
+---
+
+### 🔹 **Description longue 4 – Anglais des Affaires**
+
+> Cette formation spécialisée en anglais des affaires vous permettra de communiquer efficacement dans un environnement professionnel international. Vous développerez un vocabulaire pointu lié aux finances, au commerce et à la négociation. Des simulations de présentations, de réunions et de situations commerciales vous aideront à vous exprimer avec clarté et impact. Ce programme est idéal pour les cadres, étudiants en gestion, entrepreneurs ou toute personne souhaitant évoluer dans un contexte économique anglophone.
+
+---
+
+Souhaites-tu que je te les formate directement pour insertion en SQL ou via une seed Laravel ?
