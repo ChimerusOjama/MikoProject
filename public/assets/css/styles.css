@@ -1045,3 +1045,132 @@ img {
 .benefits li i {
     margin-right: 0.5em;
 }
+
+/* ======= Vérification Email Styles ======= */
+.verification-page {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.verification-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.verification-card {
+  border-radius: 15px;
+  border: none;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.verification-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.verification-card-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.verification-card-logo svg {
+  height: 60px;
+  width: auto;
+}
+
+.verification-title {
+  color: #3F51B5;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.verification-description {
+  color: #757575;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.verification-message {
+  background-color: rgba(63, 81, 181, 0.05);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #3F51B5;
+}
+
+.verification-success {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #28a745;
+  color: #28a745;
+  display: flex;
+  align-items: center;
+}
+
+.verification-success i {
+  margin-right: 10px;
+}
+
+.verification-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ======= Bouton de déconnexion amélioré ======= */
+.verification-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border: 2px solid #dc3545;
+  border-radius: 30px;
+  color: #dc3545;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  text-decoration: none;
+}
+
+.verification-logout:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.25);
+}
+
+.verification-logout:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.verification-logout i {
+  margin-right: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.verification-logout:hover i {
+  transform: translateX(-3px);
+}
+
+/* Animation pour la page */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.verification-content {
+  animation: fadeIn 0.5s ease-out;
+}

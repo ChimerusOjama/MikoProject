@@ -77,11 +77,6 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::
     Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
     Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
     Route::post('/Mise_a_jour/paiement={id}', 'updatePayment')->name('updatePayment');
-
-    // Routes pour les détails et édition des paiements
-    Route::get('/admin/payments/{id}/details', 'showDetails')->name('admin.payments.details');
-    Route::get('/admin/payments/{id}/edit', 'edit')->name('admin.payments.edit');
-    Route::put('/admin/payments/{id}', 'update')->name('admin.payments.update');
     
     // Logout
     Route::post('/logout', 'logout')->name('aLogout');
