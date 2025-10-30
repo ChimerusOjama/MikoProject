@@ -326,6 +326,86 @@ class FirstController extends Controller
 
     // Stripe
 
+    public function showPaymentMethods($inscriptionId)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $inscription = Inscription::with('formation')
+            ->where('id', $inscriptionId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Vérifications de sécurité
+        if ($inscription->status !== 'Accepté') {
+            return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
+        }
+
+        if ($inscription->statut_paiement === 'complet') {
+            return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
+        }
+
+        $methodesPaiement = [
+            [
+                'id' => 'stripe',
+                'nom' => 'Carte Bancaire',
+                'description' => 'Paiement sécurisé par carte Visa/Mastercard',
+                'icone' => 'fa-credit-card',
+                'disponible' => true
+            ],
+            [
+                'id' => 'momo', 
+                'nom' => 'Mobile Money (Momo)',
+                'description' => 'Paiement via votre compte Mobile Money',
+                'icone' => 'fa-mobile-alt',
+                'disponible' => false,
+                'message' => 'Bientôt disponible'
+            ],
+            [
+                'id' => 'airtel_money',
+                'nom' => 'Airtel Money',
+                'description' => 'Paiement via votre compte Airtel Money',
+                'icone' => 'fa-wallet',
+                'disponible' => false,
+                'message' => 'Bientôt disponible'
+            ],
+            [
+                'id' => 'virement',
+                'nom' => 'Virement Bancaire',
+                'description' => 'Transfert bancaire traditionnel',
+                'icone' => 'fa-university',
+                'disponible' => false,
+                'message' => 'Bientôt disponible'
+            ]
+        ];
+
+        return view('uAdmin.choose-method', compact('inscription', 'methodesPaiement'));
+    }
+
+    public function processPayment(Request $request, $inscriptionId)
+    {
+        $request->validate([
+            'methode_paiement' => 'required|in:stripe,momo,airtel_money,virement'
+        ]);
+
+        $methode = $request->methode_paiement;
+
+        // Redirection vers la méthode appropriée
+        switch ($methode) {
+            case 'stripe':
+                return $this->checkout($inscriptionId);
+            
+            case 'momo':
+            case 'airtel_money':
+            case 'virement':
+                return redirect()->route('uFormation')->with('info', 'Cette méthode de paiement sera bientôt disponible.');
+            
+            default:
+                return redirect()->back()->with('error', 'Méthode de paiement non reconnue.');
+        }
+    }
+
     public function checkout($inscriptionId)
     {
         if (!Auth::check()) {
@@ -444,9 +524,6 @@ class FirstController extends Controller
         }
     }
 
-
-
-
     public function success(Request $request)
     {
         $sessionId = $request->get('session_id');
@@ -481,7 +558,6 @@ class FirstController extends Controller
             return redirect()->route('uFormation')->with('error', 'Erreur de vérification du paiement');
         }
     }
-
 
     public function cancel()
     {

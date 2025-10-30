@@ -3,7 +3,7 @@
 @section('title', 'Mon profil - Tableau de Bord')
 @section('page-title', 'Mon profil utilisateur')
 @section('breadcrumb')
-    <li>Admin</li>
+    <li>Mon espace</li>
     <li>Profile</li>
 @endsection
 

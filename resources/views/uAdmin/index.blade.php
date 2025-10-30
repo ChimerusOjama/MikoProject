@@ -3,7 +3,7 @@
 @section('title', 'Tableau de Bord')
 @section('page-title', 'Tableau de Bord')
 @section('breadcrumb')
-    <li>Admin</li>
+    <li>Mon espace</li>
     <li>Tableau de Bord</li>
 @endsection
 

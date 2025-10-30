@@ -27,7 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // GROUPE : Utilisateur simple (usertype = user)
-Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::class)->group(function () {
+Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(FirstController::class)->group(function () {
     Route::get('/acceuil', 'index')->name('index');
     Route::post('/Inscription', 'formInsc')->name('inscForm');
     Route::get('/user_dashboard', 'uAdmin')->name('uAdmin');
@@ -35,14 +35,18 @@ Route::middleware(['auth', 'verified', 'isUser'])->controller(FirstController::c
     Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
+
+    Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
+    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
     Route::get('/payment/success', 'success')->name('payment.success');
     Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    
     Route::post('/logout-user', 'uLogout')->name('logout-user');
 });
 
 // GROUPE : Administrateur (usertype = admin)
-Route::middleware(['auth', 'verified', 'isAdmin'])->controller(AdminController::class)->group(function () {
+Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(AdminController::class)->group(function () {
     // Tableau de bord
     Route::get('/dashboard', 'aIndex')->name('admin.dashboard');
 

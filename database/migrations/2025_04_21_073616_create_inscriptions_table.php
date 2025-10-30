@@ -19,10 +19,10 @@ return new class extends Migration
             $table->string('choixForm');
             $table->decimal('montant', 10, 2)->unsigned();
             $table->text('message')->nullable();
-            $table->string('status')->default('en_attente')->comment('Statut de l\'inscription: en_attente, accepté, rejeté');
+            $table->string('status')->default('accepté')->comment('Statut de l\'inscription: en_attente, accepté, rejeté');
             $table->enum('statut_paiement', [
                 'non_payé', 
-                'acompte', 
+                'partiel', 
                 'complet'
             ])->default('non_payé')->comment('Statut du paiement');
             $table->string('stripe_session_id')->nullable()->comment('ID de session Stripe pour paiement en ligne');

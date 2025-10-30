@@ -3,8 +3,8 @@
 @section('title', 'Mes formations - Tableau de Bord')
 @section('page-title', 'Mes formations')
 @section('breadcrumb')
-    <li>Admin</li>
-    <li>Formation</li>
+    <li>Mon espace</li>
+    <li>Formations</li>
 @endsection
 
 @section('forms', 'active')
@@ -62,10 +62,15 @@
                       </form>
                     @elseif($oneInscShow->status === 'Accepté')
                       <!-- Actions pour "Accepté" -->
-                      <a href="{{ route('checkout', ['inscriptionId' => $oneInscShow->id]) }}" 
+                      <!-- <a href="{{ route('checkout', ['inscriptionId' => $oneInscShow->id]) }}" 
                         class="btn-icon success" 
                         title="Effectuer le paiement">
                           <i class="fas fa-money-bill"></i>
+                      </a> -->
+                      <a href="{{ route('payment.methods', ['inscriptionId' => $oneInscShow->id]) }}" 
+                        class="btn-icon success" 
+                        title="Choisir le moyen de paiement">
+                          <i class="fas fa-credit-card"></i>
                       </a>
                       <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
                           @csrf

@@ -3,7 +3,7 @@
 @section('title', 'Support/Contact - Tableau de Bord')
 @section('page-title', 'Support & Contact')
 @section('breadcrumb')
-    <li>Admin</li>
+    <li>Mon espace</li>
     <li>Support</li>
 @endsection
 
