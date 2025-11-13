@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Mail\infoMail;
 use App\Models\Formation;
 use App\Models\Inscription;
+use App\Models\Paiement;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -28,42 +30,7 @@ class FirstController extends Controller
         ->get();
 
         return view('index', compact('forms'));
-        // if (Auth::id()) {
-        //     return redirect('home');
-        // } else {
-        //     $forms = Formation::where('status', 'publiee')
-        //         ->withCount('inscriptions')
-        //         ->orderByDesc('inscriptions_count')
-        //         ->take(3)
-        //         ->get();
-
-        //     return view('index', compact('forms'));
-        // }
     }
-
-    // public function redirect()
-    // {
-    //     if (!Auth::check()) {
-    //         return redirect('/');
-    //     }
-
-    //     $usertype = Auth::user()->usertype;
-
-    //     switch ($usertype) {
-    //         case 'admin':
-    //             return view('admin.index');
-    //         case 'user':
-    //             $forms = Formation::where('status', 'publiee')
-    //                 ->withCount('inscriptions')
-    //                 ->orderByDesc('inscriptions_count')
-    //                 ->take(3)
-    //                 ->get();
-    //             return view('index', compact('forms'));
-    //         default:
-    //             Auth::logout();
-    //             return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');
-    //     }
-    // }
 
     public function redirect()
     {
@@ -83,7 +50,6 @@ class FirstController extends Controller
                 return redirect('/')->with('error', 'Type d’utilisateur inconnu. Déconnexion forcée.');
         }
     }
-
 
     public function uLogout(Request $req){
         if(Auth::id()){
@@ -140,7 +106,6 @@ class FirstController extends Controller
 
     public function formInsc(Request $req)
     {
-        // Le middleware isUser garantit déjà l'authentification et le type d'utilisateur
         $req->validate([
             'formation_id' => 'required|exists:formations,id',
             'message' => 'nullable|string|max:500',
@@ -200,7 +165,7 @@ class FirstController extends Controller
         }
     }
 
-        public function contactView(){
+    public function contactView(){
         return view('contact');
     }
 
@@ -226,18 +191,7 @@ class FirstController extends Controller
         // ]);
     }
 
-
-
-    // public function uAdmin(){
-    //     if (Auth::id()) {
-    //         $userName = Auth::user()->name;
-    //         $inscShow = Inscription::where('name', $userName)->get();
-    //         return view('uAdmin.index', compact('inscShow'));
-
-    //     } else {
-    //         return redirect()->back();
-    //     }
-    // }
+    // User administration
 
     public function uAdmin(){
             $userName = Auth::user()->name;
@@ -245,8 +199,7 @@ class FirstController extends Controller
             return view('uAdmin.index', compact('inscShow'));
     }
 
-    public function uFormation()
-    {
+    public function uFormation(){
         if (Auth::id()) {
             $userId = Auth::id();
             $inscShow = Inscription::where('user_id', $userId)->get();
@@ -257,8 +210,7 @@ class FirstController extends Controller
         }
     }
 
-    public function annulerRes($id)
-    {
+    public function annulerRes($id){
         $delInsc = Inscription::findOrFail($id);
         $userCopy = $delInsc->replicate();
         $delInsc->delete();
@@ -272,8 +224,7 @@ class FirstController extends Controller
         return redirect()->back()->with('success', 'Votre réservation a été annulée avec succès.');
     }
 
-    public function afficherConfirmation($id)
-    {
+    public function afficherConfirmation($id){
         $route = route('annuler_reservation', ['id' => $id]);
         return redirect()->back()->with([
             'message' => 'Souhaitez-vous réellement annuler votre demande ?',
@@ -290,6 +241,7 @@ class FirstController extends Controller
             return redirect()->back();
         }
     }
+
     public function uUpdate(Request $req){
         $user = Auth::user();
         $user->name = $req->name;
@@ -305,6 +257,7 @@ class FirstController extends Controller
         $user->delete();
         return redirect()->back()->with('success', 'Votre compte a été supprimé avec succès');
     }
+
     public function uPassword(Request $req){
         $user = Auth::user();
         if (password_verify($req->old_password, $user->password)) {
@@ -326,8 +279,7 @@ class FirstController extends Controller
 
     // Stripe
 
-    public function showPaymentMethods($inscriptionId)
-    {
+    public function showPaymentMethods($inscriptionId){
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -383,39 +335,46 @@ class FirstController extends Controller
         return view('uAdmin.choose-method', compact('inscription', 'methodesPaiement'));
     }
 
-    public function processPayment(Request $request, $inscriptionId)
-    {
+    public function processPayment(Request $request, $inscriptionId){
         $request->validate([
             'methode_paiement' => 'required|in:stripe,momo,airtel_money,virement'
         ]);
 
         $methode = $request->methode_paiement;
 
-        // Redirection vers la méthode appropriée
+        Log::info('🔄 PROCESS PAYMENT DÉMARRÉ', [
+            'methode' => $methode,
+            'inscription_id' => $inscriptionId,
+            'user_id' => Auth::id()
+        ]);
+
         switch ($methode) {
             case 'stripe':
-                return $this->checkout($inscriptionId);
-            
+                return $this->checkout($inscriptionId); // → Appel de checkout()
+                
             case 'momo':
             case 'airtel_money':
             case 'virement':
                 return redirect()->route('uFormation')->with('info', 'Cette méthode de paiement sera bientôt disponible.');
-            
+                
             default:
                 return redirect()->back()->with('error', 'Méthode de paiement non reconnue.');
         }
     }
 
-    public function checkout($inscriptionId)
-    {
+    public function checkout($inscriptionId){
         if (!Auth::check()) {
             Log::warning('❌ Utilisateur non authentifié');
             abort(403, 'Vous devez être connecté pour effectuer un paiement.');
         }
 
-        Log::info("🔁 Démarrage du paiement pour l'inscription ID: $inscriptionId");
+        Log::info("🔁 DÉMARRAGE checkout() pour l'inscription ID: $inscriptionId", [
+            'user_id' => Auth::id(),
+            'ip' => request()->ip()
+        ]);
 
-        $inscription = Inscription::find($inscriptionId);
+        // Récupération et validation de l'inscription
+        $inscription = Inscription::with('formation')->find($inscriptionId);
 
         if (!$inscription) {
             Log::error("❌ Inscription introuvable (ID: $inscriptionId)");
@@ -431,10 +390,17 @@ class FirstController extends Controller
         }
 
         if ($inscription->status !== 'Accepté') {
-            Log::info("⛔ Inscription non éligible au paiement (Status: {$inscription->status})", [
+            Log::info("⛔ Inscription non éligible au paiement", [
                 'inscription_id' => $inscription->id,
+                'status' => $inscription->status
             ]);
-            return redirect()->back()->with('warning', 'Le paiement n’est possible que pour les inscriptions acceptées.');
+            return redirect()->back()->with('warning', 'Le paiement n\'est possible que pour les inscriptions acceptées.');
+        }
+
+        // Vérifier si déjà payé
+        if ($inscription->statut_paiement === 'complet') {
+            Log::info('ℹ️ Paiement déjà effectué', ['inscription_id' => $inscriptionId]);
+            return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
         }
 
         $formation = $inscription->formation;
@@ -447,130 +413,217 @@ class FirstController extends Controller
             return redirect()->back()->with('error', 'Impossible de procéder au paiement : formation non valide.');
         }
 
-        // Force le client Stripe à utiliser le bon fichier de certificat
-        putenv('CURL_CA_BUNDLE=' . base_path('storage/app/certs/cacert.pem'));
-        ini_set('curl.cainfo', base_path('storage/app/certs/cacert.pem'));
-        ini_set('openssl.cafile', base_path('storage/app/certs/cacert.pem'));
-
-
-        $caBundle = env('CURL_CA_BUNDLE');
-    
-        if (config('app.env') === 'local') {
-            if ($caBundle && file_exists($caBundle)) {
-                \Stripe\Stripe::setCABundlePath($caBundle);
-                Log::info("🔒 Utilisation du bundle de certificats local: $caBundle");
-            } else {
-                // Solution de secours pour les environnements sans bundle
-                Log::warning("⚠️ Bundle de certificats introuvable, tentative de solution alternative");
-                
-                // Tentative de récupération du bundle système
-                $systemCaBundle = ini_get('curl.cainfo') ?: ini_get('openssl.cafile');
-                
-                if ($systemCaBundle && file_exists($systemCaBundle)) {
-                    \Stripe\Stripe::setCABundlePath($systemCaBundle);
-                    Log::info("🔒 Utilisation du bundle système: $systemCaBundle");
-                } else {
-                    // Désactivation SSL uniquement en dernier recours
-                    \Stripe\Stripe::setVerifySslCerts(false);
-                    Log::warning("⚠️ Vérification SSL désactivée (dernier recours)");
-                }
-            }
-        }
-
+        // Configuration Stripe
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        Log::info("🔒 Environnement SSL modifié manuellement : ", [
-            'curl.cainfo' => ini_get('curl.cainfo'),
-            'openssl.cafile' => ini_get('openssl.cafile'),
-            'CURL_CA_BUNDLE' => getenv('CURL_CA_BUNDLE')
-        ]);
-
-
         try {
-            Log::info('✅ Création de session Stripe...', [
+            Log::info('✅ CRÉATION session Stripe...', [
                 'formation' => $formation->id,
                 'stripe_price_id' => $formation->stripe_price_id,
+                'montant' => $inscription->montant
             ]);
 
+            // ⭐⭐ CORRECTION : Créer d'abord la session SANS utiliser $session dans success_url
             $session = Session::create([
                 'line_items' => [[
                     'price' => $formation->stripe_price_id,
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => route('payment.success', [
-                    'inscription' => $inscriptionId,
-                    'session_id' => '{CHECKOUT_SESSION_ID}'
-                ]),
+                // ⭐⭐ SOLUTION : Utiliser '{CHECKOUT_SESSION_ID}' que Stripe remplacera
+                'success_url' => url('/user/payment/verify') . '?inscription=' . $inscriptionId . '&session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('payment.cancel'),
                 'metadata' => [
                     'inscription_id' => $inscriptionId,
-                    'user_id' => Auth::id()
+                    'user_id' => Auth::id(),
+                    'formation_titre' => $formation->titre
                 ],
-                'customer_email' => Auth::user()->email, // Ajout recommandé
-                'client_reference_id' => 'insc_'.$inscriptionId, // Ajout recommandé
+                'customer_email' => Auth::user()->email,
+                'client_reference_id' => 'insc_'.$inscriptionId,
             ]);
 
-            Log::info('✅ Session Stripe créée avec succès.', [
+            Log::info('✅ SESSION STRIPE CRÉÉE', [
                 'session_id' => $session->id,
+                'success_url' => url('/user/payment/verify') . '?inscription=' . $inscriptionId . '&session_id=' . $session->id,
                 'checkout_url' => $session->url
             ]);
 
+            // Redirection vers Stripe
             return redirect($session->url);
 
         } catch (\Exception $e) {
-            Log::error('💥 Stripe Checkout Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Une erreur est survenue pendant le paiement: '.$e->getMessage());
+            Log::error('💥 ERREUR checkout(): ' . $e->getMessage(), [
+                'inscription_id' => $inscriptionId,
+                'error_trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Erreur lors de l\'initialisation du paiement: '.$e->getMessage());
         }
     }
 
-    public function success(Request $request)
-    {
+    public function verifyPayment(Request $request){
         $sessionId = $request->get('session_id');
+        $inscriptionId = $request->get('inscription');
+
+        Log::info('🎯 VERIFY PAYMENT APPELÉE', [
+            'session_id' => $sessionId,
+            'inscription_id' => $inscriptionId,
+            'user_id' => Auth::id(),
+            'ip' => $request->ip()
+        ]);
+
+        // Validation des paramètres
+        if (!$sessionId || !$inscriptionId) {
+            Log::error('❌ PARAMÈTRES MANQUANTS dans verifyPayment', $request->all());
+            return redirect()->route('uFormation')->with('error', 'Paramètres de paiement manquants.');
+        }
 
         try {
+            // Configuration Stripe
             Stripe::setApiKey(config('services.stripe.secret'));
+            
+            // Récupération de la session Stripe
             $session = Session::retrieve($sessionId);
+            
+            Log::info('📊 STATUT SESSION STRIPE', [
+                'session_id' => $sessionId,
+                'payment_status' => $session->payment_status,
+                'payment_intent' => $session->payment_intent,
+                'amount_total' => $session->amount_total
+            ]);
 
-            if (!$session || $session->payment_status !== 'paid') {
-                return redirect()->route('payment.cancel')->with('error', 'Le paiement n\'a pas été effectué.');
+            // Récupération et validation de l'inscription
+            $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
+
+            // VÉRIFICATION DE SÉCURITÉ
+            if ((int)$inscription->user_id !== (int)Auth::id()) {
+                Log::error('🚨 TENTATIVE ACCÈS FRAUDULEUX', [
+                    'user_connecte' => Auth::id(),
+                    'proprietaire_inscription' => $inscription->user_id,
+                    'session_id' => $sessionId
+                ]);
+                abort(403, 'Accès non autorisé à cette inscription.');
             }
 
             if ($session->payment_status === 'paid') {
-                $inscription = Inscription::findOrFail($request->get('inscription'));
+                // Vérifier si déjà traité pour éviter les doublons
+                if ($inscription->statut_paiement === 'complet') {
+                    Log::info('ℹ️ PAIEMENT DÉJÀ TRAITÉ', [
+                        'inscription_id' => $inscriptionId,
+                        'statut_actuel' => $inscription->statut_paiement
+                    ]);
+                    return view('payment.success', compact('inscription'));
+                }
 
-                $inscription->update([
-                    'status' => 'Payé',
-                    'payment_date' => now(),
-                    'stripe_session_id' => $sessionId
+                // DÉBUT DE LA TRANSACTION ATOMIQUE
+                DB::beginTransaction();
+
+                try {
+                    // 1. METTRE À JOUR L'INSCRIPTION
+                    $inscription->update([
+                        'statut_paiement' => 'complet',
+                        'status' => 'Payé',
+                        'stripe_session_id' => $sessionId,
+                        'payment_date' => now(), 
+                    ]);
+
+                    Log::info('✅ INSCRIPTION MIS À JOUR', [
+                        'inscription_id' => $inscription->id,
+                        'nouveau_statut' => 'Payé'
+                    ]);
+
+                    // 2. CRÉER L'ENREGISTREMENT DANS LA TABLE PAIEMENTS
+                    $paiement = Paiement::create([
+                        'inscription_id' => $inscription->id,
+                        'montant' => $inscription->montant,
+                        'mode' => 'carte banquaire', // ⭐⭐ CORRECTION : avec 'q'
+                        'reference' => 'STRIPE_' . substr($sessionId, -20), // ⭐⭐ CORRECTION : référence raccourcie
+                        'statut' => 'complet',
+                        'date_paiement' => now(),
+                        'stripe_payment_id' => $session->payment_intent,
+                    ]);
+
+                    Log::info('💰 PAIEMENT ENREGISTRÉ', [
+                        'paiement_id' => $paiement->id,
+                        'inscription_id' => $inscription->id,
+                        'montant' => $inscription->montant,
+                        'reference' => 'STRIPE_' . substr($sessionId, -20)
+                    ]);
+
+                    // 3. ENVOYER L'EMAIL DE CONFIRMATION
+                    Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
+
+                    Log::info('📧 EMAIL CONFIRMATION ENVOYÉ', [
+                        'email' => $inscription->email,
+                        'inscription_id' => $inscription->id
+                    ]);
+
+                    // VALIDER LA TRANSACTION
+                    DB::commit();
+
+                    Log::info('🎉 PROCESSUS PAIEMENT TERMINÉ AVEC SUCCÈS', [
+                        'inscription_id' => $inscription->id,
+                        'paiement_id' => $paiement->id,
+                        'session_id' => $sessionId
+                    ]);
+
+                    // 4. AFFICHER LA PAGE DE SUCCÈS
+                    return view('payment.success', compact('inscription'));
+
+                } catch (\Exception $e) {
+                    // ANNULER LA TRANSACTION EN CAS D'ERREUR
+                    DB::rollBack();
+                    
+                    Log::error('💥 ERREUR TRANSACTION verifyPayment(): ' . $e->getMessage(), [
+                        'inscription_id' => $inscriptionId,
+                        'session_id' => $sessionId,
+                        'error_trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    return redirect()->route('uFormation')->with('error', 
+                        'Erreur lors de l\'enregistrement du paiement. Contactez le support.'
+                    );
+                }
+
+            } else {
+                Log::warning('⚠️ PAIEMENT NON COMPLÉTÉ', [
+                    'session_id' => $sessionId,
+                    'payment_status' => $session->payment_status,
+                    'inscription_id' => $inscriptionId
                 ]);
-
-                // ✉️ Envoi du mail ici
-                Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
-
-                return view('payment.success', compact('inscription'));
+                
+                return redirect()->route('payment.cancel')->with('error', 
+                    'Le paiement n\'a pas été effectué. Statut: ' . $session->payment_status
+                );
             }
 
-            return redirect()->route('payment.cancel');
-
         } catch (\Exception $e) {
-            Log::error('Payment verification error: '.$e->getMessage());
-            return redirect()->route('uFormation')->with('error', 'Erreur de vérification du paiement');
+            Log::error('💥 ERREUR GLOBALE verifyPayment(): ' . $e->getMessage(), [
+                'session_id' => $sessionId,
+                'inscription_id' => $inscriptionId,
+                'error_trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('uFormation')->with('error', 
+                'Erreur de confirmation du paiement: ' . $e->getMessage()
+            );
         }
     }
 
-    public function cancel()
-    {
-        return view('payment.cancel');
+    public function cancel(){
+        Log::info('❌ PAIEMENT ANNULÉ PAR L\'UTILISATEUR', [
+            'user_id' => Auth::id(),
+            'ip' => request()->ip()
+        ]);
+
+        return view('payment.cancel')->with('warning', 'Vous avez annulé le processus de paiement.');
     }
 
-    public function generateStripeLink($inscriptionId)
-    {
+    public function generateStripeLink($inscriptionId){
         $inscription = Inscription::findOrFail($inscriptionId);
         $user = $inscription->user;
         
         if (!$user || !$user->email) {
-            Log::warning("Utilisateur introuvable ou email manquant pour l’inscription ID {$inscriptionId}");
+            Log::warning("❌ Utilisateur ou email manquant", ['inscription_id' => $inscriptionId]);
             return null;
         }
 
@@ -587,16 +640,15 @@ class FirstController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
+            // ⭐⭐ CORRECTION : Créer d'abord la session
             $session = Session::create([
                 'line_items' => [[
                     'price' => $formation->stripe_price_id,
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => route('payment.success', [
-                    'inscription' => $inscriptionId,
-                    'session_id' => '{CHECKOUT_SESSION_ID}'
-                ]),
+                // ⭐⭐ CORRECTION : Utiliser '{CHECKOUT_SESSION_ID}'
+                'success_url' => url('/user/payment/verify') . '?inscription=' . $inscriptionId . '&session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('payment.cancel'),
                 'metadata' => [
                     'inscription_id' => $inscriptionId,
@@ -606,17 +658,21 @@ class FirstController extends Controller
                 'client_reference_id' => 'insc_' . $inscriptionId,
             ]);
 
-            if (is_null($lienPaiement)) {
-                Log::info("Lien Stripe non généré pour l'inscription #{$inscriptionId}");
-            }
+            // ⭐⭐ CORRECTION : Maintenant $session est définie
+            $lienPaiement = $session->url;
 
-            return $session->url;
+            Log::info('🔗 LIEN STRIPE GÉNÉRÉ', [
+                'inscription_id' => $inscriptionId,
+                'session_id' => $session->id,
+                'lien_paiement' => $lienPaiement
+            ]);
+
+            return $lienPaiement;
 
         } catch (\Exception $e) {
-            Log::error('Erreur Stripe (link generation): ' . $e->getMessage());
+            Log::error('💥 ERREUR generateStripeLink(): ' . $e->getMessage());
             return null;
         }
     }
-
 
 }

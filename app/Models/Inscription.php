@@ -11,6 +11,7 @@ class Inscription extends Model
 
     protected $fillable = [
         'user_id',
+        'formation_id',
         'name',
         'email',
         'phone',
@@ -21,12 +22,20 @@ class Inscription extends Model
         'statut_paiement',
         'message',
         'status',
+        'payment_date',
+    ];
+
+    protected $casts = [
+        'payment_date' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function formation()
     {
         return $this->belongsTo(Formation::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);

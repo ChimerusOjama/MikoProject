@@ -26,9 +26,11 @@ return new class extends Migration
                 'complet'
             ])->default('non_payé')->comment('Statut du paiement');
             $table->string('stripe_session_id')->nullable()->comment('ID de session Stripe pour paiement en ligne');
+            $table->timestamp('payment_date')->nullable()->comment('Date du paiement');
             $table->timestamps();
             $table->index('status');
             $table->index('statut_paiement');
+            $table->index('payment_date');
             $table->index('created_at');
         });
     }

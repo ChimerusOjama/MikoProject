@@ -36,12 +36,14 @@ Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(Fi
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
 
+    //payement routes
     Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
     Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
-    Route::get('/payment/success', 'success')->name('payment.success');
-    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
+    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');  
     
+    //logout
     Route::post('/logout-user', 'uLogout')->name('logout-user');
 });
 
