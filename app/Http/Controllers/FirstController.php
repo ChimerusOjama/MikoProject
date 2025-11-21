@@ -199,10 +199,13 @@ class FirstController extends Controller
             return view('uAdmin.index', compact('inscShow'));
     }
 
-    public function uFormation(){
+    public function uFormation()
+    {
         if (Auth::id()) {
             $userId = Auth::id();
-            $inscShow = Inscription::where('user_id', $userId)->get();
+            $inscShow = Inscription::where('user_id', $userId)
+                ->where('status', '!=', 'Annulé') // ⭐⭐ EXCLURE LES ANNULÉES
+                ->get();
             
             return view('uAdmin.forms', compact('inscShow'));
         } else {
@@ -210,16 +213,58 @@ class FirstController extends Controller
         }
     }
 
-    public function annulerRes($id){
-        $delInsc = Inscription::findOrFail($id);
-        $userCopy = $delInsc->replicate();
-        $delInsc->delete();
-
-        if ($delInsc->status === 'Payé') {
-            return redirect()->back()->with('error', 'Cette formation a déjà été payé et ne peut pas être annulée.');
+    public function annulerRes($id)
+    {
+        $inscription = Inscription::findOrFail($id);
+        
+        // VÉRIFICATION : Ne pas annuler si déjà payé
+        if ($inscription->statut_paiement === 'complet') {
+            Log::warning('🚨 Tentative d\'annulation d\'une inscription payée', [
+                'inscription_id' => $id,
+                'statut_paiement' => $inscription->statut_paiement
+            ]);
+            return redirect()->back()->with('error', 'Cette formation a déjà été payée et ne peut pas être annulée.');
         }
 
-        Mail::to($userCopy->email)->send(new ReservationAnnulee($userCopy));
+        // VÉRIFICATION : Ne pas annuler si déjà annulée
+        if ($inscription->status === 'Annulé') {
+            return redirect()->back()->with('info', 'Cette inscription est déjà annulée.');
+        }
+
+        // ⭐⭐ CORRECTION : METTRE À JOUR LE STATUT AU LIEU DE SUPPRIMER
+        $inscription->update([
+            'status' => 'Annulé',
+            'date_annulation' => now()
+        ]);
+
+        // ⭐⭐ ANNULER LA SESSION STRIPE SI ELLE EXISTE
+        if ($inscription->stripe_session_id) {
+            try {
+                $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+                $stripe->checkout->sessions->expire($inscription->stripe_session_id);
+                
+                Log::info('🔗 SESSION STRIPE EXPIREE AVEC SUCCÈS', [
+                    'inscription_id' => $id,
+                    'session_id' => $inscription->stripe_session_id
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('⚠️ IMPOSSIBLE D\'EXPIRER LA SESSION STRIPE', [
+                    'inscription_id' => $id,
+                    'session_id' => $inscription->stripe_session_id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        Log::info('🗑️ INSCRIPTION ANNULÉE (STATUT MIS À JOUR)', [
+            'inscription_id' => $id,
+            'user_id' => $inscription->user_id,
+            'formation' => $inscription->choixForm,
+            'nouveau_statut' => 'Annulé'
+        ]);
+
+        // Envoyer l'email de confirmation d'annulation
+        Mail::to($inscription->email)->send(new ReservationAnnulee($inscription));
 
         return redirect()->back()->with('success', 'Votre réservation a été annulée avec succès.');
     }
@@ -362,7 +407,8 @@ class FirstController extends Controller
         }
     }
 
-    public function checkout($inscriptionId){
+    public function checkout($inscriptionId)
+    {
         if (!Auth::check()) {
             Log::warning('❌ Utilisateur non authentifié');
             abort(403, 'Vous devez être connecté pour effectuer un paiement.');
@@ -376,11 +422,13 @@ class FirstController extends Controller
         // Récupération et validation de l'inscription
         $inscription = Inscription::with('formation')->find($inscriptionId);
 
+        // VÉRIFICATION : Inscription existe
         if (!$inscription) {
             Log::error("❌ Inscription introuvable (ID: $inscriptionId)");
-            abort(404, 'Inscription non trouvée.');
+            return redirect()->route('uFormation')->with('error', 'Cette inscription n\'existe plus.');
         }
 
+        // VÉRIFICATION : Appartenance
         if ((int)$inscription->user_id !== (int)Auth::id()) {
             Log::warning('❌ Accès interdit à une autre inscription', [
                 'connecté' => Auth::id(),
@@ -389,17 +437,22 @@ class FirstController extends Controller
             abort(403, 'Accès interdit.');
         }
 
+        // VÉRIFICATION CRITIQUE : Statut doit être "Accepté"
         if ($inscription->status !== 'Accepté') {
-            Log::info("⛔ Inscription non éligible au paiement", [
+            Log::warning("🚨 Tentative de paiement pour inscription non valide", [
                 'inscription_id' => $inscription->id,
-                'status' => $inscription->status
+                'statut_actuel' => $inscription->status,
+                'action_requise' => 'Inscription annulée ou supprimée'
             ]);
-            return redirect()->back()->with('warning', 'Le paiement n\'est possible que pour les inscriptions acceptées.');
+            return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est plus valide.');
         }
 
-        // Vérifier si déjà payé
+        // VÉRIFICATION : Ne pas permettre le paiement si déjà payé
         if ($inscription->statut_paiement === 'complet') {
-            Log::info('ℹ️ Paiement déjà effectué', ['inscription_id' => $inscriptionId]);
+            Log::warning('🚨 Tentative de double paiement', [
+                'inscription_id' => $inscriptionId,
+                'statut_paiement' => $inscription->statut_paiement
+            ]);
             return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
         }
 
@@ -413,9 +466,6 @@ class FirstController extends Controller
             return redirect()->back()->with('error', 'Impossible de procéder au paiement : formation non valide.');
         }
 
-        // Configuration Stripe
-        Stripe::setApiKey(config('services.stripe.secret'));
-
         try {
             Log::info('✅ CRÉATION session Stripe...', [
                 'formation' => $formation->id,
@@ -423,14 +473,15 @@ class FirstController extends Controller
                 'montant' => $inscription->montant
             ]);
 
-            // ⭐⭐ CORRECTION : Créer d'abord la session SANS utiliser $session dans success_url
-            $session = Session::create([
+            // ⭐⭐ CORRECTION : Utilisation du StripeClient moderne
+            $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+            
+            $session = $stripe->checkout->sessions->create([
                 'line_items' => [[
                     'price' => $formation->stripe_price_id,
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                // ⭐⭐ SOLUTION : Utiliser '{CHECKOUT_SESSION_ID}' que Stripe remplacera
                 'success_url' => url('/user/payment/verify') . '?inscription=' . $inscriptionId . '&session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('payment.cancel'),
                 'metadata' => [
@@ -440,6 +491,11 @@ class FirstController extends Controller
                 ],
                 'customer_email' => Auth::user()->email,
                 'client_reference_id' => 'insc_'.$inscriptionId,
+            ]);
+
+            // ⭐⭐ STOCKER LA SESSION_ID POUR POUVOIR L'EXPIRER PLUS TARD
+            $inscription->update([
+                'stripe_session_id' => $session->id
             ]);
 
             Log::info('✅ SESSION STRIPE CRÉÉE', [
@@ -460,7 +516,8 @@ class FirstController extends Controller
         }
     }
 
-    public function verifyPayment(Request $request){
+    public function verifyPayment(Request $request)
+    {
         $sessionId = $request->get('session_id');
         $inscriptionId = $request->get('inscription');
 
@@ -478,23 +535,42 @@ class FirstController extends Controller
         }
 
         try {
-            // Configuration Stripe
-            Stripe::setApiKey(config('services.stripe.secret'));
+            // ⭐⭐ CORRECTION : Utilisation du StripeClient moderne
+            $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
             
             // Récupération de la session Stripe
-            $session = Session::retrieve($sessionId);
+            $stripeSession = $stripe->checkout->sessions->retrieve($sessionId);
             
             Log::info('📊 STATUT SESSION STRIPE', [
                 'session_id' => $sessionId,
-                'payment_status' => $session->payment_status,
-                'payment_intent' => $session->payment_intent,
-                'amount_total' => $session->amount_total
+                'payment_status' => $stripeSession->payment_status,
+                'payment_intent' => $stripeSession->payment_intent,
+                'amount_total' => $stripeSession->amount_total
             ]);
 
-            // Récupération et validation de l'inscription
-            $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
+            // ⭐⭐ CORRECTION : Utiliser find() au lieu de findOrFail()
+            $inscription = Inscription::with('formation')->find($inscriptionId);
 
-            // VÉRIFICATION DE SÉCURITÉ
+            // Vérifier si l'inscription existe
+            if (!$inscription) {
+                Log::warning('📭 INSCRIPTION INTROUVABLE', [
+                    'inscription_id' => $inscriptionId,
+                    'user_id' => Auth::id()
+                ]);
+                return redirect()->route('payment.expired')->with('error', 'Cette inscription n\'existe plus.');
+            }
+
+            // Vérifier si l'inscription est annulée
+            if ($inscription->status === 'Annulé') {
+                Log::warning('🚫 TENTATIVE DE PAIEMENT SUR INSCRIPTION ANNULÉE', [
+                    'inscription_id' => $inscriptionId,
+                    'user_id' => Auth::id(),
+                    'statut_actuel' => $inscription->status
+                ]);
+                return redirect()->route('payment.expired')->with('error', 'Cette inscription a été annulée.');
+            }
+
+            // VÉRIFICATION DE SÉCURITÉ : Appartenance
             if ((int)$inscription->user_id !== (int)Auth::id()) {
                 Log::error('🚨 TENTATIVE ACCÈS FRAUDULEUX', [
                     'user_connecte' => Auth::id(),
@@ -504,7 +580,25 @@ class FirstController extends Controller
                 abort(403, 'Accès non autorisé à cette inscription.');
             }
 
-            if ($session->payment_status === 'paid') {
+            // VÉRIFICATION : Statut doit être "Accepté"
+            if ($inscription->status !== 'Accepté') {
+                Log::warning('⚠️ INSCRIPTION NON ÉLIGIBLE AU PAIEMENT', [
+                    'inscription_id' => $inscriptionId,
+                    'statut_actuel' => $inscription->status
+                ]);
+                return redirect()->route('payment.expired')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
+            }
+
+            // VÉRIFICATION : Ne pas permettre le paiement si déjà payé
+            if ($inscription->statut_paiement === 'complet') {
+                Log::warning('💰 TENTATIVE DE DOUBLE PAIEMENT', [
+                    'inscription_id' => $inscriptionId,
+                    'statut_paiement' => $inscription->statut_paiement
+                ]);
+                return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
+            }
+
+            if ($stripeSession->payment_status === 'paid') {
                 // Vérifier si déjà traité pour éviter les doublons
                 if ($inscription->statut_paiement === 'complet') {
                     Log::info('ℹ️ PAIEMENT DÉJÀ TRAITÉ', [
@@ -535,11 +629,11 @@ class FirstController extends Controller
                     $paiement = Paiement::create([
                         'inscription_id' => $inscription->id,
                         'montant' => $inscription->montant,
-                        'mode' => 'carte banquaire', // ⭐⭐ CORRECTION : avec 'q'
-                        'reference' => 'STRIPE_' . substr($sessionId, -20), // ⭐⭐ CORRECTION : référence raccourcie
+                        'mode' => 'carte banquaire',
+                        'reference' => 'STRIPE_' . substr($sessionId, -20),
                         'statut' => 'complet',
                         'date_paiement' => now(),
-                        'stripe_payment_id' => $session->payment_intent,
+                        'stripe_payment_id' => $stripeSession->payment_intent,
                     ]);
 
                     Log::info('💰 PAIEMENT ENREGISTRÉ', [
@@ -587,12 +681,12 @@ class FirstController extends Controller
             } else {
                 Log::warning('⚠️ PAIEMENT NON COMPLÉTÉ', [
                     'session_id' => $sessionId,
-                    'payment_status' => $session->payment_status,
+                    'payment_status' => $stripeSession->payment_status,
                     'inscription_id' => $inscriptionId
                 ]);
                 
                 return redirect()->route('payment.cancel')->with('error', 
-                    'Le paiement n\'a pas été effectué. Statut: ' . $session->payment_status
+                    'Le paiement n\'a pas été effectué. Statut: ' . $stripeSession->payment_status
                 );
             }
 
@@ -603,8 +697,8 @@ class FirstController extends Controller
                 'error_trace' => $e->getTraceAsString()
             ]);
             
-            return redirect()->route('uFormation')->with('error', 
-                'Erreur de confirmation du paiement: ' . $e->getMessage()
+            return redirect()->route('payment.expired')->with('error', 
+                'Erreur de confirmation du paiement. Ce lien a peut-être expiré.'
             );
         }
     }
@@ -673,6 +767,21 @@ class FirstController extends Controller
             Log::error('💥 ERREUR generateStripeLink(): ' . $e->getMessage());
             return null;
         }
+    }
+
+    public function showLinkExpired(Request $request)
+    {
+        $inscriptionId = $request->get('inscription');
+        $sessionId = $request->get('session_id');
+        
+        Log::info('🔗 REDIRECTION VERS PAGE EXPIRATION', [
+            'inscription_id' => $inscriptionId,
+            'session_id' => $sessionId,
+            'user_id' => Auth::id(),
+            'ip' => $request->ip()
+        ]);
+
+        return view('payment.link-expired')->with('error', 'Ce lien de paiement n\'est plus valide.');
     }
 
 }

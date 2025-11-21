@@ -41,7 +41,8 @@ Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(Fi
     Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
     Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
-    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');  
+    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');  
     
     //logout
     Route::post('/logout-user', 'uLogout')->name('logout-user');
