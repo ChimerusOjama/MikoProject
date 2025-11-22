@@ -23,183 +23,61 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    //
-    // public function aIndex()
-    // {
-    //     return view('admin.index');
-    // }
-
-    // public function aIndex()
-    // {
-    //     // Calcul des statistiques
-    //     $totalFormations = Formation::count();
-    //     $totalInscriptions = Inscription::count();
-    //     $totalPaiements = Inscription::where('status', 'Accepté')->sum('montant');
-        
-    //     $topFormations = Inscription::select('choixForm', \DB::raw('COUNT(*) as count'))
-    //         ->groupBy('choixForm')
-    //         ->orderByDesc('count')
-    //         ->take(5)
-    //         ->get();
-
-    //     // Inscriptions par mois
-    //     $inscriptions = Inscription::selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count")
-    //         ->groupBy('month')
-    //         ->orderBy('month')
-    //         ->get();
-
-    //     // Répartition des statuts
-    //     $statutCounts = Inscription::select('status')
-    //         ->selectRaw('COUNT(*) as count')
-    //         ->groupBy('status')
-    //         ->get();
-
-    //     // Revenus mensuels
-    //     $revenusMensuels = Inscription::where('status', 'Accepté')
-    //         ->selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, SUM(montant) as total")
-    //         ->groupBy('month')
-    //         ->orderBy('month')
-    //         ->get();
-
-    //     // Modes de paiement
-    //     $paiementModes = Inscription::select('mode_paiement')
-    //         ->selectRaw('COUNT(*) as count')
-    //         ->groupBy('mode_paiement')
-    //         ->get();
-
-    //     // Dernières inscriptions
-    //     $dernieresInscriptions = Inscription::latest()->take(10)->get();
-
-    //     return view('admin.dashboard', compact(
-    //         'totalFormations',
-    //         'totalInscriptions',
-    //         'totalPaiements',
-    //         'topFormations',
-    //         'inscriptions',
-    //         'statutCounts',
-    //         'revenusMensuels',
-    //         'paiementModes',
-    //         'dernieresInscriptions'
-    //     ));
-    // }
-
-    // public function aIndex()
-    // {
-    //     // Compteurs basiques
-    //     $totalFormations = Formation::count();
-    //     $totalInscriptions = Inscription::count();
-
-    //     // 🔹 Montant total prévu des inscriptions acceptées
-    //     $totalInscriptionsMontant = Inscription::where('status', 'Accepté')->sum('montant');
-
-    //     // 🔹 Somme réelle des paiements effectués
-    //     // $totalPaiements = Paiement::whereIn('statut', ['complet', 'partiel'])->sum('montant');
-    //     $totalPaiements = Paiement::whereIn('statut', ['complet', 'partiel'])
-    //     ->sum('montant') ?? 0;
-
-    //     // Top formations
-    //     $topFormations = Inscription::select('choixForm', DB::raw('COUNT(*) as count'))
-    //         ->groupBy('choixForm')
-    //         ->orderByDesc('count')
-    //         ->take(5)
-    //         ->get();
-
-    //     // Inscriptions par mois
-    //     $inscriptions = Inscription::selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count")
-    //         ->groupBy('month')
-    //         ->orderBy('month')
-    //         ->get();
-
-    //     // Répartition des statuts
-    //     $statutCounts = Inscription::select('status')
-    //         ->selectRaw('COUNT(*) as count')
-    //         ->groupBy('status')
-    //         ->get();
-
-    //     // Revenus mensuels réels (depuis paiements)
-    //     $revenusMensuels = Paiement::whereIn('statut', ['complet', 'partiel'])
-    //         ->selectRaw("TO_CHAR(date_paiement, 'YYYY-MM') as month, SUM(montant) as total")
-    //         ->groupBy('month')
-    //         ->orderBy('month')
-    //         ->get();
-
-    //     // Modes de paiement réels (depuis paiements)
-    //     $paiementModes = Paiement::select('mode')
-    //         ->selectRaw('COUNT(*) as count')
-    //         ->groupBy('mode')
-    //         ->get();
-
-    //     // Dernières inscriptions
-    //     $dernieresInscriptions = Inscription::latest()->take(10)->get();
-
-    //     return view('admin.index', compact(
-    //         'totalFormations',
-    //         'totalInscriptions',
-    //         'totalInscriptionsMontant', // 🔹 Montant total inscriptions
-    //         'totalPaiements',           // 🔹 Montant total paiements encaissés
-    //         'topFormations',
-    //         'inscriptions',
-    //         'statutCounts',
-    //         'revenusMensuels',
-    //         'paiementModes',
-    //         'dernieresInscriptions'
-    //     ));
-    // }
 
     public function aIndex()
-{
-    // Compteurs basiques
-    $totalFormations = Formation::count();
-    $totalInscriptions = Inscription::count();
-    $totalPaiements = Paiement::whereIn('statut', ['complet', 'partiel'])->sum('montant') ?? 0;
+    {
+        // Compteurs basiques
+        $totalFormations = Formation::count();
+        $totalInscriptions = Inscription::count();
+        $totalPaiements = Paiement::whereIn('statut', ['complet', 'partiel'])->sum('montant') ?? 0;
 
-    // Top formations
-    $topFormations = Inscription::select('choixForm', DB::raw('COUNT(*) as count'))
-        ->groupBy('choixForm')
-        ->orderByDesc('count')
-        ->take(5)
-        ->get();
+        // Top formations
+        $topFormations = Inscription::select('choixForm', DB::raw('COUNT(*) as count'))
+            ->groupBy('choixForm')
+            ->orderByDesc('count')
+            ->take(5)
+            ->get();
 
-    // Inscriptions par mois (compatible multi-DB)
-    $inscriptions = Inscription::selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count")
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get();
+        // Inscriptions par mois (compatible multi-DB)
+        $inscriptions = Inscription::selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
 
-    // Répartition des statuts
-    $statutCounts = Inscription::select('status')
-        ->selectRaw('COUNT(*) as count')
-        ->groupBy('status')
-        ->get();
+        // Répartition des statuts
+        $statutCounts = Inscription::select('status')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('status')
+            ->get();
 
-    // Revenus mensuels réels (compatible multi-DB)
-    $revenusMensuels = Paiement::whereIn('statut', ['complet', 'partiel'])
-        ->selectRaw("TO_CHAR(date_paiement, 'YYYY-MM') as month, SUM(montant) as total")
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get();
+        // Revenus mensuels réels (compatible multi-DB)
+        $revenusMensuels = Paiement::whereIn('statut', ['complet', 'partiel'])
+            ->selectRaw("TO_CHAR(date_paiement, 'YYYY-MM') as month, SUM(montant) as total")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
 
-    // Modes de paiement réels
-    $paiementModes = Paiement::select('mode')
-        ->selectRaw('COUNT(*) as count')
-        ->groupBy('mode')
-        ->get();
+        // Modes de paiement réels
+        $paiementModes = Paiement::select('mode')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('mode')
+            ->get();
 
-    // Dernières inscriptions avec relations
-    $dernieresInscriptions = Inscription::with('paiements')->latest()->take(10)->get();
+        // Dernières inscriptions avec relations
+        $dernieresInscriptions = Inscription::with('paiements')->latest()->take(10)->get();
 
-    return view('admin.index', compact(
-        'totalFormations',
-        'totalInscriptions',
-        'totalPaiements',
-        'topFormations',
-        'inscriptions',
-        'statutCounts',
-        'revenusMensuels',
-        'paiementModes',
-        'dernieresInscriptions'
-    ));
-}
+        return view('admin.index', compact(
+            'totalFormations',
+            'totalInscriptions',
+            'totalPaiements',
+            'topFormations',
+            'inscriptions',
+            'statutCounts',
+            'revenusMensuels',
+            'paiementModes',
+            'dernieresInscriptions'
+        ));
+    }
 
 
     public function logout(Request $req){
@@ -941,7 +819,6 @@ class AdminController extends Controller
 
     public function storePayment(Request $request)
     {
-        // Activation du logging détaillé
         Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
 
         try {
@@ -1014,7 +891,8 @@ class AdminController extends Controller
             try {
                 if ($statut !== 'annulé') {
                     $paiement->load('inscription');
-                    Mail::to($validated['user_email'])->send(new manualPaymentConfirmation($paiement));
+                    // Mail::to($validated['user_email'])->send(new manualPaymentConfirmation($paiement));
+                    $this->sendManualPaymentEmail($paiement, $validated['user_email']);
                     Log::channel('payments')->info('Email envoyé', ['email' => $validated['user_email']]);
                 } else {
                     Log::channel('payments')->info('Aucun email envoyé pour paiement annulé');
@@ -1055,6 +933,22 @@ class AdminController extends Controller
         }
     }
 
-    
+    private function sendManualPaymentEmail($paiement, $userEmail)
+    {
+        try {
+            if ($paiement->statut !== 'annulé') {
+                Mail::to($userEmail)->send(new manualPaymentConfirmation($paiement));
+                Log::info('📧 Email de paiement manuel envoyé', [
+                    'paiement_id' => $paiement->id,
+                    'email' => $userEmail
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('❌ Erreur envoi email paiement manuel', [
+                'error' => $e->getMessage(),
+                'paiement_id' => $paiement->id
+            ]);
+        }
+    }
 
 }

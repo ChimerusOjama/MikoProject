@@ -119,40 +119,40 @@
     <!-- About section -->
     <section class="about-section bg-light py-5">
         <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-            <img src="assets/imgs/about-img.jpg" alt="Équipe Miko Formation" class="img-fluid rounded shadow">
-            </div>
-            <div class="col-lg-6">
-            <h2 class="section-title text-start">Qui sommes-nous ?</h2>
-            <p class="lead">Miko Formation est un centre de formation professionnelle engagé dans l'épanouissement par le savoir.</p>
-            <p>Fondé en 2020, nous nous sommes donnés pour mission de rendre accessible des formations qualitatives adaptées aux besoins du marché congolais.</p>
-            
-            <div class="about-features mt-4">
-                <div class="d-flex mb-3">
-                <div class="me-3 text-primary">
-                    <i class="fas fa-graduation-cap fa-2x"></i>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="{{ asset('assets/imgs/about-img.jpg') }}" alt="Équipe Miko Formation" class="img-fluid rounded shadow">
                 </div>
-                <div>
-                    <h4>Notre vision</h4>
-                    <p>Devenir le référent de la formation professionnelle en République du Congo.</p>
-                </div>
-                </div>
+                <div class="col-lg-6">
+                    <h2 class="section-title text-start">Qui sommes-nous ?</h2>
+                    <p class="lead">Miko Formation est un centre de formation professionnelle engagé dans l'épanouissement par le savoir.</p>
+                    <p>Fondé en 2020, nous nous sommes donnés pour mission de rendre accessible des formations qualitatives adaptées aux besoins du marché congolais.</p>
+                    
+                    <div class="about-features mt-4">
+                        <div class="d-flex mb-3">
+                            <div class="me-3 text-primary">
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                            <div>
+                                <h4>Notre vision</h4>
+                                <p>Devenir le référent de la formation professionnelle en République du Congo.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-3">
+                            <div class="me-3 text-primary">
+                                <i class="fas fa-bullseye fa-2x"></i>
+                            </div>
+                            <div>
+                                <h4>Notre mission</h4>
+                                <p>Offrir des parcours complets menant à une réelle expertise professionnelle.</p>
+                            </div>
+                        </div>
+                    </div>
                 
-                <div class="d-flex mb-3">
-                <div class="me-3 text-primary">
-                    <i class="fas fa-bullseye fa-2x"></i>
-                </div>
-                <div>
-                    <h4>Notre mission</h4>
-                    <p>Offrir des parcours complets menant à une réelle expertise professionnelle.</p>
-                </div>
+                    <a href="{{ route('about') }}" class="btn btn-primary mt-3">En savoir plus</a>
                 </div>
             </div>
-            
-            <a href="about.html" class="btn btn-primary mt-3">En savoir plus</a>
-            </div>
-        </div>
         </div>
     </section>
     <!-- Popular Courses -->

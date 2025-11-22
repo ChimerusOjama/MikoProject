@@ -9,7 +9,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 use App\Http\Controllers\FirstController;
 
 class infoMail extends Mailable
@@ -38,7 +37,6 @@ class infoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('formation@miko.com', 'Miko Formation'),
             subject: 'Votre pré-inscription a bien été reçue',
         );
     }
@@ -54,7 +52,7 @@ class infoMail extends Mailable
                 'user' => $this->user,
                 'formation' => $this->formation,
                 'inscription' => $this->inscription,
-                'lienPaiement' => $this->lienPaiement, // 👈 important
+                'lienPaiement' => $this->lienPaiement,
             ],
         );
     }

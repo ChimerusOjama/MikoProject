@@ -8,7 +8,7 @@ use App\Models\Inscription;
 use App\Models\Paiement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use App\Models\User;
+// use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Stripe\Stripe;
@@ -154,9 +154,11 @@ class FirstController extends Controller
             $insc->status = 'Accepté';
             $insc->save();
 
-            Mail::to(Auth::user()->email)->send(
-                new infoMail(Auth::user(), $formation, $insc)
-            );
+            $this->sendInscriptionEmail(Auth::user(), $formation, $insc);
+
+            // Mail::to(Auth::user()->email)->send(
+            //     new infoMail(Auth::user(), $formation, $insc)
+            // );
 
             return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
 
@@ -264,7 +266,8 @@ class FirstController extends Controller
         ]);
 
         // Envoyer l'email de confirmation d'annulation
-        Mail::to($inscription->email)->send(new ReservationAnnulee($inscription));
+        $this->sendCancellationEmail($inscription);
+        // Mail::to($inscription->email)->send(new ReservationAnnulee($inscription));
 
         return redirect()->back()->with('success', 'Votre réservation a été annulée avec succès.');
     }
@@ -644,7 +647,8 @@ class FirstController extends Controller
                     ]);
 
                     // 3. ENVOYER L'EMAIL DE CONFIRMATION
-                    Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
+                    $this->sendPaymentConfirmationEmail($inscription);
+                    // Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
 
                     Log::info('📧 EMAIL CONFIRMATION ENVOYÉ', [
                         'email' => $inscription->email,
@@ -782,6 +786,58 @@ class FirstController extends Controller
         ]);
 
         return view('payment.link-expired')->with('error', 'Ce lien de paiement n\'est plus valide.');
+    }
+
+    // Envois d'emails centralisés
+
+    private function sendInscriptionEmail($user, $formation, $inscription)
+    {
+        try {
+            Mail::to($user->email)->send(new infoMail($user, $formation, $inscription));
+            Log::info('📧 Email d\'inscription envoyé', [
+                'user_id' => $user->id,
+                'formation' => $formation->titre,
+                'email' => $user->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ Erreur envoi email inscription', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id
+            ]);
+            // Ne pas bloquer le processus si l'email échoue
+        }
+    }
+
+    private function sendCancellationEmail($inscription)
+    {
+        try {
+            Mail::to($inscription->email)->send(new ReservationAnnulee($inscription));
+            Log::info('📧 Email d\'annulation envoyé', [
+                'inscription_id' => $inscription->id,
+                'email' => $inscription->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ Erreur envoi email annulation', [
+                'error' => $e->getMessage(),
+                'inscription_id' => $inscription->id
+            ]);
+        }
+    }
+
+    private function sendPaymentConfirmationEmail($inscription)
+    {
+        try {
+            Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
+            Log::info('📧 Email de confirmation de paiement envoyé', [
+                'inscription_id' => $inscription->id,
+                'email' => $inscription->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ Erreur envoi email confirmation paiement', [
+                'error' => $e->getMessage(),
+                'inscription_id' => $inscription->id
+            ]);
+        }
     }
 
 }
