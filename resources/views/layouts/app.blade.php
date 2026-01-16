@@ -103,57 +103,70 @@
             <a class="nav-link @yield('about')" href="{{ route('about') }}">À propos</a>
           </li>
           
-          <!-- Dropdown pour desktop -->
-          <li class="nav-item dropdown d-lg-block">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-user-circle me-1"></i> Mon compte
-            </a>
-
-            <ul class="dropdown-menu dropdown-menu-end">
-              @if(Route::has('login'))
-              @auth
+          <!-- Dropdown pour desktop - Connecté -->
+          @if(Route::has('login'))
+            @auth
+              <li class="nav-item dropdown d-lg-block">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                  <i class="fas fa-user-circle me-1"></i> Mon compte
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
                   @if(auth()->user()->usertype === 'user')
-                      <li><a class="dropdown-item login-btn" href="{{ route('uAdmin') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                    <li><a class="dropdown-item login-btn" href="{{ route('uAdmin') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                   @else
-                      <li><a class="dropdown-item login-btn" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</a></li>
+                    <li><a class="dropdown-item login-btn" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</a></li>
                   @endif
                   
                   <form action="{{ auth()->user()->usertype === 'user' ? route('logout-user') : route('aLogout') }}" method="post">
-                      @csrf
-                      <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
+                    @csrf
+                    <button type="submit" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
                   </form>
-              @else
-                <li><a class="dropdown-item login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a></li>
-                <li><a class="dropdown-item register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a></li>
-                @endauth
-              @endif
-             
-              <!-- <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</a></li> -->
-            </ul>
-          </li>
-        </ul>
-
-        <!-- Liens compte pour mobile -->
-        <div class="mobile-account-links">
-            @if(Route::has('login'))
-                @auth
-                    @if(auth()->user()->usertype === 'user')
-                        <a class="nav-link login-btn" href="{{ route('uAdmin') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-                    @else
-                        <a class="nav-link login-btn" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</a>
-                    @endif
-                    
-                    <form action="{{ auth()->user()->usertype === 'user' ? route('logout-user') : route('aLogout') }}" method="post">
-                        @csrf
-                        <button type="submit" class="nav-link logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</button>
-                    </form>
-                @else
-              <a class="nav-link login-btn" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</a>
-              <a class="nav-link register-btn" href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i>S'inscrire</a>
+                </ul>
+              </li>
+            @else
+              <!-- Boutons pour desktop - Non connecté -->
+              <li class="nav-item desktop-auth-links d-none d-lg-flex">
+                <a class="nav-link login-btn me-2" href="{{ route('login') }}">
+                  <i class="fas fa-sign-in-alt me-1"></i>Se connecter
+                </a>
+                <a class="nav-link register-btn" href="{{ route('register') }}">
+                  <i class="fas fa-user-plus me-1"></i>S'inscrire
+                </a>
+              </li>
             @endauth
           @endif
-        </div>
+        </ul>
+
+<!-- Liens compte pour mobile -->
+<div class="mobile-account-links">
+  @if(Route::has('login'))
+    @auth
+      @if(auth()->user()->usertype === 'user')
+        <a class="nav-link login-btn" href="{{ route('uAdmin') }}">
+          <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+      @else
+        <a class="nav-link login-btn" href="{{ route('admin.dashboard') }}">
+          <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
+        </a>
+      @endif
+      
+      <form action="{{ auth()->user()->usertype === 'user' ? route('logout-user') : route('aLogout') }}" method="post" class="w-100">
+        @csrf
+        <button type="submit" class="nav-link logout-btn w-100">
+          <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+        </button>
+      </form>
+    @else
+      <a class="nav-link login-btn" href="{{ route('login') }}">
+        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+      </a>
+      <a class="nav-link register-btn" href="{{ route('register') }}">
+        <i class="fas fa-user-plus me-2"></i>S'inscrire
+      </a>
+    @endauth
+  @endif
+</div>
       </div>
     </div>
   </nav>
