@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(Fi
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
 
-    //payement routes
+    //paiement routes
     Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
     Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
@@ -60,13 +60,15 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(
     Route::get('/Supprimer_formation/formation={id}', 'supForm')->name('supForm');
     Route::get('/Modifier_formation/formation={id}', 'updateView')->name('updateView');
     Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
-    Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
-    Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
+    Route::get('/archiver_formation/{id}', 'archiveForm')->name('archiveForm');
+    Route::get('/formations_archivees', 'archiveView')->name('archiveView');
     
     // Inscriptions
     Route::get('/Nouvelle_inscription', 'inscView')->name('inscView');
     Route::post('/Insertion_inscription', 'storeInsc')->name('storeInsc');
-    Route::get('/inscriptions', 'inscriptions')->name('admin.inscriptions'); // Simplifié
+    Route::get('/inscriptions', 'inscriptions')->name('admin.inscriptions');
+    Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
+    Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
     
     // Utilisateurs
     Route::get('/Liste_utilisateurs', 'usersView')->name('allUsers');

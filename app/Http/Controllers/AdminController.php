@@ -124,11 +124,18 @@ class AdminController extends Controller
         ]);
 
         try {
+            // Créer le dossier imgsFormation s'il n'existe pas
+            $directory = 'imgsFormation';
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
+            }
+
             $safeName = Str::slug(pathinfo($req->image->getClientOriginalName(), PATHINFO_FILENAME));
             $extension = $req->image->getClientOriginalExtension();
             $imageName = $safeName . '_' . time() . '.' . $extension;
 
-            $path = $req->image->storeAs('formations', $imageName, 'public');
+            // Stocker l'image dans le dossier public
+            $path = $req->image->storeAs($directory, $imageName, 'public');
 
             Formation::create([
                 'titre' => $validated['titre'],
@@ -144,7 +151,7 @@ class AdminController extends Controller
                 'stripe_product_id' => $validated['stripe_product_id'] ?? null,
                 'date_debut' => $validated['date_debut'] ?? null,
                 'date_fin' => $validated['date_fin'] ?? null,
-                'image_url' => Storage::url($path),
+                'image_url' => Storage::url($path), // Génère l'URL correcte
             ]);
 
             return redirect()->back()->with('success', 'Formation créée avec succès');
@@ -155,6 +162,58 @@ class AdminController extends Controller
                 ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
         }
     }
+
+    // public function storeForm(Request $req)
+    // {
+    //     $validated = $req->validate([
+    //         'titre' => 'required|string|max:255',
+    //         'description_courte' => 'required|string|max:200',
+    //         'description_longue' => 'nullable|string',
+    //         'categorie' => 'required|string|max:50|in:developpement,bureautique,gestion,langues,marketing,design',
+    //         'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
+    //         'prix' => 'required|numeric|min:0|max:1000000',
+    //         'duree_mois' => 'required|integer|min:1|max:36',
+    //         'places_disponibles' => 'nullable|integer|min:0|max:1000',
+    //         'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+    //         'stripe_product_id' => ['nullable', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+    //         'status' => 'required|string|in:publiee,brouillon,archivee',
+    //         'date_debut' => 'nullable|date',
+    //         'date_fin' => 'nullable|date|after_or_equal:date_debut',
+    //         'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+    //     ]);
+
+    //     try {
+    //         $safeName = Str::slug(pathinfo($req->image->getClientOriginalName(), PATHINFO_FILENAME));
+    //         $extension = $req->image->getClientOriginalExtension();
+    //         $imageName = $safeName . '_' . time() . '.' . $extension;
+
+    //         $path = $req->image->storeAs('formations', $imageName, 'public');
+
+    //         Formation::create([
+    //             'titre' => $validated['titre'],
+    //             'description_courte' => $validated['description_courte'],
+    //             'description_longue' => $validated['description_longue'] ?? null,
+    //             'categorie' => $validated['categorie'],
+    //             'niveau' => $validated['niveau'],
+    //             'prix' => $validated['prix'],
+    //             'duree_mois' => $validated['duree_mois'],
+    //             'places_disponibles' => $validated['places_disponibles'] ?? null,
+    //             'status' => $validated['status'],
+    //             'stripe_price_id' => $validated['stripe_price_id'],
+    //             'stripe_product_id' => $validated['stripe_product_id'] ?? null,
+    //             'date_debut' => $validated['date_debut'] ?? null,
+    //             'date_fin' => $validated['date_fin'] ?? null,
+    //             'image_url' => Storage::url($path),
+    //         ]);
+
+    //         return redirect()->back()->with('success', 'Formation créée avec succès');
+
+    //     } catch (\Exception $e) {
+    //         return back()
+    //             ->withInput()
+    //             ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
+    //     }
+    // }
     
     public function supForm($id)
     {
@@ -178,6 +237,55 @@ class AdminController extends Controller
         $form = Formation::find($id);
         return view('admin.forms.updateForm', compact('form'));
     }
+
+    // public function updateForm(Request $req, $id)
+    // {
+    //     $form = Formation::findOrFail($id);
+
+    //     if (Inscription::where('formation_id', $form->id)->exists()) {
+    //         return redirect()->back()->withErrors(['error' => "Impossible de modifier cette formation car des utilisateurs y sont déjà inscrits."]);
+    //     }
+
+    //     $validated = $req->validate([
+    //         'titre' => 'required|string|max:255',
+    //         'description_courte' => 'required|string|max:200',
+    //         'description_longue' => 'nullable|string',
+    //         'categorie' => 'required|string|in:developpement,bureautique,gestion,langues,marketing,design',
+    //         'niveau' => 'required|string|in:debutant,intermediaire,avance',
+    //         'prix' => 'required|numeric|min:0|max:1000000',
+    //         'duree_mois' => 'required|integer|min:1|max:36',
+    //         'places_disponibles' => 'nullable|integer|min:1|max:100',
+    //         'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price_|prod_)[a-zA-Z0-9]+$/'],
+    //         'stripe_product_id' => 'nullable|string|max:255',
+    //         'status' => 'required|string|in:publiee,brouillon,archivee',
+    //         'date_debut' => 'nullable|date',
+    //         'date_fin' => 'nullable|date|after_or_equal:date_debut',
+    //         'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    //     ]);
+
+    //     $form->fill($validated);
+
+    //     if ($req->hasFile('image')) {
+    //         $image = $req->file('image');
+    //         $safeName = Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME));
+    //         $extension = $image->getClientOriginalExtension();
+    //         $imageName = $safeName . '_' . time() . '.' . $extension;
+
+    //         if (!file_exists(public_path('formations'))) {
+    //             mkdir(public_path('formations'), 0777, true);
+    //         }
+
+    //         $image->move(public_path('formations'), $imageName);
+    //         $form->image_url = 'formations/' . $imageName;
+    //     }
+
+    //     if ($form->save()) {
+    //         return redirect()->route('allForm')->with('success', 'La formation a été mise à jour avec succès.');
+    //     } else {
+    //         return redirect()->back()->withErrors(['error' => "Erreur lors de la mise à jour."]);
+    //     }
+    // }
+
     public function updateForm(Request $req, $id)
     {
         $form = Formation::findOrFail($id);
@@ -206,17 +314,24 @@ class AdminController extends Controller
         $form->fill($validated);
 
         if ($req->hasFile('image')) {
-            $image = $req->file('image');
-            $safeName = Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = $image->getClientOriginalExtension();
-            $imageName = $safeName . '_' . time() . '.' . $extension;
-
-            if (!file_exists(public_path('formations'))) {
-                mkdir(public_path('formations'), 0777, true);
+            // Créer le dossier s'il n'existe pas
+            $directory = 'imgsFormation';
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
             }
 
-            $image->move(public_path('formations'), $imageName);
-            $form->image_url = 'formations/' . $imageName;
+            // Supprimer l'ancienne image si elle existe
+            if ($form->image_url) {
+                $oldPath = str_replace('/storage/', '', $form->image_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $safeName = Str::slug(pathinfo($req->image->getClientOriginalName(), PATHINFO_FILENAME));
+            $extension = $req->image->getClientOriginalExtension();
+            $imageName = $safeName . '_' . time() . '.' . $extension;
+
+            $path = $req->image->storeAs($directory, $imageName, 'public');
+            $form->image_url = Storage::url($path);
         }
 
         if ($form->save()) {
@@ -248,6 +363,29 @@ class AdminController extends Controller
     {
         $forms = Formation::where('status', 'archivee')->get();
         return view('admin.archiveForm', compact('forms'));
+    }
+
+    public function uploadSchedule(Request $request)
+    {
+        $request->validate([
+            'schedule_pdf' => 'required|mimes:pdf|max:5120',
+        ]);
+
+        // Créer le dossier pdfs s'il n'existe pas
+        $directory = 'pdfs';
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+
+        $fileName = 'emploi_du_temps_' . time() . '.pdf';
+        
+        // Stocker dans storage/app/public/pdfs/
+        $path = $request->file('schedule_pdf')->storeAs($directory, $fileName, 'public');
+
+        // Sauvegarder le chemin dans la base de données ou envoyer une variable de session
+        session(['schedule_path' => Storage::url($path)]);
+
+        return redirect()->back()->with('success', 'Emploi du temps mis à jour');
     }
 
     // inscriptions
