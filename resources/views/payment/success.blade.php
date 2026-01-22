@@ -44,7 +44,8 @@
                 </div> -->
                 <div class="detail-item">
                     <span class="detail-label">Montant payé :</span>
-                    <span class="detail-value highlight">{{ number_format($inscription->montant, 0, ',', ' ') }} FCFA</span>
+                    <span class="detail-value highlight">15000 FCFA</span>
+                    <!-- <span class="detail-value highlight">{{ number_format($inscription->montant, 0, ',', ' ') }} FCFA</span> -->
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Date et heure :</span>

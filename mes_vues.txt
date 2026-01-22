@@ -1,0 +1,346 @@
+ Le volume dans le lecteur C s'appelle Baba
+ Le num‚ro de s‚rie du volume est EA39-3F4A
+
+ R‚pertoire de C:\Laravel projects\testApp\resources
+
+06/05/2025  19:14    <DIR>          .
+06/05/2025  19:14    <DIR>          ..
+06/05/2025  19:14    <DIR>          css
+06/05/2025  19:14    <DIR>          js
+06/05/2025  19:14    <DIR>          markdown
+15/08/2025  14:54    <DIR>          views
+               0 fichier(s)                0 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\css
+
+06/05/2025  19:14    <DIR>          .
+06/05/2025  19:14    <DIR>          ..
+06/05/2025  19:14                93 app.css
+               1 fichier(s)               93 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\js
+
+06/05/2025  19:14    <DIR>          .
+06/05/2025  19:14    <DIR>          ..
+06/05/2025  19:14                22 app.js
+06/05/2025  19:14             1ÿ248 bootstrap.js
+               2 fichier(s)            1ÿ270 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\markdown
+
+06/05/2025  19:14    <DIR>          .
+06/05/2025  19:14    <DIR>          ..
+06/05/2025  19:14                84 policy.md
+06/05/2025  19:14                88 terms.md
+               2 fichier(s)              172 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views
+
+15/08/2025  14:54    <DIR>          .
+15/08/2025  14:54    <DIR>          ..
+03/07/2025  16:03            13ÿ706 about.blade.php
+14/08/2025  00:03    <DIR>          admin
+06/05/2025  19:14    <DIR>          api
+15/08/2025  14:16    <DIR>          auth
+23/07/2025  05:07    <DIR>          components
+03/07/2025  16:03            12ÿ135 contact.blade.php
+06/05/2025  19:40                33 dashboard.blade.php
+28/10/2025  17:11    <DIR>          emails
+21/11/2025  10:46            12ÿ742 index.blade.php
+14/08/2025  06:51            22ÿ370 inscription.blade.php
+14/08/2025  08:01    <DIR>          layouts
+30/07/2025  07:00            12ÿ558 listing.blade.php
+06/05/2025  19:40            11ÿ165 navigation-menu.blade.php
+13/11/2025  13:18    <DIR>          payment
+06/05/2025  19:14               417 policy.blade.php
+06/05/2025  19:14    <DIR>          profile
+06/05/2025  19:14               416 terms.blade.php
+30/10/2025  06:33    <DIR>          uAdmin
+15/08/2025  14:54    <DIR>          vendor
+06/05/2025  19:40            26ÿ633 welcome.blade.php
+              10 fichier(s)          112ÿ175 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\admin
+
+14/08/2025  00:03    <DIR>          .
+14/08/2025  00:03    <DIR>          ..
+27/07/2025  03:21             4ÿ264 allUsers.blade.php
+28/10/2025  12:56    <DIR>          forms
+12/08/2025  14:29             8ÿ728 index.blade.php
+11/08/2025  17:36    <DIR>          inscriptions
+27/07/2025  03:14             8ÿ672 newUser.blade.php
+22/01/2026  05:15    <DIR>          payments
+27/07/2025  03:10             6ÿ968 updateUser.blade.php
+               4 fichier(s)           28ÿ632 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\admin\forms
+
+28/10/2025  12:56    <DIR>          .
+28/10/2025  12:56    <DIR>          ..
+21/01/2026  17:23            12ÿ499 allForm.blade.php
+14/08/2025  00:43            11ÿ424 newForm.blade.php
+14/08/2025  00:44            10ÿ233 updateForm.blade.php
+30/07/2025  04:35             9ÿ127 _form.blade.php
+               4 fichier(s)           43ÿ283 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\admin\inscriptions
+
+11/08/2025  17:36    <DIR>          .
+11/08/2025  17:36    <DIR>          ..
+28/10/2025  00:46            10ÿ736 allInscriptions.blade.php
+22/01/2026  04:38            11ÿ866 newInscView.blade.php
+03/08/2025  04:11            24ÿ163 testAllInscriptions.blade.php
+               3 fichier(s)           46ÿ765 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\admin\payments
+
+22/01/2026  05:15    <DIR>          .
+22/01/2026  05:15    <DIR>          ..
+22/01/2026  05:22            26ÿ812 allPayments.blade.php
+22/01/2026  05:15                 0 editPayment.blade.php
+22/01/2026  04:55            16ÿ955 newPayment.blade.php
+15/08/2025  00:19            13ÿ189 updatePayment.blade.php
+               4 fichier(s)           56ÿ956 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\api
+
+06/05/2025  19:14    <DIR>          .
+06/05/2025  19:14    <DIR>          ..
+06/05/2025  19:14             6ÿ964 api-token-manager.blade.php
+06/05/2025  19:14               338 index.blade.php
+               2 fichier(s)            7ÿ302 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\auth
+
+15/08/2025  14:16    <DIR>          .
+15/08/2025  14:16    <DIR>          ..
+06/05/2025  19:14               949 confirm-password.blade.php
+06/05/2025  19:14             1ÿ216 forgot-password.blade.php
+23/07/2025  08:19             4ÿ148 login.blade.php
+06/05/2025  19:14             1ÿ885 loginOld.blade.php
+23/07/2025  08:18             6ÿ902 register.blade.php
+06/05/2025  19:40             3ÿ602 registerold.blade.php
+06/05/2025  19:14             1ÿ460 reset-password.blade.php
+06/05/2025  19:14             2ÿ741 two-factor-challenge.blade.php
+30/07/2025  03:01             1ÿ858 verify-email.blade copy.php
+27/10/2025  19:59             4ÿ155 verify-email.blade.php
+              10 fichier(s)           28ÿ916 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\components
+
+23/07/2025  05:07    <DIR>          .
+23/07/2025  05:07    <DIR>          ..
+06/05/2025  19:14               451 action-message.blade.php
+06/05/2025  19:14               413 action-section.blade.php
+23/07/2025  05:07             2ÿ855 alert-adModal.blade.php
+14/08/2025  01:45             2ÿ830 alert-modal.blade.php
+06/05/2025  19:14             3ÿ382 application-logo.blade.php
+06/05/2025  19:14               428 application-mark.blade.php
+06/05/2025  19:14               466 authentication-card-logo.blade.php
+06/05/2025  19:14               278 authentication-card.blade.php
+06/05/2025  19:14             3ÿ064 banner.blade.php
+06/05/2025  19:14               404 button.blade.php
+06/05/2025  19:14               139 checkbox.blade.php
+06/05/2025  19:14             1ÿ271 confirmation-modal.blade.php
+06/05/2025  19:14             1ÿ666 confirms-password.blade.php
+06/05/2025  19:14               395 danger-button.blade.php
+06/05/2025  19:14               451 dialog-modal.blade.php
+06/05/2025  19:14               217 dropdown-link.blade.php
+06/05/2025  19:14             1ÿ545 dropdown.blade.php
+06/05/2025  19:14               896 form-section.blade.php
+06/05/2025  19:14               128 input-error.blade.php
+06/05/2025  19:14               199 input.blade.php
+06/05/2025  19:14               143 label.blade.php
+06/05/2025  19:14             1ÿ792 modal.blade.php
+06/05/2025  19:14               605 nav-link.blade.php
+06/05/2025  19:14               688 responsive-nav-link.blade.php
+06/05/2025  19:14               393 secondary-button.blade.php
+06/05/2025  19:14               124 section-border.blade.php
+06/05/2025  19:14               332 section-title.blade.php
+06/05/2025  19:14               892 switchable-team.blade.php
+06/05/2025  19:14               355 validation-errors.blade.php
+06/05/2025  19:14             5ÿ904 welcome.blade.php
+              30 fichier(s)           32ÿ706 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\emails
+
+28/10/2025  17:11    <DIR>          .
+28/10/2025  17:11    <DIR>          ..
+23/07/2025  05:07    <DIR>          inscription
+01/11/2025  17:14    <DIR>          payment
+06/05/2025  19:14               921 team-invitation.blade.php
+15/05/2025  22:30               209 test.blade.php
+15/08/2025  17:16             7ÿ818 verify-email.blade.php
+               3 fichier(s)            8ÿ948 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\emails\inscription
+
+23/07/2025  05:07    <DIR>          .
+23/07/2025  05:07    <DIR>          ..
+23/07/2025  05:07             4ÿ117 annulation.blade.php
+30/07/2025  08:40             5ÿ833 info.blade.php
+               2 fichier(s)            9ÿ950 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\emails\payment
+
+01/11/2025  17:14    <DIR>          .
+01/11/2025  17:14    <DIR>          ..
+22/01/2026  04:53             6ÿ681 manual_payment_confirmation.blade.php
+01/11/2025  17:11             7ÿ971 payment_confirmation.blade.php
+               2 fichier(s)           14ÿ652 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\layouts
+
+14/08/2025  08:01    <DIR>          .
+14/08/2025  08:01    <DIR>          ..
+30/07/2025  09:02             4ÿ982 adApp.blade.php
+14/01/2026  21:45             9ÿ860 app.blade.php
+06/05/2025  19:14               820 guest.blade.php
+18/08/2025  17:25            21ÿ743 sAdApp.blade.php
+               4 fichier(s)           37ÿ405 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\payment
+
+13/11/2025  13:18    <DIR>          .
+13/11/2025  13:18    <DIR>          ..
+01/11/2025  15:27             6ÿ860 cancel.blade.php
+13/11/2025  13:55             5ÿ615 link-expired.blade.php
+01/11/2025  17:13             4ÿ686 success.blade.php
+               3 fichier(s)           17ÿ161 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\profile
+
+06/05/2025  19:14    <DIR>          .
+06/05/2025  19:14    <DIR>          ..
+06/05/2025  19:14             2ÿ316 delete-user-form.blade.php
+06/05/2025  19:14             5ÿ128 logout-other-browser-sessions-form.blade.php
+06/05/2025  19:14             1ÿ439 show.blade.php
+06/05/2025  19:14             5ÿ609 two-factor-authentication-form.blade.php
+06/05/2025  19:14             1ÿ615 update-password-form.blade.php
+06/05/2025  19:14             4ÿ289 update-profile-information-form.blade.php
+               6 fichier(s)           20ÿ396 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\uAdmin
+
+30/10/2025  06:33    <DIR>          .
+30/10/2025  06:33    <DIR>          ..
+30/10/2025  02:52             6ÿ368 choose-method.blade.php
+22/01/2026  13:52            10ÿ102 forms.blade.php
+30/10/2025  02:02             6ÿ322 index.blade.php
+30/10/2025  02:02            12ÿ147 profile.blade.php
+30/10/2025  02:02             6ÿ640 support.blade.php
+               5 fichier(s)           41ÿ579 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\vendor
+
+15/08/2025  14:54    <DIR>          .
+15/08/2025  14:54    <DIR>          ..
+15/08/2025  15:12    <DIR>          notifications
+               0 fichier(s)                0 octets
+
+ R‚pertoire de C:\Laravel projects\testApp\resources\views\vendor\notifications
+
+15/08/2025  15:12    <DIR>          .
+15/08/2025  15:12    <DIR>          ..
+15/08/2025  14:54             1ÿ081 email.blade copy.php
+15/08/2025  15:40             7ÿ647 email.blade.php
+               2 fichier(s)            8ÿ728 octets
+
+     Total des fichiers list‚sÿ:
+              99 fichier(s)          517ÿ089 octets
+              62 R‚p(s)  317ÿ688ÿ926ÿ208 octets libres
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FirstController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MainController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// GROUPE : Routes publiques (FirstController)
+Route::controller(FirstController::class)->group(function () {
+    Route::get('/', 'index')->name('uHome');
+    Route::get('/Nos_formations', 'formListing')->name('listing');
+    Route::get('/Reserver_votre_place/form={id}', 'formSingle')->name('inscription');
+    Route::get('/A_propos', 'aboutView')->name('about');
+    Route::get('/Contact', 'contactView')->name('contact');
+    Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
+});
+
+// GROUPE : Routes partagÃ©es (auth + redirect)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/home', [FirstController::class, 'redirect'])->name('home');
+});
+
+// GROUPE : Utilisateur simple (usertype = user)
+Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(FirstController::class)->group(function () {
+    Route::get('/acceuil', 'index')->name('index');
+    Route::post('/Inscription', 'formInsc')->name('inscForm');
+    Route::get('/user_dashboard', 'uAdmin')->name('uAdmin');
+    Route::get('/Mes_formations', 'uFormation')->name('uFormation');
+    Route::post('/Annuler_reservation/{id}', 'annulerRes')->name('annuler.inscription');
+    Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
+    Route::get('/Support', 'uSupport')->name('uSupport');
+
+    //payement routes
+    Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
+    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
+    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
+    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
+    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');  
+    
+    //logout
+    Route::post('/logout-user', 'uLogout')->name('logout-user');
+});
+
+// GROUPE : Administrateur (usertype = admin)
+Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(AdminController::class)->group(function () {
+    // Tableau de bord
+    Route::get('/dashboard', 'aIndex')->name('admin.dashboard');
+
+    // Formations
+    Route::get('/Liste_formations', 'allForm')->name('allForm');
+    Route::get('/nouvelle_formation', 'newForm')->name('newForm');
+    Route::post('/Insertion', 'storeForm')->name('storeForm');
+    Route::get('/Supprimer_formation/formation={id}', 'supForm')->name('supForm');
+    Route::get('/Modifier_formation/formation={id}', 'updateView')->name('updateView');
+    Route::post('/Mise_a_jour/formation={id}', 'updateForm')->name('updateForm');
+    Route::get('/archiver_formation/{id}', 'archiveForm')->name('archiveForm');
+    Route::get('/formations_archivees', 'archiveView')->name('archiveView');
+    
+    // Inscriptions
+    Route::get('/Nouvelle_inscription', 'inscView')->name('inscView');
+    Route::post('/Insertion_inscription', 'storeInsc')->name('storeInsc');
+    Route::get('/inscriptions', 'inscriptions')->name('admin.inscriptions');
+    Route::get('/Accepter_reservation/inscription={id}', 'accepterRes')->name('accepterRes');
+    Route::get('/Rejeter_reservation/inscription={id}', 'rejeterRes')->name('rejeterRes');
+    
+    // Utilisateurs
+    Route::get('/Liste_utilisateurs', 'usersView')->name('allUsers');
+    Route::get('/nouvel_utilisateur', 'newUser')->name('newUser');
+    Route::post('/Insertion_utilisateur', 'storeUser')->name('storeUser');
+    Route::get('/Supprimer_utilisateur/utilisateur={id}', 'supUser')->name('supUser');
+    Route::get('/Modifier_utilisateur/utilisateur={id}', 'updateUserView')->name('updateUserView');
+    Route::post('/Mise_a_jour/utilisateur={id}', 'updateUser')->name('updateUser');
+    
+    // Paiements
+    Route::get('/Liste_paiements', 'allPayments')->name('allPayments');
+    Route::get('/nouveau_paiement', 'newPayment')->name('newPayment');
+    Route::get('/payments/search-inscriptions', 'searchInscriptions')->name('admin.payments.search');
+    Route::post('/Insertion_paiement', 'storePayment')->name('storePayment');
+    Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
+    Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
+    Route::post('/Mise_a_jour/paiement={id}', 'updatePayment')->name('updatePayment');
+    
+    // Logout
+    Route::post('/logout', 'logout')->name('aLogout');
+});
+
+// Route test (facultative)
+Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');

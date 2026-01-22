@@ -545,7 +545,8 @@ class FirstController extends Controller
             Log::info('✅ CRÉATION session Stripe...', [
                 'formation' => $formation->id,
                 'stripe_price_id' => $formation->stripe_price_id,
-                'montant' => $inscription->montant
+                // 'montant' => $inscription->montant
+                'montant' => $formation->prix
             ]);
 
             // ⭐⭐ CORRECTION : Utilisation du StripeClient moderne
@@ -703,7 +704,8 @@ class FirstController extends Controller
                     // 2. CRÉER L'ENREGISTREMENT DANS LA TABLE PAIEMENTS
                     $paiement = Paiement::create([
                         'inscription_id' => $inscription->id,
-                        'montant' => $inscription->montant,
+                        // 'montant' => $inscription->montant,
+                        'montant' => $inscription->formation->prix,
                         'mode' => 'carte banquaire',
                         'reference' => 'STRIPE_' . substr($sessionId, -20),
                         'statut' => 'complet',
@@ -714,7 +716,8 @@ class FirstController extends Controller
                     Log::info('💰 PAIEMENT ENREGISTRÉ', [
                         'paiement_id' => $paiement->id,
                         'inscription_id' => $inscription->id,
-                        'montant' => $inscription->montant,
+                        // 'montant' => $inscription->montant,
+                        'montant' => $inscription->formation->prix,
                         'reference' => 'STRIPE_' . substr($sessionId, -20)
                     ]);
 
