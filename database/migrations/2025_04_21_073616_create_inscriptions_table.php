@@ -17,9 +17,12 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address');
             $table->string('choixForm');
-            $table->decimal('montant', 10, 2)->unsigned();
             $table->text('message')->nullable();
-            $table->string('status')->default('accepté')->comment('Statut de l\'inscription: en_attente, accepté, rejeté');
+            $table->string('status')->enum([
+                'En attente',
+                'Accepté',
+                'Rejeté'
+            ])->default('Accepté')->comment('Statut de l\'inscription: En attente, Accepté, Rejeté');
             $table->enum('statut_paiement', [
                 'non_payé', 
                 'partiel', 
@@ -29,6 +32,8 @@ return new class extends Migration
             $table->timestamp('payment_date')->nullable()->comment('Date du paiement');
             $table->timestamp('date_annulation')->nullable()->comment('Date d\'annulation de l\'inscription');
             $table->timestamps();
+            
+            // Index pour optimiser les requêtes
             $table->index('status');
             $table->index('statut_paiement');
             $table->index('payment_date');

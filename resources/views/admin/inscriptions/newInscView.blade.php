@@ -18,7 +18,7 @@
     <div class="card-body">
       <h4 class="card-title mb-4">Formulaire d'inscription manuelle</h4>
       
-      <form class="forms-sample" action="{{ route('storeInsc') }}" method="POST">
+      <form class="forms-sample" action="{{ route('storeInsc') }}" method="POST" id="inscriptionForm">
         @csrf
         
         <div class="row mb-4">
@@ -58,7 +58,9 @@
               <select class="form-select" id="choixForm" name="choixForm" required>
                 <option value="">Sélectionnez une formation</option>
                 @foreach($formations as $formation)
-                <option value="{{ $formation->titre }}" {{ old('choixForm') == $formation->titre ? 'selected' : '' }}>
+                <option value="{{ $formation->titre }}" 
+                        data-prix="{{ $formation->prix }}"
+                        {{ old('choixForm') == $formation->titre ? 'selected' : '' }}>
                   {{ $formation->titre }}
                 </option>
                 @endforeach
@@ -66,22 +68,82 @@
             </div>
             
             <div class="form-group">
-              <label for="montant">Montant payé (FCFA) <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="montant" name="montant" required 
-                    min="0" step="1000" placeholder="Ex: 150000"
-                    value="{{ old('montant') }}">
+              <label for="message">Message</label>
+              <textarea class="form-control" id="message" name="message" rows="2">{{ old('message') }}</textarea>
             </div>
           </div>
         </div>
         
         <div class="row mb-4">
           <div class="col-12">
-            <h5 class="mb-3 text-primary"><i class="mdi mdi-message-text-outline me-1"></i> Message additionnel</h5>
-            
-            <div class="form-group">
-              <label for="message">Message</label>
-              <textarea class="form-control" id="message" name="message" 
-                        placeholder="Message ou commentaires" rows="4">{{ old('message') }}</textarea>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title text-primary mb-3">
+                  <i class="mdi mdi-cash-multiple me-1"></i> 
+                  Paiement initial (optionnel)
+                </h5>
+                
+                <div class="alert alert-info mb-3">
+                  <small>
+                    <i class="mdi mdi-information"></i>
+                    Vous pouvez enregistrer un paiement initial (account) dès maintenant.
+                    <strong>Minimum : 5 000 FCFA</strong>
+                  </small>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="montant">Montant payé (FCFA)</label>
+                      <input type="number" class="form-control" id="montant" name="montant" 
+                            min="5000" step="1000" placeholder="Ex: 150000"
+                            value="{{ old('montant') }}">
+                      <small class="text-muted">Laisser vide pour créer sans paiement initial</small>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="account_mode">Mode de paiement</label>
+                      <select class="form-select" id="account_mode" name="account_mode">
+                        <option value="">Sélectionnez un mode</option>
+                        @foreach(App\Models\Paiement::MODES as $value => $label)
+                          <option value="{{ $value }}" {{ old('account_mode') == $value ? 'selected' : '' }}>
+                            {{ $label }}
+                          </option>
+                        @endforeach
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="account_reference">Référence du paiement</label>
+                      <input type="text" class="form-control" id="account_reference" name="account_reference" 
+                            placeholder="Référence de transaction" 
+                            value="{{ old('account_reference', 'ACC-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)))) }}">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="formationPrix">Prix total de la formation</label>
+                      <input type="text" class="form-control" id="formationPrix" readonly
+                            placeholder="Sélectionnez d'abord une formation">
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="remainingAfterPayment">Reste à payer après ce paiement</label>
+                      <input type="text" class="form-control" id="remainingAfterPayment" readonly
+                            placeholder="Calculé automatiquement">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -100,43 +162,133 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+  .alert-info {
+    background-color: #e3f2fd;
+    border-color: #bbdefb;
+    color: #1565c0;
+  }
+  
+  .form-control[readonly] {
+    background-color: #f8f9fa;
+    opacity: 1;
+  }
+  
+  .card {
+    border: 1px solid #e0e0e0;
+  }
+</style>
+@endpush
+
 @push('scripts')
 <script>
-  // Afficher le message dans une modal
-  document.querySelectorAll('.view-message').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      const message = this.getAttribute('data-message');
-      document.getElementById('messageContent').textContent = message;
-      const modal = new bootstrap.Modal(document.getElementById('messageModal'));
-      modal.show();
-    });
-  });
+document.addEventListener('DOMContentLoaded', function() {
+  const formationSelect = document.getElementById('choixForm');
+  const montantInput = document.getElementById('montant');
+  const accountModeSelect = document.getElementById('account_mode');
+  const formationPrixInput = document.getElementById('formationPrix');
+  const remainingAfterPaymentInput = document.getElementById('remainingAfterPayment');
+  const inscriptionForm = document.getElementById('inscriptionForm');
   
-  // Automatiser le montant quand une formation est sélectionnée
-  document.getElementById('formation_id').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const prix = selectedOption.getAttribute('data-prix');
+  function updateCalculations() {
+    const selectedOption = formationSelect.options[formationSelect.selectedIndex];
+    const formationPrix = selectedOption ? parseFloat(selectedOption.getAttribute('data-prix')) || 0 : 0;
+    const montantPaye = parseFloat(montantInput.value) || 0;
     
-    if (prix) {
-      document.getElementById('montant').value = prix;
+    // Mettre à jour le prix de la formation
+    if (formationPrix > 0) {
+      formationPrixInput.value = formationPrix.toLocaleString() + ' FCFA';
+    } else {
+      formationPrixInput.value = '';
     }
-  });
-
-  // Pré-remplir le montant si déjà dans old()
-  document.addEventListener('DOMContentLoaded', function() {
-    const formationId = "{{ old('formation_id') }}";
-    if (formationId) {
-      const formationSelect = document.getElementById('formation_id');
-      const selectedOption = formationSelect.querySelector(`option[value="${formationId}"]`);
+    
+    // Calculer le reste à payer
+    const resteAPayer = formationPrix - montantPaye;
+    if (formationPrix > 0) {
+      if (resteAPayer >= 0) {
+        remainingAfterPaymentInput.value = resteAPayer.toLocaleString() + ' FCFA';
+      } else {
+        remainingAfterPaymentInput.value = '0 FCFA';
+      }
+    } else {
+      remainingAfterPaymentInput.value = '';
+    }
+    
+    // Validation du montant
+    if (montantPaye > 0) {
+      // Vérifier le montant minimum
+      if (montantPaye < 5000) {
+        montantInput.setCustomValidity('Le montant minimum pour un paiement initial est de 5 000 FCFA');
+        return;
+      }
       
-      if (selectedOption) {
-        const prix = selectedOption.getAttribute('data-prix');
-        if (prix && !document.getElementById('montant').value) {
-          document.getElementById('montant').value = prix;
-        }
+      // Vérifier que le montant ne dépasse pas le prix de la formation
+      if (montantPaye > formationPrix) {
+        montantInput.setCustomValidity(`Le montant ne peut pas dépasser le prix de la formation (${formationPrix.toLocaleString()} FCFA)`);
+        return;
+      }
+      
+      // Si un montant est saisi, le mode de paiement devient requis
+      accountModeSelect.required = true;
+    } else {
+      // Si pas de montant, le mode de paiement n'est pas requis
+      accountModeSelect.required = false;
+      montantInput.setCustomValidity('');
+    }
+    
+    // Réinitialiser si tout est bon
+    montantInput.setCustomValidity('');
+  }
+  
+  // Événements
+  formationSelect.addEventListener('change', updateCalculations);
+  montantInput.addEventListener('input', updateCalculations);
+  
+  // Validation avant soumission
+  inscriptionForm.addEventListener('submit', function(e) {
+    const selectedOption = formationSelect.options[formationSelect.selectedIndex];
+    const formationPrix = selectedOption ? parseFloat(selectedOption.getAttribute('data-prix')) || 0 : 0;
+    const montantPaye = parseFloat(montantInput.value) || 0;
+    
+    // Si un montant est saisi
+    if (montantPaye > 0) {
+      // Vérifier qu'une formation est sélectionnée
+      if (formationPrix === 0) {
+        e.preventDefault();
+        alert('Veuillez sélectionner une formation valide');
+        return false;
+      }
+      
+      // Vérifier le minimum
+      if (montantPaye < 5000) {
+        e.preventDefault();
+        alert('Le montant minimum pour un paiement initial est de 5 000 FCFA');
+        return false;
+      }
+      
+      // Vérifier ne dépasse pas le prix
+      if (montantPaye > formationPrix) {
+        e.preventDefault();
+        alert(`Le montant ne peut pas dépasser le prix de la formation (${formationPrix.toLocaleString()} FCFA)`);
+        return false;
+      }
+      
+      // Vérifier le mode de paiement
+      if (!accountModeSelect.value) {
+        e.preventDefault();
+        alert('Veuillez sélectionner un mode de paiement');
+        return false;
       }
     }
+    
+    return true;
   });
+  
+  // Initialiser si des valeurs existent
+  if (formationSelect.value) {
+    updateCalculations();
+  }
+});
 </script>
 @endpush

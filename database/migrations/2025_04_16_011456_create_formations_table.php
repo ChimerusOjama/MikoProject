@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->text('description_longue')->nullable();
             $table->string('categorie', 50)->index();
             $table->string('niveau', 20)->index();
-            $table->decimal('prix', 8, 2)->unsigned()->default(14500)->index();
+            $table->integer('prix')->unsigned()->default(14500)->index()->comment('Prix en FCFA (entier)');
             $table->string('status')->nullable();
             $table->date('date_debut')->nullable();
             $table->date('date_fin')->nullable();

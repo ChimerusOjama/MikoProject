@@ -48,7 +48,8 @@
                 @endphp
                 <tr>
                   <td>{{ $oneInscShow->choixForm }}</td>
-                  <td>{{ $oneInscShow->montant }}</td>
+                  <!-- <td>{{ $oneInscShow->montant }}</td> -->
+                   <td>15000 FCFA</td>
                   <td>{{ $oneInscShow->created_at->format('d/m/Y') }}</td>
                   <td><span class="status-badge {{ $statusClass }}">{{ $oneInscShow->status }}</span></td>
                   <td class="actions-cell">

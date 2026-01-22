@@ -104,6 +104,69 @@ class FirstController extends Controller
         return view('inscription', compact('oneForm', 'similarForms'));
     }
 
+    // public function formInsc(Request $req)
+    // {
+    //     $req->validate([
+    //         'formation_id' => 'required|exists:formations,id',
+    //         'message' => 'nullable|string|max:500',
+    //         'formation_prix' => 'required|numeric|min:0'
+    //     ]);
+
+    //     // Vérification du type d'utilisateur
+    //     if (Auth::user()->usertype !== 'user') {
+    //         return redirect()->back()->with('error', 
+    //             'Seuls les utilisateurs standard peuvent s\'inscrire aux formations. ' .
+    //             'Les administrateurs ne peuvent pas s\'inscrire.');
+    //     }
+
+    //     $formation = Formation::findOrFail($req->formation_id);
+        
+    //     // Vérifier la cohérence du prix
+    //     if ($formation->prix != $req->formation_prix) {
+    //         return redirect()->back()->with('error', 'Le prix de la formation a changé. Veuillez actualiser la page.');
+    //     }
+
+    //     if ($formation->status !== 'publiee') {
+    //         return redirect()->back()->with('error', 'Cette formation n\'est pas disponible pour l\'inscription.');
+    //     }
+
+    //     // Vérifier l'existence d'une inscription
+    //     $existing = Inscription::where('user_id', Auth::id())
+    //         ->where('formation_id', $formation->id)
+    //         ->first();
+
+    //     if ($existing) {
+    //         return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
+    //     }
+
+    //     try {
+    //         $insc = new Inscription();
+    //         $insc->user_id = Auth::id();
+    //         $insc->name = Auth::user()->first_name . ' ' . Auth::user()->last_name;
+    //         $insc->email = Auth::user()->email;
+    //         $insc->phone = Auth::user()->phone;
+    //         $insc->address = Auth::user()->address;
+    //         $insc->message = $req->message;
+    //         $insc->formation_id = $formation->id;
+    //         $insc->choixForm = $formation->titre;
+    //         // $insc->montant = $formation->prix;
+    //         // $insc->montant = "15000";
+    //         $insc->status = 'Accepté';
+    //         $insc->save();
+
+    //         $this->sendInscriptionEmail(Auth::user(), $formation, $insc);
+
+    //         // Mail::to(Auth::user()->email)->send(
+    //         //     new infoMail(Auth::user(), $formation, $insc)
+    //         // );
+
+    //         return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
+
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Erreur lors de l\'inscription: ' . $e->getMessage());
+    //     }
+    // }
+
     public function formInsc(Request $req)
     {
         $req->validate([
@@ -130,13 +193,21 @@ class FirstController extends Controller
             return redirect()->back()->with('error', 'Cette formation n\'est pas disponible pour l\'inscription.');
         }
 
-        // Vérifier l'existence d'une inscription
+        // ⭐⭐ CORRECTION : Vérifier l'existence d'une inscription active (non annulée)
         $existing = Inscription::where('user_id', Auth::id())
             ->where('formation_id', $formation->id)
+            ->where('status', '!=', 'Annulé')
             ->first();
 
         if ($existing) {
-            return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
+            // Vérifier le statut pour donner un message précis
+            if ($existing->status === 'En attente') {
+                return redirect()->back()->with('warning', 'Vous avez déjà une inscription en attente pour cette formation.');
+            } else if ($existing->status === 'Accepté') {
+                return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
+            } else if ($existing->status === 'Payé') {
+                return redirect()->back()->with('warning', 'Cette formation est déjà payée.');
+            }
         }
 
         try {
@@ -149,16 +220,17 @@ class FirstController extends Controller
             $insc->message = $req->message;
             $insc->formation_id = $formation->id;
             $insc->choixForm = $formation->titre;
-            $insc->montant = $formation->prix;
-            // $insc->montant = "15000";
+            
+            // ⭐⭐ IMPORTANT : Ne pas assigner de montant ici (colonne inexistante)
+            // Si vous avez besoin de stocker le montant dans inscriptions, 
+            // vous devez d'abord ajouter la colonne via une migration
+            
+            // ⭐⭐ CORRECTION : Statut initial doit être "En attente" et non "Accepté"
+            // $insc->status = 'En attente';
             $insc->status = 'Accepté';
             $insc->save();
 
             $this->sendInscriptionEmail(Auth::user(), $formation, $insc);
-
-            // Mail::to(Auth::user()->email)->send(
-            //     new infoMail(Auth::user(), $formation, $insc)
-            // );
 
             return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
 

@@ -188,12 +188,12 @@
         
         <div class="detail-item">
           <div class="detail-label">Date de paiement:</div>
-          <div class="detail-value">{{ $dateFormatted ?? $paiement->date_paiement }}</div>
+          <div class="detail-value">{{ $paiement->date_paiement->format('d/m/Y') }}</div>
         </div>
         
         <div class="detail-item">
           <div class="detail-label">Méthode de paiement:</div>
-          <div class="detail-value">{{ $paiement->mode }}</div>
+          <div class="detail-value">{{ $paiement->mode_label }}</div>
         </div>
         
         @if($paiement->reference)
@@ -204,18 +204,33 @@
         @endif
         
         <div class="detail-item">
+          <div class="detail-label">Type de paiement:</div>
+          <div class="detail-value">{{ $paiement->account_type_label }}</div>
+        </div>
+        
+        <div class="detail-item">
           <div class="detail-label">Statut:</div>
-          <div class="detail-value"><strong>Confirmé</strong></div>
+          <div class="detail-value">
+            @if($paiement->statut == 'complet')
+              <strong style="color: #4CAF50;">Complet</strong>
+            @elseif($paiement->statut == 'partiel')
+              <strong style="color: #FF9800;">Partiel</strong>
+            @else
+              <strong style="color: #F44336;">{{ ucfirst($paiement->statut) }}</strong>
+            @endif
+          </div>
         </div>
       </div>
       
-      <p>Vous pouvez désormais accéder à votre espace personnel pour suivre l'avancement de votre formation.</p>
-      
-      <p style="text-align: center;">
-        <a href="{{ route('user.profile') }}" class="cta-button">
-          Accéder à mon espace
-        </a>
-      </p>
+      @if($paiement->statut != 'annulé')
+        <p>Vous pouvez désormais accéder à votre espace personnel pour suivre l'avancement de votre formation.</p>
+        
+        <p style="text-align: center;">
+          <a href="{{ route('uProfile') }}" class="cta-button">
+            Accéder à mon espace
+          </a>
+        </p>
+      @endif
       
       <p>Nous vous remercions pour votre confiance et vous souhaitons une excellente expérience de formation.</p>
       
