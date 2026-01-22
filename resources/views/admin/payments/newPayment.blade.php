@@ -112,33 +112,39 @@
             </div>
             
             <div class="form-group">
-              <label for="paymentStatus">Statut du paiement <span class="text-danger">*</span></label>
-              <select class="form-select" id="paymentStatus" name="statut" required>
-                <option value="partiel">Partiel</option>
-                <option value="complet">Complet</option>
-                <option value="en_attente">En attente</option>
-                <option value="annulé">Annulé</option>
-              </select>
-              <small class="text-muted">Sélectionnez "Complet" si le montant couvre le reste dû</small>
+                <label for="paymentMethod">Mode de paiement <span class="text-danger">*</span></label>
+                <select class="form-select" id="paymentMethod" name="mode" required>
+                    <option value="">Sélectionnez un mode</option>
+                    @foreach(App\Models\Paiement::MODES as $value => $label)
+                        <option value="{{ $value }}" {{ old('mode') == $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('mode')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
             </div>
-            
+
+            <div class="form-group">
+                <label for="paymentStatus">Statut du paiement <span class="text-danger">*</span></label>
+                <select class="form-select" id="paymentStatus" name="statut" required>
+                    <option value="">Sélectionnez un statut</option>
+                    @foreach(App\Models\Paiement::STATUTS as $value => $label)
+                        <option value="{{ $value }}" {{ old('statut') == $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('statut')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+
             <div class="form-group">
               <label for="paymentDate">Date du paiement <span class="text-danger">*</span></label>
               <input type="date" class="form-control" id="paymentDate" name="date_paiement" required 
                     value="{{ date('Y-m-d') }}">
-            </div>
-            
-            <div class="form-group">
-              <label for="paymentMethod">Mode de paiement <span class="text-danger">*</span></label>
-              <select class="form-select" id="paymentMethod" name="mode" required>
-                <option value="">Sélectionnez un mode</option>
-                <option value="mobile">Mobile Money</option>
-                <option value="carte">Carte bancaire</option>
-                <option value="virement">Virement bancaire</option>
-                <option value="espèce">Espèces</option>
-                <option value="cheque">Chèque</option>
-                <option value="autre">Autre</option>
-              </select>
             </div>
             
             <div class="form-group">

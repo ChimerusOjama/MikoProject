@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('inscription_id')->constrained()->onDelete('cascade');
             $table->decimal('montant', 10, 2)->unsigned()->comment('Montant du paiement');
-            $table->enum('mode', ['manuel', 'carte banquaire', 'mobile money', 'airtel money'])->comment('Mode de paiement');
+            $table->enum('mode', ['especes', 'carte banquaire', 'mobile money', 'airtel money'])->comment('Mode de paiement');
             $table->string('reference')->unique();
             $table->enum('statut', ['complet', 'partiel', 'annulé']);
             $table->dateTime('date_paiement');

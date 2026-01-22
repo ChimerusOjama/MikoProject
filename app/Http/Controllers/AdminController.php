@@ -789,8 +789,41 @@ class AdminController extends Controller
         ]);
     }
 
+    // public function searchInscriptions(Request $request)
+    // {
+    //     $searchTerm = $request->input('query');
+
+    //     $inscriptions = Inscription::with('user')
+    //         ->where(function($query) use ($searchTerm) {
+    //             $query->where('name', 'like', "%$searchTerm%")
+    //                 ->orWhere('email', 'like', "%$searchTerm%")
+    //                 ->orWhere('choixForm', 'like', "%$searchTerm%")
+    //                 ->orWhere('phone', 'like', "%$searchTerm%");
+    //         })
+    //         ->get()
+    //         ->map(function($inscription) {
+    //             // Calculer le montant total payé pour cette inscription
+    //             $paidAmount = Paiement::where('inscription_id', $inscription->id)->sum('montant');
+    //             $remaining = $inscription->montant - $paidAmount;
+
+    //             return [
+    //                 'id' => $inscription->id,
+    //                 'name' => $inscription->name,
+    //                 'email' => $inscription->email,
+    //                 'formation' => $inscription->choixForm,
+    //                 'totalAmount' => $inscription->montant,
+    //                 'paidAmount' => $paidAmount,
+    //                 'remaining' => $remaining
+    //             ];
+    //         });
+
+    //     return response()->json($inscriptions);
+    // }
+
     public function searchInscriptions(Request $request)
     {
+        Log::info('Recherche d\'inscriptions', ['query' => $request->input('query')]);
+        
         $searchTerm = $request->input('query');
 
         $inscriptions = Inscription::with('user')
@@ -817,163 +850,45 @@ class AdminController extends Controller
                 ];
             });
 
+        Log::info('Résultats de recherche', ['count' => $inscriptions->count()]);
+        
         return response()->json($inscriptions);
     }
-
-    // public function storePayment(Request $request)
-    // {
-    //     $request->validate([
-    //         'inscription_id' => 'required|exists:inscriptions,id',
-    //         'amount' => 'required|numeric|min:1',
-    //         'payment_date' => 'required|date',
-    //         'payment_method' => 'required|string',
-    //         'user_email' => 'required|email',
-    //         'reference' => 'nullable|string|max:100',
-    //         'notes' => 'nullable|string|max:500'
-    //     ]);
-
-    //     // Créer le paiement
-    //     $paiement = new Paiement();
-    //     $paiement->inscription_id = $request->inscription_id;
-    //     $paiement->montant = $request->amount;
-    //     $paiement->date_paiement = $request->payment_date;
-    //     $paiement->mode = 'manuel';
-    //     $paiement->reference = $request->reference;
-    //     $paiement->notes = $request->notes;
-    //     $paiement->save();
-
-    //     // Envoyer l'email de confirmation
-    //     try {
-    //         Mail::to($request->user_email)->send(new PaymentConfirmation($paiement));
-    //     } catch (\Exception $e) {
-    //         // Logger l'erreur mais ne pas interrompre le processus
-    //         \Log::error('Erreur envoi email confirmation paiement: ' . $e->getMessage());
-    //     }
-
-    //     return redirect()->route('allPayments')->with('success', 'Paiement enregistré et notification envoyée !');
-    // }
-
-
-    // public function storePayment(Request $request)
-    // {
-    //     // Activer le logging détaillé
-    //     Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
-
-    //     try {
-    //         // Validation améliorée avec messages personnalisés
-    //         $validated = $request->validate([
-    //             'inscription_id' => 'required|exists:inscriptions,id',
-    //             'amount' => 'required|numeric|min:1',
-    //             'statut' => 'required|in:complet,partiel,en_attente,annulé',
-    //             'date_paiement' => 'required|date',
-    //             'mode' => 'required|in:mobile,carte,virement,espèce,cheque,autre',
-    //             'reference' => 'required|unique:paiements,reference|max:100',
-    //             'user_email' => 'required|email',
-    //             'notes' => 'nullable|string|max:500',
-    //             'numeric_remaining' => 'required|numeric|min:0'
-    //         ], [
-    //             'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
-    //             'amount.min' => 'Le montant doit être supérieur à 0',
-    //             'statut.in' => 'Statut de paiement invalide'
-    //         ]);
-
-    //         // Vérification cohérence montant
-    //         $montantSaisi = $request->amount;
-    //         $resteAPayer = $request->numeric_remaining;
-            
-    //         if ($montantSaisi > $resteAPayer) {
-    //             Log::warning('Montant incohérent', [
-    //                 'saisi' => $montantSaisi,
-    //                 'reste' => $resteAPayer
-    //             ]);
-                
-    //             return redirect()->back()
-    //                 ->with('error', 'Le montant saisi dépasse le reste à payer!')
-    //                 ->withInput();
-    //         }
-
-    //         // Création du paiement
-    //         $paiement = new Paiement();
-    //         $paiement->inscription_id = $validated['inscription_id'];
-    //         $paiement->montant = $validated['amount'];
-    //         $paiement->mode = $validated['mode'];
-    //         $paiement->reference = $validated['reference'];
-    //         $paiement->statut = $validated['statut'];
-    //         $paiement->date_paiement = $validated['date_paiement'];
-    //         $paiement->notes = $validated['notes'];
-    //         $paiement->save();
-
-    //         Log::info('Paiement enregistré', ['id' => $paiement->id]);
-
-    //         // Envoi email avec gestion d'erreur
-    //         try {
-    //             Mail::to($validated['user_email'])->send(new PaymentConfirmation($paiement));
-    //             Log::info('Email envoyé', ['email' => $validated['user_email']]);
-    //         } catch (\Exception $e) {
-    //             Log::error('Erreur envoi email', ['error' => $e->getMessage()]);
-    //         }
-
-    //         return redirect()->route('allPayments')->with([
-    //             'success' => 'Paiement enregistré avec succès!',
-    //             'payment_id' => $paiement->id
-    //         ]);
-
-    //     } catch (\Illuminate\Validation\ValidationException $e) {
-    //         // Récupération des erreurs de validation
-    //         $errors = $e->validator->errors()->all();
-    //         Log::error('Erreur validation', ['errors' => $errors]);
-            
-    //         return redirect()->back()
-    //             ->withErrors($e->validator)
-    //             ->with('error', implode('<br>', $errors))
-    //             ->withInput();
-                
-    //     } catch (\Exception $e) {
-    //         // Gestion des autres exceptions
-    //         Log::critical('Erreur système', [
-    //             'error' => $e->getMessage(),
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine()
-    //         ]);
-            
-    //         return redirect()->back()
-    //             ->with('error', 'Erreur système: ' . $e->getMessage())
-    //             ->with('error', implode('<br>', $errors))
-    //             ->withInput();
-
-    //     } catch (\Exception $e) {
-    //         // Gestion des autres exceptions
-    //         Log::critical('Erreur système', [
-    //             'error' => $e->getMessage(),
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine()
-    //         ]);
-
-    //         return redirect()->back()
-    //             ->with('error', 'Erreur système: ' . $e->getMessage())
-    //             ->withInput();
-    //     }
-    // }
 
     public function storePayment(Request $request)
     {
         Log::channel('payments')->info('Tentative d\'enregistrement paiement', $request->all());
 
         try {
+            // Définir les valeurs autorisées basées sur votre migration
+            $modesAutorises = ['mobile money', 'carte banquaire', 'airtel money', 'especes'];
+            $statutsAutorises = ['complet', 'partiel', 'annulé'];
+            
+
             // Validation améliorée avec messages personnalisés
             $validated = $request->validate([
                 'inscription_id' => 'required|exists:inscriptions,id',
                 'amount' => 'required|numeric|min:0',
-                'statut' => 'required|in:complet,partiel,en_attente,annulé',
+                'statut' => ['required', Rule::in($statutsAutorises)],
                 'date_paiement' => 'required|date',
-                'mode' => 'required|in:mobile,carte,virement,espèce,cheque,autre',
+                'mode' => ['required', Rule::in($modesAutorises)],
                 'reference' => 'required|unique:paiements,reference|max:100',
                 'user_email' => 'required|email',
                 'numeric_remaining' => 'required|numeric|min:0'
             ], [
                 'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
                 'amount.min' => 'Le montant doit être supérieur ou égal à 0',
-                'statut.in' => 'Statut de paiement invalide',
+                'statut.in' => 'Statut de paiement invalide. Valeurs autorisées: ' . implode(', ', $statutsAutorises),
+                'mode.in' => 'Mode de paiement invalide. Valeurs autorisées: ' . implode(', ', array_map(function($mode) {
+                    // Afficher des labels plus lisibles
+                    $labels = [
+                        'mobile money' => 'Mobile Money',
+                        'carte banquaire' => 'Carte bancaire',
+                        'airtel money' => 'Airtel Money',
+                        'especes' => 'Espèces'
+                    ];
+                    return $labels[$mode] ?? $mode;
+                }, $modesAutorises)),
                 'inscription_id.exists' => 'L\'inscription sélectionnée n\'existe pas'
             ]);
 
@@ -987,7 +902,16 @@ class AdminController extends Controller
             $montantSaisi = $validated['amount'];
             $resteAPayer = $validated['numeric_remaining'];
             $statut = $validated['statut'];
+            $mode = $validated['mode'];
             
+            // Vérifier que le mode est correctement formaté
+            if (!in_array($mode, $modesAutorises)) {
+                Log::channel('payments')->error('Mode invalide', ['mode' => $mode]);
+                return redirect()->back()
+                    ->with('error', 'Mode de paiement invalide. Veuillez sélectionner une option valide.')
+                    ->withInput();
+            }
+
             // Contrôle spécifique pour les paiements annulés
             if ($statut === 'annulé' && $montantSaisi != 0) {
                 Log::channel('payments')->warning('Montant incohérent pour annulé', [
@@ -1013,6 +937,14 @@ class AdminController extends Controller
                     ->withInput();
             }
 
+            // Vérifier si l'inscription existe
+            $inscription = Inscription::find($validated['inscription_id']);
+            if (!$inscription) {
+                return redirect()->back()
+                    ->with('error', 'Inscription introuvable!')
+                    ->withInput();
+            }
+
             // Création du paiement
             $paiement = new Paiement();
             $paiement->inscription_id = $validated['inscription_id'];
@@ -1023,23 +955,55 @@ class AdminController extends Controller
             $paiement->date_paiement = $validated['date_paiement'];
             $paiement->save();
 
-            Log::channel('payments')->info('Paiement enregistré', ['id' => $paiement->id]);
+            Log::channel('payments')->info('Paiement enregistré', [
+                'id' => $paiement->id,
+                'inscription_id' => $paiement->inscription_id,
+                'montant' => $paiement->montant,
+                'mode' => $paiement->mode,
+                'statut' => $paiement->statut
+            ]);
+
+            // Calculer le nouveau total payé pour cette inscription
+            $totalPaye = Paiement::where('inscription_id', $paiement->inscription_id)->sum('montant');
+            $montantTotalFormation = $inscription->montant;
+            
+            // Mettre à jour le statut de l'inscription si le paiement est complet
+            if ($totalPaye >= $montantTotalFormation) {
+                $inscription->status = 'Accepté';
+                $inscription->save();
+                Log::channel('payments')->info('Inscription marquée comme acceptée', [
+                    'inscription_id' => $inscription->id,
+                    'total_paye' => $totalPaye,
+                    'montant_total' => $montantTotalFormation
+                ]);
+            }
 
             // Envoi email avec gestion d'erreur
             try {
-                if ($statut !== 'annulé') {
+                if ($statut !== 'annulé' && $montantSaisi > 0) {
+                    // Charger les données nécessaires pour l'email
                     $paiement->load('inscription');
-                    // Mail::to($validated['user_email'])->send(new manualPaymentConfirmation($paiement));
-                    $this->sendManualPaymentEmail($paiement, $validated['user_email']);
-                    Log::channel('payments')->info('Email envoyé', ['email' => $validated['user_email']]);
+                    
+                    // Vérifier si la classe Mail existe
+                    if (class_exists(\App\Mail\ManualPaymentConfirmation::class)) {
+                        Mail::to($validated['user_email'])->send(new \App\Mail\ManualPaymentConfirmation($paiement));
+                        Log::channel('payments')->info('Email de confirmation envoyé', [
+                            'email' => $validated['user_email'],
+                            'paiement_id' => $paiement->id
+                        ]);
+                    } else {
+                        Log::channel('payments')->warning('Classe ManualPaymentConfirmation non trouvée');
+                    }
                 } else {
-                    Log::channel('payments')->info('Aucun email envoyé pour paiement annulé');
+                    Log::channel('payments')->info('Aucun email envoyé pour paiement annulé ou montant nul');
                 }
             } catch (\Exception $e) {
                 Log::channel('payments')->error('Erreur envoi email', [
                     'error' => $e->getMessage(),
-                    'email' => $validated['user_email']
+                    'email' => $validated['user_email'],
+                    'paiement_id' => $paiement->id
                 ]);
+                // Ne pas retourner d'erreur à l'utilisateur si l'email échoue
             }
 
             return redirect()->route('allPayments')->with([
@@ -1062,7 +1026,8 @@ class AdminController extends Controller
             Log::channel('payments')->critical('Erreur système', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
             
             return redirect()->back()

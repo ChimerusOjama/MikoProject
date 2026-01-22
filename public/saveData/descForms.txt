@@ -33,3 +33,7 @@ Voici les **descriptions longues** générées à partir de tes descriptions cou
 ---
 
 Souhaites-tu que je te les formate directement pour insertion en SQL ou via une seed Laravel ?
+
+Price_id web : price_1RnxQwGYkjw6zrc2PAKhWk5c
+Price_id anglais simple : price_1SOdqcGYkjw6zrc2UXEKOB6K
+Price_id dev mobile : price_1SOfznGYkjw6zrc2EOXxkuUH

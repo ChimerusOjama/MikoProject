@@ -9,6 +9,22 @@ class Paiement extends Model
 {
     use HasFactory;
 
+    // Constantes pour les modes de paiement (basées sur votre migration)
+    public const MODES = [
+        'mobile money' => 'Mobile Money',
+        'carte banquaire' => 'Carte bancaire',
+        'airtel money' => 'Airtel Money',
+        'especes' => 'Espèces'
+    ];
+
+    // Constantes pour les statuts (basées sur votre migration)
+    public const STATUTS = [
+        'complet' => 'Complet',
+        'partiel' => 'Partiel',
+        'annulé' => 'Annulé'
+        // Note: 'en_attente' n'est pas dans votre migration initiale
+    ];
+
     protected $fillable = [
         'inscription_id',
         'montant',
@@ -38,5 +54,17 @@ class Paiement extends Model
     public function getFormattedMontantAttribute()
     {
         return number_format($this->montant, 0, ',', ' ') . ' FCFA';
+    }
+
+    // Accessor pour obtenir le label du mode
+    public function getModeLabelAttribute()
+    {
+        return self::MODES[$this->mode] ?? $this->mode;
+    }
+
+    // Accessor pour obtenir le label du statut
+    public function getStatutLabelAttribute()
+    {
+        return self::STATUTS[$this->statut] ?? $this->statut;
     }
 }

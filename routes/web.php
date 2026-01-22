@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(Fi
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
 
-    //paiement routes
+    //payement routes
     Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
     Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
@@ -81,7 +81,7 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(
     // Paiements
     Route::get('/Liste_paiements', 'allPayments')->name('allPayments');
     Route::get('/nouveau_paiement', 'newPayment')->name('newPayment');
-    Route::get('/admin/payments/search-inscriptions', 'searchInscriptions')->name('admin.payments.search');
+    Route::get('/payments/search-inscriptions', 'searchInscriptions')->name('admin.payments.search');
     Route::post('/Insertion_paiement', 'storePayment')->name('storePayment');
     Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
     Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
