@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\PaymentConfirmation;
 use App\Mail\ReservationAnnulee;
 use PhpParser\Node\Stmt\If_;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class FirstController extends Controller
 {
@@ -103,69 +104,6 @@ class FirstController extends Controller
 
         return view('inscription', compact('oneForm', 'similarForms'));
     }
-
-    // public function formInsc(Request $req)
-    // {
-    //     $req->validate([
-    //         'formation_id' => 'required|exists:formations,id',
-    //         'message' => 'nullable|string|max:500',
-    //         'formation_prix' => 'required|numeric|min:0'
-    //     ]);
-
-    //     // Vérification du type d'utilisateur
-    //     if (Auth::user()->usertype !== 'user') {
-    //         return redirect()->back()->with('error', 
-    //             'Seuls les utilisateurs standard peuvent s\'inscrire aux formations. ' .
-    //             'Les administrateurs ne peuvent pas s\'inscrire.');
-    //     }
-
-    //     $formation = Formation::findOrFail($req->formation_id);
-        
-    //     // Vérifier la cohérence du prix
-    //     if ($formation->prix != $req->formation_prix) {
-    //         return redirect()->back()->with('error', 'Le prix de la formation a changé. Veuillez actualiser la page.');
-    //     }
-
-    //     if ($formation->status !== 'publiee') {
-    //         return redirect()->back()->with('error', 'Cette formation n\'est pas disponible pour l\'inscription.');
-    //     }
-
-    //     // Vérifier l'existence d'une inscription
-    //     $existing = Inscription::where('user_id', Auth::id())
-    //         ->where('formation_id', $formation->id)
-    //         ->first();
-
-    //     if ($existing) {
-    //         return redirect()->back()->with('warning', 'Vous êtes déjà inscrit à cette formation.');
-    //     }
-
-    //     try {
-    //         $insc = new Inscription();
-    //         $insc->user_id = Auth::id();
-    //         $insc->name = Auth::user()->first_name . ' ' . Auth::user()->last_name;
-    //         $insc->email = Auth::user()->email;
-    //         $insc->phone = Auth::user()->phone;
-    //         $insc->address = Auth::user()->address;
-    //         $insc->message = $req->message;
-    //         $insc->formation_id = $formation->id;
-    //         $insc->choixForm = $formation->titre;
-    //         // $insc->montant = $formation->prix;
-    //         // $insc->montant = "15000";
-    //         $insc->status = 'Accepté';
-    //         $insc->save();
-
-    //         $this->sendInscriptionEmail(Auth::user(), $formation, $insc);
-
-    //         // Mail::to(Auth::user()->email)->send(
-    //         //     new infoMail(Auth::user(), $formation, $insc)
-    //         // );
-
-    //         return redirect()->back()->with('success', 'Votre demande a été reçue avec succès.');
-
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', 'Erreur lors de l\'inscription: ' . $e->getMessage());
-    //     }
-    // }
 
     public function formInsc(Request $req)
     {
@@ -604,19 +542,15 @@ class FirstController extends Controller
             'ip' => $request->ip()
         ]);
 
-        // Validation des paramètres
         if (!$sessionId || !$inscriptionId) {
             Log::error('❌ PARAMÈTRES MANQUANTS dans verifyPayment', $request->all());
             return redirect()->route('uFormation')->with('error', 'Paramètres de paiement manquants.');
         }
 
         try {
-            // ⭐⭐ CORRECTION : Utilisation du StripeClient moderne
             $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
-            
-            // Récupération de la session Stripe
             $stripeSession = $stripe->checkout->sessions->retrieve($sessionId);
-            
+
             Log::info('📊 STATUT SESSION STRIPE', [
                 'session_id' => $sessionId,
                 'payment_status' => $stripeSession->payment_status,
@@ -624,10 +558,8 @@ class FirstController extends Controller
                 'amount_total' => $stripeSession->amount_total
             ]);
 
-            // ⭐⭐ CORRECTION : Utiliser find() au lieu de findOrFail()
             $inscription = Inscription::with('formation')->find($inscriptionId);
 
-            // Vérifier si l'inscription existe
             if (!$inscription) {
                 Log::warning('📭 INSCRIPTION INTROUVABLE', [
                     'inscription_id' => $inscriptionId,
@@ -636,7 +568,6 @@ class FirstController extends Controller
                 return redirect()->route('payment.expired')->with('error', 'Cette inscription n\'existe plus.');
             }
 
-            // Vérifier si l'inscription est annulée
             if ($inscription->status === 'Annulé') {
                 Log::warning('🚫 TENTATIVE DE PAIEMENT SUR INSCRIPTION ANNULÉE', [
                     'inscription_id' => $inscriptionId,
@@ -646,7 +577,6 @@ class FirstController extends Controller
                 return redirect()->route('payment.expired')->with('error', 'Cette inscription a été annulée.');
             }
 
-            // VÉRIFICATION DE SÉCURITÉ : Appartenance
             if ((int)$inscription->user_id !== (int)Auth::id()) {
                 Log::error('🚨 TENTATIVE ACCÈS FRAUDULEUX', [
                     'user_connecte' => Auth::id(),
@@ -656,7 +586,6 @@ class FirstController extends Controller
                 abort(403, 'Accès non autorisé à cette inscription.');
             }
 
-            // VÉRIFICATION : Statut doit être "Accepté"
             if ($inscription->status !== 'Accepté') {
                 Log::warning('⚠️ INSCRIPTION NON ÉLIGIBLE AU PAIEMENT', [
                     'inscription_id' => $inscriptionId,
@@ -665,7 +594,6 @@ class FirstController extends Controller
                 return redirect()->route('payment.expired')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
             }
 
-            // VÉRIFICATION : Ne pas permettre le paiement si déjà payé
             if ($inscription->statut_paiement === 'complet') {
                 Log::warning('💰 TENTATIVE DE DOUBLE PAIEMENT', [
                     'inscription_id' => $inscriptionId,
@@ -675,7 +603,6 @@ class FirstController extends Controller
             }
 
             if ($stripeSession->payment_status === 'paid') {
-                // Vérifier si déjà traité pour éviter les doublons
                 if ($inscription->statut_paiement === 'complet') {
                     Log::info('ℹ️ PAIEMENT DÉJÀ TRAITÉ', [
                         'inscription_id' => $inscriptionId,
@@ -684,16 +611,15 @@ class FirstController extends Controller
                     return view('payment.success', compact('inscription'));
                 }
 
-                // DÉBUT DE LA TRANSACTION ATOMIQUE
                 DB::beginTransaction();
 
                 try {
-                    // 1. METTRE À JOUR L'INSCRIPTION
+                    // Mise à jour de l'inscription
                     $inscription->update([
                         'statut_paiement' => 'complet',
                         'status' => 'Payé',
                         'stripe_session_id' => $sessionId,
-                        'payment_date' => now(), 
+                        'payment_date' => now(),
                     ]);
 
                     Log::info('✅ INSCRIPTION MIS À JOUR', [
@@ -701,10 +627,9 @@ class FirstController extends Controller
                         'nouveau_statut' => 'Payé'
                     ]);
 
-                    // 2. CRÉER L'ENREGISTREMENT DANS LA TABLE PAIEMENTS
+                    // Création du paiement
                     $paiement = Paiement::create([
                         'inscription_id' => $inscription->id,
-                        // 'montant' => $inscription->montant,
                         'montant' => $inscription->formation->prix,
                         'mode' => 'carte banquaire',
                         'reference' => 'STRIPE_' . substr($sessionId, -20),
@@ -716,21 +641,44 @@ class FirstController extends Controller
                     Log::info('💰 PAIEMENT ENREGISTRÉ', [
                         'paiement_id' => $paiement->id,
                         'inscription_id' => $inscription->id,
-                        // 'montant' => $inscription->montant,
                         'montant' => $inscription->formation->prix,
                         'reference' => 'STRIPE_' . substr($sessionId, -20)
                     ]);
 
-                    // 3. ENVOYER L'EMAIL DE CONFIRMATION
-                    $this->sendPaymentConfirmationEmail($inscription);
-                    // Mail::to($inscription->email)->send(new PaymentConfirmation($inscription));
+                    // Génération du PDF
+                    $pdf = Pdf::loadView('pdfs.receipt', ['inscription' => $inscription]);
+                    $pdfContent = $pdf->output();
+                    Log::info('📄 Taille du PDF : ' . strlen($pdfContent) . ' octets');
 
-                    Log::info('📧 EMAIL CONFIRMATION ENVOYÉ', [
+                    // Création du dossier de stockage si nécessaire
+                    $receiptDir = storage_path('app/receipts');
+                    if (!file_exists($receiptDir)) {
+                        mkdir($receiptDir, 0755, true);
+                    }
+
+                    // Sauvegarde du PDF
+                    $pdfPath = 'receipts/receipt_' . $inscription->id . '_' . date('YmdHis') . '.pdf';
+                    $pdf->save(storage_path('app/' . $pdfPath));
+
+                    Log::info('📄 PDF GÉNÉRÉ ET SAUVEGARDÉ', [
+                        'path' => $pdfPath,
+                        'inscription_id' => $inscription->id
+                    ]);
+
+                    // Envoi de l'email avec le template existant et le PDF en pièce jointe
+                    Mail::send('emails.payment.payment_confirmation', ['inscription' => $inscription], function ($message) use ($inscription, $pdf) {
+                        $message->to($inscription->email)
+                                ->subject('Confirmation de paiement - Miko Formation')
+                                ->attachData($pdf->output(), 'recu_paiement_' . $inscription->id . '.pdf', [
+                                    'mime' => 'application/pdf',
+                                ]);
+                    });
+
+                    Log::info('📧 EMAIL AVEC RECU PDF ENVOYÉ', [
                         'email' => $inscription->email,
                         'inscription_id' => $inscription->id
                     ]);
 
-                    // VALIDER LA TRANSACTION
                     DB::commit();
 
                     Log::info('🎉 PROCESSUS PAIEMENT TERMINÉ AVEC SUCCÈS', [
@@ -739,20 +687,16 @@ class FirstController extends Controller
                         'session_id' => $sessionId
                     ]);
 
-                    // 4. AFFICHER LA PAGE DE SUCCÈS
                     return view('payment.success', compact('inscription'));
 
                 } catch (\Exception $e) {
-                    // ANNULER LA TRANSACTION EN CAS D'ERREUR
                     DB::rollBack();
-                    
                     Log::error('💥 ERREUR TRANSACTION verifyPayment(): ' . $e->getMessage(), [
                         'inscription_id' => $inscriptionId,
                         'session_id' => $sessionId,
                         'error_trace' => $e->getTraceAsString()
                     ]);
-                    
-                    return redirect()->route('uFormation')->with('error', 
+                    return redirect()->route('uFormation')->with('error',
                         'Erreur lors de l\'enregistrement du paiement. Contactez le support.'
                     );
                 }
@@ -763,8 +707,7 @@ class FirstController extends Controller
                     'payment_status' => $stripeSession->payment_status,
                     'inscription_id' => $inscriptionId
                 ]);
-                
-                return redirect()->route('payment.cancel')->with('error', 
+                return redirect()->route('payment.cancel')->with('error',
                     'Le paiement n\'a pas été effectué. Statut: ' . $stripeSession->payment_status
                 );
             }
@@ -775,8 +718,7 @@ class FirstController extends Controller
                 'inscription_id' => $inscriptionId,
                 'error_trace' => $e->getTraceAsString()
             ]);
-            
-            return redirect()->route('payment.expired')->with('error', 
+            return redirect()->route('payment.expired')->with('error',
                 'Erreur de confirmation du paiement. Ce lien a peut-être expiré.'
             );
         }

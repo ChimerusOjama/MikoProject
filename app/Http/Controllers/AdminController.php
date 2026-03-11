@@ -325,162 +325,117 @@ class AdminController extends Controller
 
 
     public function storeInsc(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:100',
-        'email' => 'required|email|max:100',
-        'phone' => 'required|string|max:20',
-        'address' => 'nullable|string|max:255',
-        'choixForm' => 'required|string|max:100',
-        'message' => 'nullable|string',
-    ]);
-
-    try {
-        // Récupérer la formation correspondant au choix
-        $formation = Formation::where('titre', $validated['choixForm'])->first();
-        
-        if (!$formation) {
-            return back()
-                ->withInput()
-                ->withErrors(['choixForm' => 'La formation sélectionnée n\'existe pas.']);
-        }
-
-        // Vérifier l'existence d'une inscription
-        $existingInscription = Inscription::where('choixForm', $validated['choixForm'])
-            ->where(function($query) use ($validated) {
-                $query->where('email', $validated['email'])
-                    ->orWhere('phone', $validated['phone']);
-            })
-            ->first();
-
-        if ($existingInscription) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'warning' => 'Cette personne est déjà inscrite à cette formation. Veuillez vérifier.',
-                    'existing_id' => $existingInscription->id
-                ]);
-        }
-
-        $inscription = new Inscription($validated);
-        
-        // ⭐⭐ CRITIQUE : Lier l'inscription à la formation pour récupérer le prix
-        $inscription->formation_id = $formation->id;
-        $inscription->status = 'Accepté';
-        
-        $inscription->save();
-
-        // ⭐⭐ AJOUT : Créer automatiquement un premier paiement (account) si un montant est fourni
-        if ($request->has('montant') && $request->montant > 0) {
-            $this->createInitialAccount($inscription, $request->montant, $request);
-        }
-
-        return redirect()->back()
-            ->with('success', 'Inscription ajoutée avec succès!');
-
-    } catch (\Exception $e) {
-        return back()
-            ->withInput()
-            ->withErrors(['error' => 'Erreur lors de l\'ajout: ' . $e->getMessage()]);
-    }
-}
-
-// ⭐⭐ NOUVELLE MÉTHODE : Créer un account initial
-private function createInitialAccount($inscription, $montant, $request)
-{
-    try {
-        // Vérifier le montant minimum
-        if ($montant < 5000) {
-            throw new \Exception('Le montant minimum pour un account est de 5 000 FCFA');
-        }
-
-        // Vérifier que le montant ne dépasse pas le prix de la formation
-        $formationPrix = $inscription->formation->prix ?? 0;
-        if ($montant > $formationPrix) {
-            throw new \Exception('Le montant ne peut pas dépasser le prix de la formation (' . number_format($formationPrix, 0, ',', ' ') . ' FCFA)');
-        }
-
-        // Créer le paiement
-        $paiement = new Paiement();
-        $paiement->inscription_id = $inscription->id;
-        $paiement->montant = $montant;
-        $paiement->mode = $request->account_mode ?? 'especes';
-        $paiement->reference = $request->account_reference ?? ('ACC-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3))));
-        $paiement->statut = ($montant == $formationPrix) ? 'complet' : 'partiel';
-        $paiement->account_type = 'account_1'; // Premier account
-        $paiement->type_paiement = 'manuel';
-        $paiement->date_paiement = now();
-        $paiement->save();
-
-        // Mettre à jour le statut de paiement de l'inscription
-        $inscription->statut_paiement = ($montant == $formationPrix) ? 'complet' : 'partiel';
-        $inscription->save();
-
-        // Envoyer l'email de confirmation
-        if (class_exists(\App\Mail\ManualPaymentConfirmation::class)) {
-            Mail::to($inscription->email)->send(new \App\Mail\ManualPaymentConfirmation($paiement));
-        }
-
-        Log::info('Account initial créé', [
-            'inscription_id' => $inscription->id,
-            'paiement_id' => $paiement->id,
-            'montant' => $montant
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'phone' => 'required|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'choixForm' => 'required|string|max:100',
+            'message' => 'nullable|string',
         ]);
 
-    } catch (\Exception $e) {
-        Log::error('Erreur création account initial', [
-            'error' => $e->getMessage(),
-            'inscription_id' => $inscription->id
-        ]);
-        throw $e;
+        try {
+            // Récupérer la formation correspondant au choix
+            $formation = Formation::where('titre', $validated['choixForm'])->first();
+            
+            if (!$formation) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['choixForm' => 'La formation sélectionnée n\'existe pas.']);
+            }
+
+            // Vérifier l'existence d'une inscription
+            $existingInscription = Inscription::where('choixForm', $validated['choixForm'])
+                ->where(function($query) use ($validated) {
+                    $query->where('email', $validated['email'])
+                        ->orWhere('phone', $validated['phone']);
+                })
+                ->first();
+
+            if ($existingInscription) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'warning' => 'Cette personne est déjà inscrite à cette formation. Veuillez vérifier.',
+                        'existing_id' => $existingInscription->id
+                    ]);
+            }
+
+            $inscription = new Inscription($validated);
+            
+            // ⭐⭐ CRITIQUE : Lier l'inscription à la formation pour récupérer le prix
+            $inscription->formation_id = $formation->id;
+            $inscription->status = 'Accepté';
+            
+            $inscription->save();
+
+            // ⭐⭐ AJOUT : Créer automatiquement un premier paiement (account) si un montant est fourni
+            if ($request->has('montant') && $request->montant > 0) {
+                $this->createInitialAccount($inscription, $request->montant, $request);
+            }
+
+            return redirect()->back()
+                ->with('success', 'Inscription ajoutée avec succès!');
+
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erreur lors de l\'ajout: ' . $e->getMessage()]);
+        }
     }
-}
 
-    // public function storeInsc(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'name' => 'required|string|max:100',
-    //         'email' => 'required|email|max:100',
-    //         'phone' => 'required|string|max:20',
-    //         'address' => 'nullable|string|max:255',
-    //         'montant' => 'required|numeric|min:0',
-    //         'choixForm' => 'required|string|max:100',
-    //         'message' => 'nullable|string',
-    //     ]);
+    // ⭐⭐ NOUVELLE MÉTHODE : Créer un account initial
+    private function createInitialAccount($inscription, $montant, $request)
+    {
+        try {
+            // Vérifier le montant minimum
+            if ($montant < 5000) {
+                throw new \Exception('Le montant minimum pour un account est de 5 000 FCFA');
+            }
 
-    //     try {
-    //         $existingInscription = Inscription::where('choixForm', $validated['choixForm'])
-    //             ->where(function($query) use ($validated) {
-    //                 $query->where('email', $validated['email'])
-    //                     ->orWhere('phone', $validated['phone']);
-    //             })
-    //             ->first();
+            // Vérifier que le montant ne dépasse pas le prix de la formation
+            $formationPrix = $inscription->formation->prix ?? 0;
+            if ($montant > $formationPrix) {
+                throw new \Exception('Le montant ne peut pas dépasser le prix de la formation (' . number_format($formationPrix, 0, ',', ' ') . ' FCFA)');
+            }
 
-    //         if ($existingInscription) {
-    //             return back()
-    //                 ->withInput()
-    //                 ->withErrors([
-    //                     'warning' => 'Cette personne est déjà inscrite à cette formation. Veuillez vérifier.',
-    //                     'existing_id' => $existingInscription->id
-    //                 ]);
-    //         }
+            // Créer le paiement
+            $paiement = new Paiement();
+            $paiement->inscription_id = $inscription->id;
+            $paiement->montant = $montant;
+            $paiement->mode = $request->account_mode ?? 'especes';
+            $paiement->reference = $request->account_reference ?? ('ACC-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3))));
+            $paiement->statut = ($montant == $formationPrix) ? 'complet' : 'partiel';
+            $paiement->account_type = 'account_1'; // Premier account
+            $paiement->type_paiement = 'manuel';
+            $paiement->date_paiement = now();
+            $paiement->save();
 
-    //         $inscription = new Inscription($validated);
-            
-    //         // Ajout des propriétés supplémentaires
-    //         // $inscription->status = 'accepté';
-            
-    //         $inscription->save();
+            // Mettre à jour le statut de paiement de l'inscription
+            $inscription->statut_paiement = ($montant == $formationPrix) ? 'complet' : 'partiel';
+            $inscription->save();
 
-    //         return redirect()->back()
-    //             ->with('success', 'Inscription ajoutée avec succès!');
+            // Envoyer l'email de confirmation
+            if (class_exists(\App\Mail\ManualPaymentConfirmation::class)) {
+                Mail::to($inscription->email)->send(new \App\Mail\ManualPaymentConfirmation($paiement));
+            }
 
-    //     } catch (\Exception $e) {
-    //         return back()
-    //             ->withInput()
-    //             ->withErrors(['error' => 'Erreur lors de l\'ajout: ' . $e->getMessage()]);
-    //     }
-    // }
+            Log::info('Account initial créé', [
+                'inscription_id' => $inscription->id,
+                'paiement_id' => $paiement->id,
+                'montant' => $montant
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur création account initial', [
+                'error' => $e->getMessage(),
+                'inscription_id' => $inscription->id
+            ]);
+            throw $e;
+        }
+    }
+
 
 
 
