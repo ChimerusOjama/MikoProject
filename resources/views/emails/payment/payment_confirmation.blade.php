@@ -235,7 +235,7 @@
         
         <div class="detail-row">
           <span class="detail-label">Montant payé :</span>
-          <span class="detail-value amount">{{ number_format($inscription->montant, 0, ',', ' ') }} FCFA</span>
+          <span class="detail-value amount">{{ number_format($inscription->formation->prix, 0, ',', ' ') }} FCFA</span>
         </div>
         
         <div class="detail-row">

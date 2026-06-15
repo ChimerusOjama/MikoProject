@@ -19,7 +19,7 @@
             <h4>{{ $inscription->formation->titre }}</h4>
             <p>
                 <strong>Montant :</strong> 
-                <span class="text-primary">{{ number_format($inscription->montant, 0, ',', ' ') }} FCFA</span> | 
+                <span class="text-primary">{{ number_format($inscription->formation->prix, 0, ',', ' ') }} FCFA</span> | 
                 <strong>Référence :</strong> #{{ $inscription->id }}
             </p>
         </div>

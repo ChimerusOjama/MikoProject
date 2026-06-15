@@ -1,0 +1,320 @@
+.
+├── app
+│   ├── Actions
+│   │   ├── Fortify
+│   │   │   ├── CreateNewUser.php
+│   │   │   ├── PasswordValidationRules.php
+│   │   │   ├── ResetUserPassword.php
+│   │   │   ├── UpdateUserPassword.php
+│   │   │   └── UpdateUserProfileInformation.php
+│   │   └── Jetstream
+│   │       └── DeleteUser.php
+│   ├── Console
+│   │   ├── Commands
+│   │   │   └── CheckSslConfig.php
+│   │   └── Kernel.php
+│   ├── Exceptions
+│   │   └── Handler.php
+│   ├── Http
+│   │   ├── Controllers
+│   │   │   ├── AdminController.php
+│   │   │   ├── Controller.php
+│   │   │   ├── FirstController.php
+│   │   │   └── MainController.php
+│   │   ├── Kernel.php
+│   │   └── Middleware
+│   │       ├── Authenticate.php
+│   │       ├── EncryptCookies.php
+│   │       ├── IsAdmin.php
+│   │       ├── IsUser.php
+│   │       ├── PreventRequestsDuringMaintenance.php
+│   │       ├── RedirectIfAuthenticated.php
+│   │       ├── TrimStrings.php
+│   │       ├── TrustHosts.php
+│   │       ├── TrustProxies.php
+│   │       ├── ValidateSignature.php
+│   │       └── VerifyCsrfToken.php
+│   ├── Mail
+│   │   ├── infoMail.php
+│   │   ├── manualPaymentConfirmation.php
+│   │   ├── PaymentConfirmation.php
+│   │   ├── ReservationAnnulee.php
+│   │   └── TestMail.php
+│   ├── Models
+│   │   ├── Formation.php
+│   │   ├── Inscription.php
+│   │   ├── Paiement.php
+│   │   └── User.php
+│   ├── Notifications
+│   │   └── VerifyEmail.php
+│   ├── Providers
+│   │   ├── AppServiceProvider.php
+│   │   ├── AuthServiceProvider.php
+│   │   ├── BroadcastServiceProvider.php
+│   │   ├── EventServiceProvider.php
+│   │   ├── FortifyServiceProvider.php
+│   │   ├── JetstreamServiceProvider.php
+│   │   ├── RouteServiceProvider.php
+│   │   └── StripeServiceProvider.php
+│   └── View
+│       └── Components
+│           ├── AppLayout.php
+│           └── GuestLayout.php
+├── artisan
+├── bootstrap
+│   └── app.php
+├── composer.json
+├── composer.lock
+├── config
+│   ├── app.php
+│   ├── auth.php
+│   ├── broadcasting.php
+│   ├── cache.php
+│   ├── cors.php
+│   ├── database.php
+│   ├── dompdf.php
+│   ├── filesystems.php
+│   ├── fortify.php
+│   ├── hashing.php
+│   ├── jetstream.php
+│   ├── logging.php
+│   ├── mail.php
+│   ├── queue.php
+│   ├── sanctum.php
+│   ├── services.php
+│   ├── session.php
+│   └── view.php
+├── contenu_mikoproject_propre.txt
+├── contenu_mikoproject.txt
+├── database
+│   ├── factories
+│   │   ├── FormationFactory.php
+│   │   ├── InscriptionFactory.php
+│   │   ├── PaiementFactory.php
+│   │   └── UserFactory.php
+│   ├── migrations
+│   │   ├── 2014_10_12_000000_create_users_table.php
+│   │   ├── 2014_10_12_100000_create_password_reset_tokens_table.php
+│   │   ├── 2014_10_12_200000_add_two_factor_columns_to_users_table.php
+│   │   ├── 2019_08_19_000000_create_failed_jobs_table.php
+│   │   ├── 2019_12_14_000001_create_personal_access_tokens_table.php
+│   │   ├── 2025_03_17_164706_create_sessions_table.php
+│   │   ├── 2025_04_16_011456_create_formations_table.php
+│   │   ├── 2025_04_21_073616_create_inscriptions_table.php
+│   │   └── 2025_08_12_011709_create_paiements_table.php
+│   └── seeders
+│       └── DatabaseSeeder.php
+├── mes_vues.txt
+├── package.json
+├── package-lock.json
+├── phpunit.xml
+├── postcss.config.js
+├── public
+│   ├── admin
+│   ├── assets
+│   │   ├── css
+│   │   │   ├── adStyles.css
+│   │   │   └── styles.css
+│   │   ├── docs
+│   │   │   ├── PRD_Miko_Complet.docx
+│   │   │   └── Product Requirements Document.docx
+│   │   ├── imgs
+│   │   │   ├── about-img.jpg
+│   │   │   ├── avatar1.webp
+│   │   │   ├── avatar2.webp
+│   │   │   ├── avatar3.webp
+│   │   │   ├── cours1.jpg
+│   │   │   ├── salle2.jpg
+│   │   │   ├── salle3.jpg
+│   │   │   └── salle.jpg
+│   │   └── js
+│   │       ├── adMain.js
+│   │       └── main.js
+│   ├── favicon.ico
+│   ├── index.php
+│   ├── robots.txt
+│   ├── saveData
+│   │   ├── allPayments.blade copy.php
+│   │   ├── autoCharts.txt
+│   │   ├── descForms.txt
+│   │   ├── newPayment.blade copy.php
+│   │   ├── oldIndex1.blade.php
+│   │   ├── oldIndex.blade.php
+│   │   ├── PRD.txt
+│   │   ├── stripeMethode.txt
+│   │   └── web copy.php
+│   ├── storage -> /home/baba/Projets/MikoProject/storage/app/public
+│   └── uAdmin-pages
+│       ├── dashboard.html
+│       ├── mesFormations.html
+│       ├── support.html
+│       └── user-profil.html
+├── README.md
+├── resources
+│   ├── css
+│   │   └── app.css
+│   ├── js
+│   │   ├── app.js
+│   │   └── bootstrap.js
+│   ├── markdown
+│   │   ├── policy.md
+│   │   └── terms.md
+│   └── views
+│       ├── about.blade.php
+│       ├── admin
+│       │   ├── allUsers.blade.php
+│       │   ├── forms
+│       │   │   ├── allForm.blade.php
+│       │   │   ├── _form.blade.php
+│       │   │   ├── newForm.blade.php
+│       │   │   └── updateForm.blade.php
+│       │   ├── index.blade.php
+│       │   ├── inscriptions
+│       │   │   ├── allInscriptions.blade.php
+│       │   │   ├── newInscView.blade.php
+│       │   │   └── testAllInscriptions.blade.php
+│       │   ├── newUser.blade.php
+│       │   ├── payments
+│       │   │   ├── allPayments.blade.php
+│       │   │   ├── editPayment.blade.php
+│       │   │   ├── newPayment.blade.php
+│       │   │   └── updatePayment.blade.php
+│       │   └── updateUser.blade.php
+│       ├── api
+│       │   ├── api-token-manager.blade.php
+│       │   └── index.blade.php
+│       ├── auth
+│       │   ├── confirm-password.blade.php
+│       │   ├── forgot-password.blade.php
+│       │   ├── login.blade.php
+│       │   ├── loginOld.blade.php
+│       │   ├── register.blade.php
+│       │   ├── registerold.blade.php
+│       │   ├── reset-password.blade.php
+│       │   ├── two-factor-challenge.blade.php
+│       │   ├── verify-email.blade copy.php
+│       │   └── verify-email.blade.php
+│       ├── components
+│       │   ├── action-message.blade.php
+│       │   ├── action-section.blade.php
+│       │   ├── alert-adModal.blade.php
+│       │   ├── alert-modal.blade.php
+│       │   ├── application-logo.blade.php
+│       │   ├── application-mark.blade.php
+│       │   ├── authentication-card.blade.php
+│       │   ├── authentication-card-logo.blade.php
+│       │   ├── banner.blade.php
+│       │   ├── button.blade.php
+│       │   ├── checkbox.blade.php
+│       │   ├── confirmation-modal.blade.php
+│       │   ├── confirms-password.blade.php
+│       │   ├── danger-button.blade.php
+│       │   ├── dialog-modal.blade.php
+│       │   ├── dropdown.blade.php
+│       │   ├── dropdown-link.blade.php
+│       │   ├── form-section.blade.php
+│       │   ├── input.blade.php
+│       │   ├── input-error.blade.php
+│       │   ├── label.blade.php
+│       │   ├── modal.blade.php
+│       │   ├── nav-link.blade.php
+│       │   ├── responsive-nav-link.blade.php
+│       │   ├── secondary-button.blade.php
+│       │   ├── section-border.blade.php
+│       │   ├── section-title.blade.php
+│       │   ├── switchable-team.blade.php
+│       │   ├── validation-errors.blade.php
+│       │   └── welcome.blade.php
+│       ├── contact.blade.php
+│       ├── dashboard.blade.php
+│       ├── emails
+│       │   ├── inscription
+│       │   │   ├── annulation.blade.php
+│       │   │   └── info.blade.php
+│       │   ├── payment
+│       │   │   ├── manual_payment_confirmation.blade.php
+│       │   │   └── payment_confirmation.blade.php
+│       │   ├── team-invitation.blade.php
+│       │   ├── test.blade.php
+│       │   └── verify-email.blade.php
+│       ├── index.blade.php
+│       ├── inscription.blade.php
+│       ├── layouts
+│       │   ├── adApp.blade.php
+│       │   ├── app.blade.php
+│       │   ├── guest.blade.php
+│       │   └── sAdApp.blade.php
+│       ├── listing.blade.php
+│       ├── navigation-menu.blade.php
+│       ├── payment
+│       │   ├── cancel.blade.php
+│       │   ├── link-expired.blade.php
+│       │   └── success.blade.php
+│       ├── pdfs
+│       │   ├── receipt.blade copy.php
+│       │   └── receipt.blade.php
+│       ├── policy.blade.php
+│       ├── profile
+│       │   ├── delete-user-form.blade.php
+│       │   ├── logout-other-browser-sessions-form.blade.php
+│       │   ├── show.blade.php
+│       │   ├── two-factor-authentication-form.blade.php
+│       │   ├── update-password-form.blade.php
+│       │   └── update-profile-information-form.blade.php
+│       ├── terms.blade.php
+│       ├── uAdmin
+│       │   ├── choose-method.blade.php
+│       │   ├── forms.blade.php
+│       │   ├── index.blade.php
+│       │   ├── profile.blade.php
+│       │   └── support.blade.php
+│       └── welcome.blade.php
+├── routes
+│   ├── api.php
+│   ├── channels.php
+│   ├── console.php
+│   └── web.php
+├── start.sh
+├── storage
+│   ├── app
+│   │   ├── public
+│   │   │   └── imgsFormation
+│   │   │       └── web-dev_1781118630.jpg
+│   │   └── receipts
+│   │       └── receipt_1_20260610195000.pdf
+│   └── logs
+│       ├── laravel.log
+│       └── paiements-2026-06-10.log
+├── stripe-test.php
+├── structure_projet.txt
+├── tailwind.config.js
+├── tests
+│   ├── CreatesApplication.php
+│   ├── Feature
+│   │   ├── AdminTest.php
+│   │   ├── ApiTokenPermissionsTest.php
+│   │   ├── AuthenticationTest.php
+│   │   ├── BrowserSessionsTest.php
+│   │   ├── CreateApiTokenTest.php
+│   │   ├── DeleteAccountTest.php
+│   │   ├── DeleteApiTokenTest.php
+│   │   ├── EmailVerificationTest.php
+│   │   ├── ExampleTest.php
+│   │   ├── InscriptionTest.php
+│   │   ├── PaiementTest.php
+│   │   ├── PasswordConfirmationTest.php
+│   │   ├── PasswordResetTest.php
+│   │   ├── ProfileInformationTest.php
+│   │   ├── RegistrationTest.php
+│   │   ├── TwoFactorAuthenticationSettingsTest.php
+│   │   └── UpdatePasswordTest.php
+│   ├── TestCase.php
+│   └── Unit
+│       ├── ExampleTest.php
+│       └── Models
+│           ├── FormationTest.php
+│           ├── InscriptionTest.php
+│           └── PaiementTest.php
+└── vite.config.js
+
+64 directories, 254 files
