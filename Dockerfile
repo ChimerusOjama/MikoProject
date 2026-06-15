@@ -1,36 +1,35 @@
 FROM php:8.2-apache
 
-# 1. Installation des dépendances système et des extensions PHP pour PostgreSQL
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    && docker-php-ext-install pdo pdo_pgsql pgsql zip bcmath
+# 1. Utilisation du script mlocati pour installer les extensions SANS saturer la RAM
+ADD https://github.com/mlocati/php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions pdo pdo_pgsql pgsql zip bcmath
 
-# 2. Activation du module de réécriture d'Apache (indispensable pour les routes Laravel)
+# 2. Installation des dépendances système légères
+RUN apt-get update && apt-get install -y zip unzip git && rm -rf /var/lib/apt/lists/*
+
+# 3. Activation du module de réécriture d'Apache (indispensable pour les routes Laravel)
 RUN a2enmod rewrite
 
-# 3. Modification du dossier racine d'Apache pour pointer vers /public de Laravel
+# 4. Modification du dossier racine d'Apache pour pointer vers /public de Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# 4. Récupération de Composer
+# 5. Récupération de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 5. Copie de tout le code du projet dans le serveur
+# 6. Copie de tout le code du projet dans le serveur
 COPY . /var/www/html
 
-# 6. Définition du dossier de travail
+# 7. Définition du dossier de travail
 WORKDIR /var/www/html
 
-# 7. Installation des dépendances PHP de production
+# 8. Installation des dépendances PHP de production
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# 8. Configuration des permissions pour Laravel
+# 9. Configuration des permissions pour Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 9. Le serveur écoute sur le port 80
+# 10. Le serveur écoute sur le port 80
 EXPOSE 80
