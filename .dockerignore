@@ -1,0 +1,5 @@
+.git
+/public/saveData
+vendor
+node_modules
+.env
