@@ -1,9 +1,8 @@
 FROM php:8.2-apache
 
-# 1. Utilisation du script mlocati pour installer les extensions SANS saturer la RAM
-ADD https://github.com/mlocati/php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions pdo pdo_pgsql pgsql zip bcmath
+# 1. Récupération du script mlocati via son image Docker (Méthode 100% fiable anti-404)
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions pdo pdo_pgsql pgsql zip bcmath
 
 # 2. Installation des dépendances système légères
 RUN apt-get update && apt-get install -y zip unzip git && rm -rf /var/lib/apt/lists/*
