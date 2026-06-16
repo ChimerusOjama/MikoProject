@@ -33,5 +33,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # 10. Le serveur écoute sur le port 80
 EXPOSE 80
 
-# 11. Commande de démarrage : exécute les migrations puis lance Apache
-CMD php artisan migrate --force && apache2-foreground
+# 11. Commande de démarrage : création du lien de stockage, exécution des migrations puis lance Apache
+CMD php artisan storage:link && php artisan migrate --force && apache2-foreground
