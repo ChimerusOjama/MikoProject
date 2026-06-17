@@ -169,7 +169,8 @@
                 @foreach($forms as $form)
                 <div class="scroll-item">
                     <div class="course-card">
-                        <img src="{{ $form->image_url }}" class="course-img" alt="{{ $form->titre }}">
+                        {{-- <img src="{{ $form->image_url }}" class="course-img" alt="{{ $form->titre }}"> --}}
+                        <img src="{{ $form->image_url ?? asset('assets/imgs/cours1.jpg') }}" class="course-img" alt="{{ $form->titre }}">
                         <div class="course-body">
                             <h3 class="course-title">{{ $form->titre }}</h3>
                             <div class="course-price">{{ $form->prix }} FCFA</div>

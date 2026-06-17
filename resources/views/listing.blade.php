@@ -144,7 +144,8 @@
                 @endphp
                 <div class="col-lg-4 col-md-6" data-category="{{ $form->categorie }}" data-level="{{ $form->niveau }}" data-price="{{ $form->prix }}" data-duration="{{ $form->duree_mois }}">
                     <div class="card formation-card h-100 border-0 shadow-sm">
-                        <img src="{{ asset($form->image_url ?? 'assets/imgs/cours1.jpg') }}" class="card-img-top" alt="Formation {{ $form->categorie }}">
+                        {{-- <img src="{{ asset($form->image_url ?? 'assets/imgs/cours1.jpg') }}" class="card-img-top" alt="Formation {{ $form->categorie }}"> --}}
+                        <img src="{{ $form->image_url ?? asset('assets/imgs/cours1.jpg') }}" class="card-img-top" alt="{{ $form->titre }}">
                         <div class="card-body">
                             <span class="badge {{ $badgeClass }} mb-2">{{ ucfirst($form->categorie) }}</span>
                             <h3 class="h5 card-title">{{ $form->titre }}</h3>

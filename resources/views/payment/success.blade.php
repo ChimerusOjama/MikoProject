@@ -27,7 +27,7 @@
             <i class="fas fa-graduation-cap"></i>
             <div class="info-alert-content">
                 <h4>{{ $inscription->formation->titre }}</h4>
-                <p>Votre accès à la formation a été activé pour une durée de 3 mois</p>
+                <p>Votre accès à la formation a été activé pour une durée de {{ $inscription->duree_mois }} mois</p>
             </div>
         </div>
 
@@ -57,7 +57,7 @@
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Accès jusqu'au :</span>
-                    <span class="detail-value highlight">{{ now()->addMonths(3)->format('d/m/Y') }}</span>
+                    <span class="detail-value highlight">{{ now()->addMonths($inscription->duree_mois)->format('d/m/Y') }}</span>
                 </div>
             </div>
         </div>

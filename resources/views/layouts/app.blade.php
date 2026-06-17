@@ -194,7 +194,7 @@
         <div class="col-lg-2 col-md-6 mb-4">
           <h5>LIENS RAPIDES</h5>
           <ul class="footer-links">
-            <li><a href="{{ route('home') }}">Accueil</a></li>
+            <li><a href="{{ route('uHome') }}">Accueil</a></li>
             <li><a href="{{ route('listing') }}">Formations</a></li>
             <li><a href="{{ route('about') }}">À propos</a></li>
             <li><a href="{{ route('contact') }}">Contact</a></li>

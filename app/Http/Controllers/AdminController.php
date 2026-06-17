@@ -105,63 +105,123 @@ class AdminController extends Controller
     }
 
     public function storeForm(Request $req)
-    {
-        $validated = $req->validate([
-            'titre' => 'required|string|max:255',
-            'description_courte' => 'required|string|max:200',
-            'description_longue' => 'nullable|string',
-            'categorie' => 'required|string|max:50|in:developpement,bureautique,gestion,langues,marketing,design',
-            'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
-            'prix' => 'required|numeric|min:0|max:1000000',
-            'duree_mois' => 'required|integer|min:1|max:36',
-            'places_disponibles' => 'nullable|integer|min:0|max:1000',
-            'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
-            'stripe_product_id' => ['nullable', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
-            'status' => 'required|string|in:publiee,brouillon,archivee',
-            'date_debut' => 'nullable|date',
-            'date_fin' => 'nullable|date|after_or_equal:date_debut',
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+{
+    $validated = $req->validate([
+        'titre' => 'required|string|max:255',
+        'description_courte' => 'required|string|max:200',
+        'description_longue' => 'nullable|string',
+        'categorie' => 'required|string|max:50|in:developpement,bureautique,gestion,langues,marketing,design',
+        'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
+        'prix' => 'required|numeric|min:0|max:1000000',
+        'duree_mois' => 'required|integer|min:1|max:36',
+        'places_disponibles' => 'nullable|integer|min:0|max:1000',
+        'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+        'stripe_product_id' => ['nullable', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+        'status' => 'required|string|in:publiee,brouillon,archivee',
+        'date_debut' => 'nullable|date',
+        'date_fin' => 'nullable|date|after_or_equal:date_debut',
+        'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    try {
+        // 1. Nettoyer le nom d'origine pour en faire un public_id propre (sans l'extension)
+        $safeName = Str::slug(pathinfo($req->image->getClientOriginalName(), PATHINFO_FILENAME));
+        $publicId = $safeName . '_' . time();
+
+        // 2. Téléverser l'image sur Cloudinary dans le dossier 'imgsFormation'
+        $uploadedFile = cloudinary()->upload($req->file('image')->getRealPath(), [
+            'folder'    => 'imgsFormation',
+            'public_id' => $publicId,
         ]);
 
-        try {
-            // Créer le dossier imgsFormation s'il n'existe pas
-            $directory = 'imgsFormation';
-            if (!Storage::disk('public')->exists($directory)) {
-                Storage::disk('public')->makeDirectory($directory);
-            }
+        // 3. Récupérer l'URL absolue sécurisée HTTPS
+        $imageUrl = $uploadedFile->getSecurePath();
 
-            $safeName = Str::slug(pathinfo($req->image->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = $req->image->getClientOriginalExtension();
-            $imageName = $safeName . '_' . time() . '.' . $extension;
+        // 4. Insérer la formation en base de données
+        Formation::create([
+            'titre' => $validated['titre'],
+            'description_courte' => $validated['description_courte'],
+            'description_longue' => $validated['description_longue'] ?? null,
+            'categorie' => $validated['categorie'],
+            'niveau' => $validated['niveau'],
+            'prix' => $validated['prix'],
+            'duree_mois' => $validated['duree_mois'],
+            'places_disponibles' => $validated['places_disponibles'] ?? null,
+            'status' => $validated['status'],
+            'stripe_price_id' => $validated['stripe_price_id'],
+            'stripe_product_id' => $validated['stripe_product_id'] ?? null,
+            'date_debut' => $validated['date_debut'] ?? null,
+            'date_fin' => $validated['date_fin'] ?? null,
+            'image_url' => $imageUrl, // Contient maintenant l'URL directe Cloudinary
+        ]);
 
-            // Stocker l'image dans le dossier public
-            $path = $req->image->storeAs($directory, $imageName, 'public');
+        return redirect()->back()->with('success', 'Formation créée avec succès');
 
-            Formation::create([
-                'titre' => $validated['titre'],
-                'description_courte' => $validated['description_courte'],
-                'description_longue' => $validated['description_longue'] ?? null,
-                'categorie' => $validated['categorie'],
-                'niveau' => $validated['niveau'],
-                'prix' => $validated['prix'],
-                'duree_mois' => $validated['duree_mois'],
-                'places_disponibles' => $validated['places_disponibles'] ?? null,
-                'status' => $validated['status'],
-                'stripe_price_id' => $validated['stripe_price_id'],
-                'stripe_product_id' => $validated['stripe_product_id'] ?? null,
-                'date_debut' => $validated['date_debut'] ?? null,
-                'date_fin' => $validated['date_fin'] ?? null,
-                'image_url' => Storage::url($path), // Génère l'URL correcte
-            ]);
-
-            return redirect()->back()->with('success', 'Formation créée avec succès');
-
-        } catch (\Exception $e) {
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
-        }
+    } catch (\Exception $e) {
+        return back()
+            ->withInput()
+            ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
     }
+}
+
+    // public function storeForm(Request $req)
+    // {
+    //     $validated = $req->validate([
+    //         'titre' => 'required|string|max:255',
+    //         'description_courte' => 'required|string|max:200',
+    //         'description_longue' => 'nullable|string',
+    //         'categorie' => 'required|string|max:50|in:developpement,bureautique,gestion,langues,marketing,design',
+    //         'niveau' => 'required|string|max:20|in:debutant,intermediaire,avance',
+    //         'prix' => 'required|numeric|min:0|max:1000000',
+    //         'duree_mois' => 'required|integer|min:1|max:36',
+    //         'places_disponibles' => 'nullable|integer|min:0|max:1000',
+    //         'stripe_price_id' => ['required', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+    //         'stripe_product_id' => ['nullable', 'string', 'max:255', 'regex:/^(price|prod)_[a-zA-Z0-9]+$/'],
+    //         'status' => 'required|string|in:publiee,brouillon,archivee',
+    //         'date_debut' => 'nullable|date',
+    //         'date_fin' => 'nullable|date|after_or_equal:date_debut',
+    //         'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+    //     ]);
+
+    //     try {
+    //         // Créer le dossier imgsFormation s'il n'existe pas
+    //         $directory = 'imgsFormation';
+    //         if (!Storage::disk('public')->exists($directory)) {
+    //             Storage::disk('public')->makeDirectory($directory);
+    //         }
+
+    //         $safeName = Str::slug(pathinfo($req->image->getClientOriginalName(), PATHINFO_FILENAME));
+    //         $extension = $req->image->getClientOriginalExtension();
+    //         $imageName = $safeName . '_' . time() . '.' . $extension;
+
+    //         // Stocker l'image dans le dossier public
+    //         $path = $req->image->storeAs($directory, $imageName, 'public');
+
+    //         Formation::create([
+    //             'titre' => $validated['titre'],
+    //             'description_courte' => $validated['description_courte'],
+    //             'description_longue' => $validated['description_longue'] ?? null,
+    //             'categorie' => $validated['categorie'],
+    //             'niveau' => $validated['niveau'],
+    //             'prix' => $validated['prix'],
+    //             'duree_mois' => $validated['duree_mois'],
+    //             'places_disponibles' => $validated['places_disponibles'] ?? null,
+    //             'status' => $validated['status'],
+    //             'stripe_price_id' => $validated['stripe_price_id'],
+    //             'stripe_product_id' => $validated['stripe_product_id'] ?? null,
+    //             'date_debut' => $validated['date_debut'] ?? null,
+    //             'date_fin' => $validated['date_fin'] ?? null,
+    //             'image_url' => Storage::url($path), // Génère l'URL correcte
+    //         ]);
+
+    //         return redirect()->back()->with('success', 'Formation créée avec succès');
+
+    //     } catch (\Exception $e) {
+    //         return back()
+    //             ->withInput()
+    //             ->withErrors(['error' => 'Erreur lors de la création: ' . $e->getMessage()]);
+    //     }
+    // }
     
     public function supForm($id)
     {
@@ -758,391 +818,391 @@ class AdminController extends Controller
     }
 
     public function storePayment(Request $request)
-{
-    // Log de début avec tous les détails
-    Log::channel('paiements')->info('🚀 DÉBUT - Enregistrement paiement manuel', [
-        'user_id' => Auth::id(),
-        'user_email' => Auth::user()->email ?? 'unknown',
-        'user_type' => Auth::user()->usertype ?? 'unknown',
-        'ip' => $request->ip(),
-        'user_agent' => $request->userAgent(),
-        'data' => $request->except(['_token']),
-        'timestamp' => now()->format('Y-m-d H:i:s')
-    ]);
-
-    try {
-        // Définir les valeurs autorisées
-        $modesAutorises = array_keys(Paiement::MODES);
-        $statutsAutorises = array_keys(Paiement::STATUTS);
-        
-        // ⭐⭐ VÉRIFICATION CRITIQUE : EMPÊCHER LES PAIEMENTS DE 0 FCFA SAUF POUR ANNULÉ
-        $montantSaisi = (int)$request->amount;
-        $statutDemande = $request->statut;
-        
-        if ($montantSaisi === 0 && $statutDemande !== 'annulé') {
-            Log::channel('paiements')->warning('❌ TENTATIVE PAIEMENT 0 FCFA', [
-                'montant' => $montantSaisi,
-                'statut' => $statutDemande,
-                'user_id' => Auth::id()
-            ]);
-            
-            return redirect()->back()
-                ->with('error', '❌ Un paiement ne peut pas être de 0 FCFA, sauf pour le statut "annulé".')
-                ->withInput();
-        }
-        
-        // ⭐⭐ VÉRIFICATION : MINIMUM 5000 POUR LES PAIEMENTS PARTIELS
-        if ($statutDemande === 'partiel' && $montantSaisi > 0 && $montantSaisi < 5000) {
-            Log::channel('paiements')->warning('⚠️ MONTANT INFÉRIEUR AU MINIMUM', [
-                'montant' => $montantSaisi,
-                'minimum' => 5000,
-                'user_id' => Auth::id()
-            ]);
-            
-            return redirect()->back()
-                ->with('error', '⚠️ Le montant minimum pour un paiement partiel (account) est de 5 000 FCFA.')
-                ->withInput();
-        }
-
-        // Validation
-        $validated = $request->validate([
-            'inscription_id' => 'required|exists:inscriptions,id',
-            'amount' => [
-                'required', 
-                'integer', 
-                'min:0',
-                function ($attribute, $value, $fail) use ($request) {
-                    // ⭐⭐ VALIDATION PERSONNALISÉE : 0 SEULEMENT POUR ANNULÉ
-                    if ($value == 0 && $request->statut != 'annulé') {
-                        $fail('Le montant ne peut pas être 0 FCFA pour ce statut.');
-                    }
-                    
-                    // ⭐⭐ VALIDATION PERSONNALISÉE : MINIMUM 5000 POUR PARTIEL
-                    if ($request->statut == 'partiel' && $value > 0 && $value < 5000) {
-                        $fail('Le montant minimum pour un paiement partiel est de 5 000 FCFA.');
-                    }
-                }
-            ],
-            'statut' => ['required', Rule::in($statutsAutorises)],
-            'date_paiement' => 'required|date|before_or_equal:today',
-            'mode' => ['required', Rule::in($modesAutorises)],
-            'reference' => 'required|unique:paiements,reference|max:100',
-            'user_email' => 'required|email',
-            'numeric_remaining' => 'required|integer|min:0'
-        ], [
-            'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
-            'amount.min' => 'Le montant doit être supérieur ou égal à 0',
-            'amount.integer' => 'Le montant doit être un nombre entier (FCFA)',
-            'statut.in' => 'Statut de paiement invalide',
-            'mode.in' => 'Mode de paiement invalide',
-            'date_paiement.before_or_equal' => 'La date ne peut pas être dans le futur',
-            'inscription_id.exists' => 'L\'inscription sélectionnée n\'existe pas'
+    {
+        // Log de début avec tous les détails
+        Log::channel('paiements')->info('🚀 DÉBUT - Enregistrement paiement manuel', [
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email ?? 'unknown',
+            'user_type' => Auth::user()->usertype ?? 'unknown',
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'data' => $request->except(['_token']),
+            'timestamp' => now()->format('Y-m-d H:i:s')
         ]);
 
-        // Log des données validées
-        Log::channel('paiements')->debug('✅ DONNÉES VALIDÉES', array_merge($validated, [
-            'reste_a_payer' => $validated['numeric_remaining'],
-            'validation_time' => now()->format('H:i:s')
-        ]));
-
-        // Vérification cohérence montant
-        $montantSaisi = (int)$validated['amount'];
-        $resteAPayer = (int)$validated['numeric_remaining'];
-        $statut = $validated['statut'];
-        $mode = $validated['mode'];
-        
-        // Vérifier si l'inscription existe
-        $inscription = Inscription::with(['formation', 'paiements'])->find($validated['inscription_id']);
-        
-        if (!$inscription) {
-            Log::channel('paiements')->error('❌ INSCRIPTION INTROUVABLE', [
-                'inscription_id' => $validated['inscription_id'],
-                'user_id' => Auth::id()
-            ]);
-            return redirect()->back()
-                ->with('error', '❌ Inscription introuvable!')
-                ->withInput();
-        }
-
-        // ⭐⭐ VÉRIFICATION CRITIQUE : L'INSCRIPTION DOIT ÊTRE LIÉE À UNE FORMATION
-        if (!$inscription->formation) {
-            Log::channel('paiements')->critical('💥 INSCRIPTION SANS FORMATION', [
-                'inscription_id' => $inscription->id,
-                'choixForm' => $inscription->choixForm,
-                'user_id' => Auth::id()
-            ]);
-            
-            return redirect()->back()
-                ->with('error', '❌ Cette inscription n\'est pas liée à une formation. Veuillez contacter l\'administrateur.')
-                ->withInput();
-        }
-
-        // Récupérer le montant total de la formation
-        $montantTotalFormation = $inscription->formation->prix;
-        
-        // Récupérer tous les paiements existants (hors annulés)
-        $paiementsExistants = $inscription->paiements()
-            ->where('statut', '!=', 'annulé')
-            ->get();
-
-        // Calculer le total déjà payé
-        $totalDejaPaye = $paiementsExistants->sum('montant');
-        $nouveauTotalPaye = $totalDejaPaye + $montantSaisi;
-        
-        // Log des calculs
-        Log::channel('paiements')->info('🧮 CALCULS MONTANTS', [
-            'inscription_id' => $inscription->id,
-            'formation' => $inscription->formation->titre,
-            'montant_total_formation' => $montantTotalFormation,
-            'total_deja_paye' => $totalDejaPaye,
-            'montant_saisi' => $montantSaisi,
-            'nouveau_total_paye' => $nouveauTotalPaye,
-            'reste_a_payer_avant' => $resteAPayer,
-            'reste_calculé' => $montantTotalFormation - $totalDejaPaye
-        ]);
-
-        // ⭐⭐ VÉRIFICATION : LE MONTANT SAISI NE DÉPASSE PAS LE RESTE À PAYER
-        if ($statut !== 'annulé' && $montantSaisi > $resteAPayer) {
-            Log::channel('paiements')->warning('⚠️ MONTANT INCOHÉRENT', [
-                'saisi' => $montantSaisi,
-                'reste' => $resteAPayer,
-                'statut' => $statut,
-                'formation_prix' => $montantTotalFormation,
-                'deja_paye' => $totalDejaPaye
-            ]);
-            
-            return redirect()->back()
-                ->with('error', '❌ Le montant saisi dépasse le reste à payer!')
-                ->withInput();
-        }
-
-        // ⭐⭐ VÉRIFICATION : POUR LES PAIEMENTS ANNULÉS, MONTANT DOIT ÊTRE 0
-        if ($statut === 'annulé' && $montantSaisi != 0) {
-            Log::channel('paiements')->warning('⚠️ MONTANT INCOHÉRENT POUR ANNULÉ', [
-                'saisi' => $montantSaisi,
-                'reste' => $resteAPayer
-            ]);
-            
-            return redirect()->back()
-                ->with('error', '❌ Pour un paiement annulé, le montant doit être 0 FCFA!')
-                ->withInput();
-        }
-
-        // ⭐⭐ DÉTERMINER LE TYPE DE COMPTE (ACCOUNT_TYPE)
-        $accountType = 'principal';
-        $accountsActifs = $paiementsExistants->where('account_type', '!=', 'principal')->count();
-        
-        // Log des comptes existants
-        Log::channel('paiements')->debug('📊 COMPTES EXISTANTS', [
-            'count' => $accountsActifs,
-            'details' => $paiementsExistants->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'montant' => $p->montant,
-                    'account_type' => $p->account_type,
-                    'statut' => $p->statut
-                ];
-            })
-        ]);
-
-        // Si c'est un paiement partiel et qu'il y a déjà des paiements
-        if ($statut === 'partiel' && $montantSaisi > 0) {
-            if ($accountsActifs >= 2) {
-                Log::channel('paiements')->warning('⚠️ LIMITE D\'ACCOUNTS ATTEINTE', [
-                    'accounts_existants' => $accountsActifs,
-                    'limite' => 2,
-                    'inscription_id' => $inscription->id
-                ]);
-                return redirect()->back()
-                    ->with('error', '❌ Cette inscription a déjà atteint la limite de 2 accounts.')
-                    ->withInput();
-            }
-            
-            // Déterminer le numéro d'account
-            if ($accountsActifs === 0) {
-                $accountType = 'account_1';
-            } elseif ($accountsActifs === 1) {
-                $accountType = 'account_2';
-            }
-            
-            Log::channel('paiements')->info('🏷️ TYPE D\'ACCOUNT DÉTERMINÉ', [
-                'account_type' => $accountType,
-                'accounts_actifs' => $accountsActifs
-            ]);
-            
-        } elseif ($statut === 'complet' && $montantSaisi > 0) {
-            // Si c'est un paiement complet, vérifier s'il n'y a pas déjà d'autres paiements
-            if ($paiementsExistants->count() > 0) {
-                Log::channel('paiements')->warning('⚠️ PAIEMENT PRINCIPAL DÉJÀ EXISTANT', [
-                    'paiements_existants' => $paiementsExistants->count(),
-                    'details' => $paiementsExistants->pluck('account_type')
-                ]);
-                return redirect()->back()
-                    ->with('error', '❌ Un paiement principal existe déjà pour cette inscription. Utilisez le statut "partiel" pour ajouter un account.')
-                    ->withInput();
-            }
-            $accountType = 'principal';
-        } elseif ($statut === 'annulé') {
-            $accountType = 'principal'; // Les annulations sont toujours de type principal
-        }
-
-        // ⭐⭐ CRÉATION DU PAIEMENT
-        DB::beginTransaction();
-        
         try {
-            $paiement = new Paiement();
-            $paiement->inscription_id = $validated['inscription_id'];
-            $paiement->montant = $montantSaisi;
-            $paiement->mode = $validated['mode'];
-            $paiement->reference = $validated['reference'];
-            $paiement->statut = $validated['statut'];
-            $paiement->account_type = $accountType;
-            $paiement->type_paiement = 'manuel';
-            $paiement->date_paiement = $validated['date_paiement'];
+            // Définir les valeurs autorisées
+            $modesAutorises = array_keys(Paiement::MODES);
+            $statutsAutorises = array_keys(Paiement::STATUTS);
             
-            Log::channel('paiements')->info('💾 SAUVEGARDE PAIEMENT EN COURS', [
-                'paiement_data' => [
-                    'inscription_id' => $paiement->inscription_id,
-                    'montant' => $paiement->montant,
-                    'mode' => $paiement->mode,
-                    'reference' => $paiement->reference,
-                    'statut' => $paiement->statut,
-                    'account_type' => $paiement->account_type
-                ]
-            ]);
-
-            $paiement->save();
-
-            Log::channel('paiements')->info('✅ PAIEMENT ENREGISTRÉ', [
-                'paiement_id' => $paiement->id,
-                'inscription_id' => $paiement->inscription_id,
-                'montant' => $paiement->montant,
-                'mode' => $paiement->mode_label,
-                'statut' => $paiement->statut_label,
-                'account_type' => $paiement->account_type_label,
-                'reference' => $paiement->reference,
-                'date_paiement' => $paiement->date_paiement->format('d/m/Y')
-            ]);
-
-            // ⭐⭐ METTRE À JOUR LE STATUT DE PAIEMENT DE L'INSCRIPTION
-            if ($nouveauTotalPaye >= $montantTotalFormation) {
-                $inscription->statut_paiement = 'complet';
-                Log::channel('paiements')->info('💰 INSCRIPTION PAYÉE COMPLÈTEMENT', [
-                    'inscription_id' => $inscription->id,
-                    'total_paye' => $nouveauTotalPaye,
-                    'montant_total' => $montantTotalFormation
+            // ⭐⭐ VÉRIFICATION CRITIQUE : EMPÊCHER LES PAIEMENTS DE 0 FCFA SAUF POUR ANNULÉ
+            $montantSaisi = (int)$request->amount;
+            $statutDemande = $request->statut;
+            
+            if ($montantSaisi === 0 && $statutDemande !== 'annulé') {
+                Log::channel('paiements')->warning('❌ TENTATIVE PAIEMENT 0 FCFA', [
+                    'montant' => $montantSaisi,
+                    'statut' => $statutDemande,
+                    'user_id' => Auth::id()
                 ]);
-            } elseif ($nouveauTotalPaye > 0) {
-                $inscription->statut_paiement = 'partiel';
-                Log::channel('paiements')->info('💳 INSCRIPTION PAYÉE PARTIELLEMENT', [
-                    'inscription_id' => $inscription->id,
-                    'total_paye' => $nouveauTotalPaye,
-                    'montant_total' => $montantTotalFormation,
-                    'reste' => $montantTotalFormation - $nouveauTotalPaye
-                ]);
-            } else {
-                $inscription->statut_paiement = 'non_payé';
-                Log::channel('paiements')->info('❌ INSCRIPTION NON PAYÉE', [
-                    'inscription_id' => $inscription->id,
-                    'total_paye' => $nouveauTotalPaye
-                ]);
+                
+                return redirect()->back()
+                    ->with('error', '❌ Un paiement ne peut pas être de 0 FCFA, sauf pour le statut "annulé".')
+                    ->withInput();
             }
             
-            $inscription->save();
+            // ⭐⭐ VÉRIFICATION : MINIMUM 5000 POUR LES PAIEMENTS PARTIELS
+            if ($statutDemande === 'partiel' && $montantSaisi > 0 && $montantSaisi < 5000) {
+                Log::channel('paiements')->warning('⚠️ MONTANT INFÉRIEUR AU MINIMUM', [
+                    'montant' => $montantSaisi,
+                    'minimum' => 5000,
+                    'user_id' => Auth::id()
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', '⚠️ Le montant minimum pour un paiement partiel (account) est de 5 000 FCFA.')
+                    ->withInput();
+            }
 
-            // ⭐⭐ ENVOI EMAIL DE CONFIRMATION
-            if ($statut !== 'annulé' && $montantSaisi > 0) {
-                try {
-                    // Charger les données nécessaires pour l'email
-                    $paiement->load('inscription');
-                    
-                    // Vérifier si la classe Mail existe
-                    if (class_exists(\App\Mail\ManualPaymentConfirmation::class)) {
-                        Mail::to($validated['user_email'])->send(new \App\Mail\ManualPaymentConfirmation($paiement));
-                        Log::channel('paiements')->info('📧 EMAIL DE CONFIRMATION ENVOYÉ', [
-                            'email' => $validated['user_email'],
-                            'paiement_id' => $paiement->id,
-                            'client' => $inscription->name
-                        ]);
-                    } else {
-                        Log::channel('paiements')->warning('⚠️ CLASSE ManualPaymentConfirmation NON TROUVÉE');
+            // Validation
+            $validated = $request->validate([
+                'inscription_id' => 'required|exists:inscriptions,id',
+                'amount' => [
+                    'required', 
+                    'integer', 
+                    'min:0',
+                    function ($attribute, $value, $fail) use ($request) {
+                        // ⭐⭐ VALIDATION PERSONNALISÉE : 0 SEULEMENT POUR ANNULÉ
+                        if ($value == 0 && $request->statut != 'annulé') {
+                            $fail('Le montant ne peut pas être 0 FCFA pour ce statut.');
+                        }
+                        
+                        // ⭐⭐ VALIDATION PERSONNALISÉE : MINIMUM 5000 POUR PARTIEL
+                        if ($request->statut == 'partiel' && $value > 0 && $value < 5000) {
+                            $fail('Le montant minimum pour un paiement partiel est de 5 000 FCFA.');
+                        }
                     }
-                } catch (\Exception $e) {
-                    Log::channel('paiements')->error('❌ ERREUR ENVOI EMAIL', [
-                        'error' => $e->getMessage(),
-                        'email' => $validated['user_email'],
-                        'paiement_id' => $paiement->id
-                    ]);
-                    // Ne pas retourner d'erreur à l'utilisateur si l'email échoue
-                }
-            } else {
-                Log::channel('paiements')->info('📭 AUCUN EMAIL ENVOYÉ POUR PAIEMENT ANNULÉ OU MONTANT NUL');
+                ],
+                'statut' => ['required', Rule::in($statutsAutorises)],
+                'date_paiement' => 'required|date|before_or_equal:today',
+                'mode' => ['required', Rule::in($modesAutorises)],
+                'reference' => 'required|unique:paiements,reference|max:100',
+                'user_email' => 'required|email',
+                'numeric_remaining' => 'required|integer|min:0'
+            ], [
+                'reference.unique' => 'Cette référence de paiement existe déjà dans le système',
+                'amount.min' => 'Le montant doit être supérieur ou égal à 0',
+                'amount.integer' => 'Le montant doit être un nombre entier (FCFA)',
+                'statut.in' => 'Statut de paiement invalide',
+                'mode.in' => 'Mode de paiement invalide',
+                'date_paiement.before_or_equal' => 'La date ne peut pas être dans le futur',
+                'inscription_id.exists' => 'L\'inscription sélectionnée n\'existe pas'
+            ]);
+
+            // Log des données validées
+            Log::channel('paiements')->debug('✅ DONNÉES VALIDÉES', array_merge($validated, [
+                'reste_a_payer' => $validated['numeric_remaining'],
+                'validation_time' => now()->format('H:i:s')
+            ]));
+
+            // Vérification cohérence montant
+            $montantSaisi = (int)$validated['amount'];
+            $resteAPayer = (int)$validated['numeric_remaining'];
+            $statut = $validated['statut'];
+            $mode = $validated['mode'];
+            
+            // Vérifier si l'inscription existe
+            $inscription = Inscription::with(['formation', 'paiements'])->find($validated['inscription_id']);
+            
+            if (!$inscription) {
+                Log::channel('paiements')->error('❌ INSCRIPTION INTROUVABLE', [
+                    'inscription_id' => $validated['inscription_id'],
+                    'user_id' => Auth::id()
+                ]);
+                return redirect()->back()
+                    ->with('error', '❌ Inscription introuvable!')
+                    ->withInput();
             }
 
-            DB::commit();
+            // ⭐⭐ VÉRIFICATION CRITIQUE : L'INSCRIPTION DOIT ÊTRE LIÉE À UNE FORMATION
+            if (!$inscription->formation) {
+                Log::channel('paiements')->critical('💥 INSCRIPTION SANS FORMATION', [
+                    'inscription_id' => $inscription->id,
+                    'choixForm' => $inscription->choixForm,
+                    'user_id' => Auth::id()
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', '❌ Cette inscription n\'est pas liée à une formation. Veuillez contacter l\'administrateur.')
+                    ->withInput();
+            }
 
-            // Log de succès
-            Log::channel('paiements')->info('🎉 FIN - PAIEMENT ENREGISTRÉ AVEC SUCCÈS', [
-                'paiement_id' => $paiement->id,
+            // Récupérer le montant total de la formation
+            $montantTotalFormation = $inscription->formation->prix;
+            
+            // Récupérer tous les paiements existants (hors annulés)
+            $paiementsExistants = $inscription->paiements()
+                ->where('statut', '!=', 'annulé')
+                ->get();
+
+            // Calculer le total déjà payé
+            $totalDejaPaye = $paiementsExistants->sum('montant');
+            $nouveauTotalPaye = $totalDejaPaye + $montantSaisi;
+            
+            // Log des calculs
+            Log::channel('paiements')->info('🧮 CALCULS MONTANTS', [
                 'inscription_id' => $inscription->id,
                 'formation' => $inscription->formation->titre,
                 'montant_total_formation' => $montantTotalFormation,
-                'total_paye' => $nouveauTotalPaye,
-                'reste_a_payer' => max(0, $montantTotalFormation - $nouveauTotalPaye),
-                'user_id' => Auth::id(),
-                'timestamp' => now()->format('H:i:s')
+                'total_deja_paye' => $totalDejaPaye,
+                'montant_saisi' => $montantSaisi,
+                'nouveau_total_paye' => $nouveauTotalPaye,
+                'reste_a_payer_avant' => $resteAPayer,
+                'reste_calculé' => $montantTotalFormation - $totalDejaPaye
             ]);
 
-            return redirect()->route('allPayments')->with([
-                'success' => '✅ Paiement enregistré avec succès!',
-                'payment_id' => $paiement->id,
-                'account_type' => $paiement->account_type_label
-            ]);
+            // ⭐⭐ VÉRIFICATION : LE MONTANT SAISI NE DÉPASSE PAS LE RESTE À PAYER
+            if ($statut !== 'annulé' && $montantSaisi > $resteAPayer) {
+                Log::channel('paiements')->warning('⚠️ MONTANT INCOHÉRENT', [
+                    'saisi' => $montantSaisi,
+                    'reste' => $resteAPayer,
+                    'statut' => $statut,
+                    'formation_prix' => $montantTotalFormation,
+                    'deja_paye' => $totalDejaPaye
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', '❌ Le montant saisi dépasse le reste à payer!')
+                    ->withInput();
+            }
 
-        } catch (\Exception $e) {
-            DB::rollBack();
+            // ⭐⭐ VÉRIFICATION : POUR LES PAIEMENTS ANNULÉS, MONTANT DOIT ÊTRE 0
+            if ($statut === 'annulé' && $montantSaisi != 0) {
+                Log::channel('paiements')->warning('⚠️ MONTANT INCOHÉRENT POUR ANNULÉ', [
+                    'saisi' => $montantSaisi,
+                    'reste' => $resteAPayer
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', '❌ Pour un paiement annulé, le montant doit être 0 FCFA!')
+                    ->withInput();
+            }
+
+            // ⭐⭐ DÉTERMINER LE TYPE DE COMPTE (ACCOUNT_TYPE)
+            $accountType = 'principal';
+            $accountsActifs = $paiementsExistants->where('account_type', '!=', 'principal')->count();
             
-            Log::channel('paiements')->critical('💥 ERREUR TRANSACTION', [
+            // Log des comptes existants
+            Log::channel('paiements')->debug('📊 COMPTES EXISTANTS', [
+                'count' => $accountsActifs,
+                'details' => $paiementsExistants->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'montant' => $p->montant,
+                        'account_type' => $p->account_type,
+                        'statut' => $p->statut
+                    ];
+                })
+            ]);
+
+            // Si c'est un paiement partiel et qu'il y a déjà des paiements
+            if ($statut === 'partiel' && $montantSaisi > 0) {
+                if ($accountsActifs >= 2) {
+                    Log::channel('paiements')->warning('⚠️ LIMITE D\'ACCOUNTS ATTEINTE', [
+                        'accounts_existants' => $accountsActifs,
+                        'limite' => 2,
+                        'inscription_id' => $inscription->id
+                    ]);
+                    return redirect()->back()
+                        ->with('error', '❌ Cette inscription a déjà atteint la limite de 2 accounts.')
+                        ->withInput();
+                }
+                
+                // Déterminer le numéro d'account
+                if ($accountsActifs === 0) {
+                    $accountType = 'account_1';
+                } elseif ($accountsActifs === 1) {
+                    $accountType = 'account_2';
+                }
+                
+                Log::channel('paiements')->info('🏷️ TYPE D\'ACCOUNT DÉTERMINÉ', [
+                    'account_type' => $accountType,
+                    'accounts_actifs' => $accountsActifs
+                ]);
+                
+            } elseif ($statut === 'complet' && $montantSaisi > 0) {
+                // Si c'est un paiement complet, vérifier s'il n'y a pas déjà d'autres paiements
+                if ($paiementsExistants->count() > 0) {
+                    Log::channel('paiements')->warning('⚠️ PAIEMENT PRINCIPAL DÉJÀ EXISTANT', [
+                        'paiements_existants' => $paiementsExistants->count(),
+                        'details' => $paiementsExistants->pluck('account_type')
+                    ]);
+                    return redirect()->back()
+                        ->with('error', '❌ Un paiement principal existe déjà pour cette inscription. Utilisez le statut "partiel" pour ajouter un account.')
+                        ->withInput();
+                }
+                $accountType = 'principal';
+            } elseif ($statut === 'annulé') {
+                $accountType = 'principal'; // Les annulations sont toujours de type principal
+            }
+
+            // ⭐⭐ CRÉATION DU PAIEMENT
+            DB::beginTransaction();
+            
+            try {
+                $paiement = new Paiement();
+                $paiement->inscription_id = $validated['inscription_id'];
+                $paiement->montant = $montantSaisi;
+                $paiement->mode = $validated['mode'];
+                $paiement->reference = $validated['reference'];
+                $paiement->statut = $validated['statut'];
+                $paiement->account_type = $accountType;
+                $paiement->type_paiement = 'manuel';
+                $paiement->date_paiement = $validated['date_paiement'];
+                
+                Log::channel('paiements')->info('💾 SAUVEGARDE PAIEMENT EN COURS', [
+                    'paiement_data' => [
+                        'inscription_id' => $paiement->inscription_id,
+                        'montant' => $paiement->montant,
+                        'mode' => $paiement->mode,
+                        'reference' => $paiement->reference,
+                        'statut' => $paiement->statut,
+                        'account_type' => $paiement->account_type
+                    ]
+                ]);
+
+                $paiement->save();
+
+                Log::channel('paiements')->info('✅ PAIEMENT ENREGISTRÉ', [
+                    'paiement_id' => $paiement->id,
+                    'inscription_id' => $paiement->inscription_id,
+                    'montant' => $paiement->montant,
+                    'mode' => $paiement->mode_label,
+                    'statut' => $paiement->statut_label,
+                    'account_type' => $paiement->account_type_label,
+                    'reference' => $paiement->reference,
+                    'date_paiement' => $paiement->date_paiement->format('d/m/Y')
+                ]);
+
+                // ⭐⭐ METTRE À JOUR LE STATUT DE PAIEMENT DE L'INSCRIPTION
+                if ($nouveauTotalPaye >= $montantTotalFormation) {
+                    $inscription->statut_paiement = 'complet';
+                    Log::channel('paiements')->info('💰 INSCRIPTION PAYÉE COMPLÈTEMENT', [
+                        'inscription_id' => $inscription->id,
+                        'total_paye' => $nouveauTotalPaye,
+                        'montant_total' => $montantTotalFormation
+                    ]);
+                } elseif ($nouveauTotalPaye > 0) {
+                    $inscription->statut_paiement = 'partiel';
+                    Log::channel('paiements')->info('💳 INSCRIPTION PAYÉE PARTIELLEMENT', [
+                        'inscription_id' => $inscription->id,
+                        'total_paye' => $nouveauTotalPaye,
+                        'montant_total' => $montantTotalFormation,
+                        'reste' => $montantTotalFormation - $nouveauTotalPaye
+                    ]);
+                } else {
+                    $inscription->statut_paiement = 'non_payé';
+                    Log::channel('paiements')->info('❌ INSCRIPTION NON PAYÉE', [
+                        'inscription_id' => $inscription->id,
+                        'total_paye' => $nouveauTotalPaye
+                    ]);
+                }
+                
+                $inscription->save();
+
+                // ⭐⭐ ENVOI EMAIL DE CONFIRMATION
+                if ($statut !== 'annulé' && $montantSaisi > 0) {
+                    try {
+                        // Charger les données nécessaires pour l'email
+                        $paiement->load('inscription');
+                        
+                        // Vérifier si la classe Mail existe
+                        if (class_exists(\App\Mail\ManualPaymentConfirmation::class)) {
+                            Mail::to($validated['user_email'])->send(new \App\Mail\ManualPaymentConfirmation($paiement));
+                            Log::channel('paiements')->info('📧 EMAIL DE CONFIRMATION ENVOYÉ', [
+                                'email' => $validated['user_email'],
+                                'paiement_id' => $paiement->id,
+                                'client' => $inscription->name
+                            ]);
+                        } else {
+                            Log::channel('paiements')->warning('⚠️ CLASSE ManualPaymentConfirmation NON TROUVÉE');
+                        }
+                    } catch (\Exception $e) {
+                        Log::channel('paiements')->error('❌ ERREUR ENVOI EMAIL', [
+                            'error' => $e->getMessage(),
+                            'email' => $validated['user_email'],
+                            'paiement_id' => $paiement->id
+                        ]);
+                        // Ne pas retourner d'erreur à l'utilisateur si l'email échoue
+                    }
+                } else {
+                    Log::channel('paiements')->info('📭 AUCUN EMAIL ENVOYÉ POUR PAIEMENT ANNULÉ OU MONTANT NUL');
+                }
+
+                DB::commit();
+
+                // Log de succès
+                Log::channel('paiements')->info('🎉 FIN - PAIEMENT ENREGISTRÉ AVEC SUCCÈS', [
+                    'paiement_id' => $paiement->id,
+                    'inscription_id' => $inscription->id,
+                    'formation' => $inscription->formation->titre,
+                    'montant_total_formation' => $montantTotalFormation,
+                    'total_paye' => $nouveauTotalPaye,
+                    'reste_a_payer' => max(0, $montantTotalFormation - $nouveauTotalPaye),
+                    'user_id' => Auth::id(),
+                    'timestamp' => now()->format('H:i:s')
+                ]);
+
+                return redirect()->route('allPayments')->with([
+                    'success' => '✅ Paiement enregistré avec succès!',
+                    'payment_id' => $paiement->id,
+                    'account_type' => $paiement->account_type_label
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                
+                Log::channel('paiements')->critical('💥 ERREUR TRANSACTION', [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                    'user_id' => Auth::id()
+                ]);
+                
+                throw $e;
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Récupération des erreurs de validation
+            $errors = $e->validator->errors()->all();
+            Log::channel('paiements')->error('❌ ERREUR VALIDATION', [
+                'errors' => $errors,
+                'user_id' => Auth::id(),
+                'data' => $request->except(['_token'])
+            ]);
+            
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->with('error', '❌ ' . implode('<br>❌ ', $errors))
+                ->withInput();
+                
+        } catch (\Exception $e) {
+            // Gestion des autres exceptions
+            Log::channel('paiements')->critical('💥 ERREUR SYSTÈME', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::id()
+                'user_id' => Auth::id(),
+                'ip' => $request->ip()
             ]);
             
-            throw $e;
+            return redirect()->back()
+                ->with('error', '💥 Erreur système: ' . $e->getMessage())
+                ->withInput();
         }
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Récupération des erreurs de validation
-        $errors = $e->validator->errors()->all();
-        Log::channel('paiements')->error('❌ ERREUR VALIDATION', [
-            'errors' => $errors,
-            'user_id' => Auth::id(),
-            'data' => $request->except(['_token'])
-        ]);
-        
-        return redirect()->back()
-            ->withErrors($e->validator)
-            ->with('error', '❌ ' . implode('<br>❌ ', $errors))
-            ->withInput();
-            
-    } catch (\Exception $e) {
-        // Gestion des autres exceptions
-        Log::channel('paiements')->critical('💥 ERREUR SYSTÈME', [
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTraceAsString(),
-            'user_id' => Auth::id(),
-            'ip' => $request->ip()
-        ]);
-        
-        return redirect()->back()
-            ->with('error', '💥 Erreur système: ' . $e->getMessage())
-            ->withInput();
     }
-}
 
     // public function storePayment(Request $request)
     // {
@@ -1545,46 +1605,46 @@ class AdminController extends Controller
     }
 
     public function fixInscriptionWithoutFormation($inscriptionId)
-{
-    $inscription = Inscription::find($inscriptionId);
-    
-    if (!$inscription) {
-        return redirect()->back()->with('error', 'Inscription introuvable');
-    }
-    
-    if (!$inscription->formation_id) {
-        // Trouver la formation par le titre
-        $formation = Formation::where('titre', $inscription->choixForm)->first();
+    {
+        $inscription = Inscription::find($inscriptionId);
         
-        if ($formation) {
-            $inscription->formation_id = $formation->id;
-            $inscription->save();
-            
-            Log::info('Inscription réparée', [
-                'inscription_id' => $inscriptionId,
-                'formation_id' => $formation->id,
-                'user_id' => Auth::id()
-            ]);
-            
-            return redirect()->back()->with('success', 'Inscription liée à la formation avec succès');
-        } else {
-            return redirect()->back()->with('error', 'Formation non trouvée pour ' . $inscription->choixForm);
+        if (!$inscription) {
+            return redirect()->back()->with('error', 'Inscription introuvable');
         }
+        
+        if (!$inscription->formation_id) {
+            // Trouver la formation par le titre
+            $formation = Formation::where('titre', $inscription->choixForm)->first();
+            
+            if ($formation) {
+                $inscription->formation_id = $formation->id;
+                $inscription->save();
+                
+                Log::info('Inscription réparée', [
+                    'inscription_id' => $inscriptionId,
+                    'formation_id' => $formation->id,
+                    'user_id' => Auth::id()
+                ]);
+                
+                return redirect()->back()->with('success', 'Inscription liée à la formation avec succès');
+            } else {
+                return redirect()->back()->with('error', 'Formation non trouvée pour ' . $inscription->choixForm);
+            }
+        }
+        
+        return redirect()->back()->with('info', 'L\'inscription est déjà liée à une formation');
     }
-    
-    return redirect()->back()->with('info', 'L\'inscription est déjà liée à une formation');
-}
 
-public function updatePaymentView($id)
-{
-    $paiement = Paiement::with('inscription')->find($id);
-    
-    if (!$paiement) {
-        return redirect()->route('allPayments')
-            ->with('error', 'Paiement introuvable');
+    public function updatePaymentView($id)
+    {
+        $paiement = Paiement::with('inscription')->find($id);
+        
+        if (!$paiement) {
+            return redirect()->route('allPayments')
+                ->with('error', 'Paiement introuvable');
+        }
+        
+        return view('admin.payments.editPayment', compact('paiement'));
     }
-    
-    return view('admin.payments.editPayment', compact('paiement'));
-}
 
 }
