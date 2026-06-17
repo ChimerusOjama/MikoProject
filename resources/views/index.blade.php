@@ -25,7 +25,9 @@
   <meta name="twitter:title" content="Formez-vous aux métiers d'avenir au Congo">
   <meta name="twitter:description" content="Certifications reconnues par l'État congolais | Formations finançables | 95% de satisfaction">
   <meta name="twitter:image" content="{{ asset('assets/imgs/twitter-accueil.jpg') }}">
-  
+  <meta name="twitter:site" content="@MikoFormation">
+  <meta name="twitter:creator" content="@MikoFormation">
+    
   <!-- Géolocalisation -->
   <meta name="geo.region" content="CG-BZV">
   <meta name="geo.placename" content="Brazzaville">
