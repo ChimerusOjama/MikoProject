@@ -33,6 +33,7 @@ class PawaPayService
                     'currency' => 'XAF',
                     'correspondent' => $operator,
                     'description' => $description,
+                    'custumerTimestamp' => now()->toIso8601String(),
                     'payer' => [
                         'type' => 'MSISDN',          // Requis pour spécifier le type d'identifiant
                         'address' => [
