@@ -26,7 +26,7 @@ class PawaPayService
         $operator = $this->detectOperator($formattedPhone);
 
         try {
-            // 2. Envoi de la requête structurée avec l'objet 'payer' requis
+            // 2. Envoi de la requête avec la structure exacte attendue pour le 'payer'
             $response = Http::withToken($this->token)
                 ->post($this->baseUrl . '/deposits', [
                     'depositId' => $depositId,
@@ -35,9 +35,8 @@ class PawaPayService
                     'correspondent' => $operator,
                     'description' => $description,
                     'payer' => [
-                        'address' => [
-                            'value' => $formattedPhone
-                        ]
+                        'type' => 'MSISDN',          // <-- AJOUTÉ : Spécifie que c'est un numéro de téléphone
+                        'address' => $formattedPhone // <-- CORRIGÉ : Directement la chaîne de caractères
                     ]
                 ]);
 
@@ -59,10 +58,8 @@ class PawaPayService
      */
     private function formatPhoneNumber(string $phone): string
     {
-        // Supprime les espaces, tirets et le "+"
         $cleaned = preg_replace('/[^0-9]/', '', $phone);
         
-        // Si l'étudiant a saisi son numéro au format local (ex: 068552497 ou 05xxx)
         if (str_starts_with($cleaned, '06') || str_starts_with($cleaned, '05')) {
             return '242' . $cleaned;
         }
@@ -75,12 +72,10 @@ class PawaPayService
      */
     private function detectOperator(string $phone): string
     {
-        // Un numéro congolais bien formaté commencera par 24206 pour MTN
         if (str_starts_with($phone, '24206')) {
             return 'MTN_CG'; 
         }
         
-        // Par défaut ou si 24205, on bascule sur Airtel
         return 'AIRTEL_CG';
     }
 }
