@@ -24,8 +24,12 @@ class PawaPayService
         $formattedPhone = $this->formatPhoneNumber($phone);
         $operator = $this->detectOperator($formattedPhone);
 
+        // On crée un relevé propre : sans accents, sans caractères spéciaux et max 15 caractères
+        // Exemple : "Inscription Miko" devient "Inscription Miko" -> coupé à "Inscription Mik"
+        $statementDescription = substr(preg_replace('/[^A-Za-z0-9 ]/', '', $description), 0, 15);
+
         try {
-            // Envoi de la requête avec l'imbrication complète et correcte
+            // Envoi de la requête complète avec toutes les exigences de PawaPay
             $response = Http::withToken($this->token)
                 ->post($this->baseUrl . '/deposits', [
                     'depositId' => $depositId,
@@ -33,11 +37,12 @@ class PawaPayService
                     'currency' => 'XAF',
                     'correspondent' => $operator,
                     'description' => $description,
+                    'statementDescription' => $statementDescription, // <-- AJOUTÉ ET SÉCURISÉ
                     'customerTimestamp' => now()->toIso8601String(),
                     'payer' => [
-                        'type' => 'MSISDN',          // Requis pour spécifier le type d'identifiant
+                        'type' => 'MSISDN',
                         'address' => [
-                            'value' => $formattedPhone // Requis pour encapsuler le numéro
+                            'value' => $formattedPhone
                         ]
                     ]
                 ]);
