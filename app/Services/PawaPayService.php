@@ -21,12 +21,11 @@ class PawaPayService
      */
     public function initiateDeposit(string $depositId, string $phone, int $amount, string $description)
     {
-        // 1. On formate le numéro au format international strict exigé par PawaPay (ex: 24206xxxxxxx)
         $formattedPhone = $this->formatPhoneNumber($phone);
         $operator = $this->detectOperator($formattedPhone);
 
         try {
-            // 2. Envoi de la requête avec la structure exacte attendue pour le 'payer'
+            // Envoi de la requête avec l'imbrication complète et correcte
             $response = Http::withToken($this->token)
                 ->post($this->baseUrl . '/deposits', [
                     'depositId' => $depositId,
@@ -35,8 +34,10 @@ class PawaPayService
                     'correspondent' => $operator,
                     'description' => $description,
                     'payer' => [
-                        'type' => 'MSISDN',          // <-- AJOUTÉ : Spécifie que c'est un numéro de téléphone
-                        'address' => $formattedPhone // <-- CORRIGÉ : Directement la chaîne de caractères
+                        'type' => 'MSISDN',          // Requis pour spécifier le type d'identifiant
+                        'address' => [
+                            'value' => $formattedPhone // Requis pour encapsuler le numéro
+                        ]
                     ]
                 ]);
 
