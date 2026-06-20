@@ -18,11 +18,12 @@ class Paiement extends Model
         'especes' => 'Espèces'
     ];
 
-    // Constantes pour les statuts
+    // Constantes pour les statuts (Mis à jour pour PawaPay)
     public const STATUTS = [
         'complet' => 'Complet',
         'partiel' => 'Partiel',
-        'annulé' => 'Annulé'
+        'annulé' => 'Annulé',
+        'en_attente' => 'En attente' // <-- AJOUTÉ
     ];
 
     // Constantes pour les types de compte
@@ -32,12 +33,14 @@ class Paiement extends Model
         'account_2' => 'Account 2'
     ];
 
-    // Constantes pour les types de paiement
+    // Constantes pour les types de paiement (Mis à jour pour PawaPay)
     public const PAYMENT_TYPES = [
         'stripe' => 'Stripe (en ligne)',
-        'manuel' => 'Manuel'
+        'manuel' => 'Manuel',
+        'pawapay' => 'PawaPay (Mobile Money)' // <-- AJOUTÉ
     ];
 
+    // Autoriser le Mass Assignment pour les nouvelles colonnes
     protected $fillable = [
         'inscription_id',
         'montant',
@@ -48,78 +51,23 @@ class Paiement extends Model
         'type_paiement',
         'date_paiement',
         'preuve_path',
-        'stripe_payment_id'
+        'stripe_payment_id',
+        'pawapay_payment_id', // <-- AJOUTÉ
+        'failure_code'        // <-- AJOUTÉ
     ];
 
     protected $casts = [
         'date_paiement' => 'datetime',
-        'montant' => 'integer'
     ];
 
-    // Relation avec l'inscription
+    // Relations
     public function inscription()
     {
         return $this->belongsTo(Inscription::class);
     }
 
-    // Événements du modèle pour le logging
-    protected static function booted()
-    {
-        static::creating(function ($paiement) {
-            Log::channel('paiements')->info('Création paiement en cours', [
-                'inscription_id' => $paiement->inscription_id,
-                'montant' => $paiement->montant,
-                'reference' => $paiement->reference,
-                'user_id' => auth()->id() ?? 'system'
-            ]);
-        });
-
-        static::created(function ($paiement) {
-            Log::channel('paiements')->info('Paiement créé avec succès', [
-                'paiement_id' => $paiement->id,
-                'inscription_id' => $paiement->inscription_id,
-                'montant' => $paiement->montant,
-                'statut' => $paiement->statut,
-                'account_type' => $paiement->account_type,
-                'user_id' => auth()->id() ?? 'system'
-            ]);
-        });
-
-        static::updating(function ($paiement) {
-            Log::channel('paiements')->info('Mise à jour paiement en cours', [
-                'paiement_id' => $paiement->id,
-                'old_data' => $paiement->getOriginal(),
-                'new_data' => $paiement->getAttributes(),
-                'user_id' => auth()->id() ?? 'system'
-            ]);
-        });
-
-        static::updated(function ($paiement) {
-            Log::channel('paiements')->info('Paiement mis à jour avec succès', [
-                'paiement_id' => $paiement->id,
-                'inscription_id' => $paiement->inscription_id,
-                'user_id' => auth()->id() ?? 'system'
-            ]);
-        });
-
-        static::deleting(function ($paiement) {
-            Log::channel('paiements')->warning('Suppression paiement en cours', [
-                'paiement_id' => $paiement->id,
-                'inscription_id' => $paiement->inscription_id,
-                'montant' => $paiement->montant,
-                'user_id' => auth()->id() ?? 'system'
-            ]);
-        });
-    }
-
-    // Accessor pour obtenir la date formatée
-    public function getFormattedDatePaiementAttribute()
-    {
-        return $this->date_paiement->format('d/m/Y H:i');
-    }
-
-    // Accessor pour obtenir le montant formaté
-    public function getFormattedMontantAttribute()
+    // Accessor pour le formatage du montant
+    public function getFormatMontantAttribute()
     {
         return number_format($this->montant, 0, ',', ' ') . ' FCFA';
     }
@@ -130,7 +78,7 @@ class Paiement extends Model
         return self::MODES[$this->mode] ?? $this->mode;
     }
 
-    // Accessor pour obtenir le label du statut
+    // Accessor pour obtenir le label du statut (Prendra en compte "En attente" automatiquement)
     public function getStatutLabelAttribute()
     {
         return self::STATUTS[$this->statut] ?? $this->statut;
@@ -142,7 +90,7 @@ class Paiement extends Model
         return self::ACCOUNT_TYPES[$this->account_type] ?? $this->account_type;
     }
 
-    // Accessor pour obtenir le label du type de paiement
+    // Accessor pour obtenir le label du type de paiement (Prendra en compte "PawaPay")
     public function getPaymentTypeLabelAttribute()
     {
         return self::PAYMENT_TYPES[$this->type_paiement] ?? $this->type_paiement;
@@ -164,9 +112,9 @@ class Paiement extends Model
     public static function logAction($action, $data)
     {
         Log::channel('paiements')->info($action, array_merge($data, [
-            'user_id' => auth()->id() ?? 'system',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent()
+            'user_id' => auth()->id() ?? 'Invité',
+            'ip' => request()->ip(),
+            'agent' => request()->userAgent()
         ]));
     }
 }

@@ -4,6 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirstController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\PawaPayController;
+
+use App\Services\PawaPayService;
+use App\Models\Paiement;
+use Illuminate\Support\Str;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -93,3 +99,48 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(
 
 // Route test (facultative)
 Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
+
+
+// Routes pour les Callbacks de PawaPay
+Route::post('/pawapay/callback-deposit', [PawaPayController::class, 'handleDepositCallback'])->name('pawapay.callback.deposit');
+Route::post('/pawapay/callback-payout', [PawaPayController::class, 'handlePayoutCallback'])->name('pawapay.callback.payout');
+Route::post('/pawapay/callback-refund', [PawaPayController::class, 'handleRefundCallback'])->name('pawapay.callback.refund');
+
+//Test route pour simuler un paiement PawaPay (à utiliser uniquement en environnement de développement)
+Route::get('/test-pawapay', function(PawaPayService $service) {
+    // 1. On simule un ID de transaction unique (UUID) obligatoire pour PawaPay
+    $depositId = (string) Str::uuid();
+
+    // 2. On crée d'abord le paiement "en attente" dans ta table PostgreSQL
+    // (Remplace inscription_id par un ID existant dans ta base pour éviter une erreur de clé étrangère)
+    $paiement = Paiement::create([
+        'inscription_id' => 1, 
+        'montant' => 5000,
+        'mode' => 'mobile money',
+        'reference' => $depositId, // Le depositId sert de référence unique
+        'statut' => 'en_attente',
+        'account_type' => 'principal',
+        'type_paiement' => 'pawapay',
+        'date_paiement' => now(),
+    ]);
+
+    // 3. On utilise un numéro de test Sandbox officiel de PawaPay
+    // Ce numéro simule un paiement instantané réussi au Congo
+    $phoneDestination = '061234567'; 
+
+    echo "Initialisation du paiement pour le numéro : " . $phoneDestination . "<br>";
+    
+    // 4. Appel du service
+    $resultat = $service->initiateDeposit(
+        $depositId, 
+        $phoneDestination, 
+        5000, 
+        "Inscription test cours Miko"
+    );
+
+    if ($resultat) {
+        return "Requête acceptée par PawaPay ! En attente du Webhook... Check tes logs.";
+    } else {
+        return "Échec de communication avec l'API PawaPay. Vérifie ton TOKEN dans le .env";
+    }
+});

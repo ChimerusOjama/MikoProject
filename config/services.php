@@ -40,4 +40,10 @@ return [
         ],
     ],
 
+    'pawapay' => [
+        'env' => env('PAWAPAY_ENV', 'sandbox'),
+        'base_url' => env('PAWAPAY_BASE_URL', 'https://api.sandbox.pawapay.cloud'),
+        'token' => env('PAWAPAY_TOKEN'),
+    ],
+
 ];
