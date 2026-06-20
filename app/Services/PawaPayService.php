@@ -21,15 +21,24 @@ class PawaPayService
      */
     public function initiateDeposit(string $depositId, string $phone, int $amount, string $description)
     {
+        // 1. On formate le numéro au format international strict exigé par PawaPay (ex: 24206xxxxxxx)
+        $formattedPhone = $this->formatPhoneNumber($phone);
+        $operator = $this->detectOperator($formattedPhone);
+
         try {
+            // 2. Envoi de la requête structurée avec l'objet 'payer' requis
             $response = Http::withToken($this->token)
                 ->post($this->baseUrl . '/deposits', [
                     'depositId' => $depositId,
                     'amount' => (string) $amount,
                     'currency' => 'XAF',
-                    'phone' => $phone,
-                    'correspondent' => $this->detectOperator($phone),
-                    'description' => $description
+                    'correspondent' => $operator,
+                    'description' => $description,
+                    'payer' => [
+                        'address' => [
+                            'value' => $formattedPhone
+                        ]
+                    ]
                 ]);
 
             if ($response->successful()) {
@@ -46,14 +55,32 @@ class PawaPayService
     }
 
     /**
-     * Détermine automatiquement l'opérateur (Exemple pour le Congo)
+     * Nettoie et formate le numéro au format international (Ex: 242068552497)
+     */
+    private function formatPhoneNumber(string $phone): string
+    {
+        // Supprime les espaces, tirets et le "+"
+        $cleaned = preg_replace('/[^0-9]/', '', $phone);
+        
+        // Si l'étudiant a saisi son numéro au format local (ex: 068552497 ou 05xxx)
+        if (str_starts_with($cleaned, '06') || str_starts_with($cleaned, '05')) {
+            return '242' . $cleaned;
+        }
+        
+        return $cleaned;
+    }
+
+    /**
+     * Détermine l'opérateur en fonction du numéro formaté
      */
     private function detectOperator(string $phone): string
     {
-        // Nettoyage rapide du numéro si nécessaire
-        if (str_starts_with($phone, '06') || str_starts_with($phone, '+24206') || str_starts_with($phone, '24206')) {
+        // Un numéro congolais bien formaté commencera par 24206 pour MTN
+        if (str_starts_with($phone, '24206')) {
             return 'MTN_CG'; 
         }
+        
+        // Par défaut ou si 24205, on bascule sur Airtel
         return 'AIRTEL_CG';
     }
 }
