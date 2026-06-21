@@ -19,6 +19,9 @@ use App\Mail\ReservationAnnulee;
 use PhpParser\Node\Stmt\If_;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use App\Services\PawaPayService;
+use Illuminate\Support\Str;
+
 class FirstController extends Controller
 {
 
@@ -393,9 +396,38 @@ class FirstController extends Controller
         return view('uAdmin.choose-method', compact('inscription', 'methodesPaiement'));
     }
 
-    public function processPayment(Request $request, $inscriptionId){
+    // public function processPayment(Request $request, $inscriptionId){
+    //     $request->validate([
+    //         'methode_paiement' => 'required|in:stripe,momo,airtel_money,virement'
+    //     ]);
+
+    //     $methode = $request->methode_paiement;
+
+    //     Log::info('🔄 PROCESS PAYMENT DÉMARRÉ', [
+    //         'methode' => $methode,
+    //         'inscription_id' => $inscriptionId,
+    //         'user_id' => Auth::id()
+    //     ]);
+
+    //     switch ($methode) {
+    //         case 'stripe':
+    //             return $this->checkout($inscriptionId); // → Appel de checkout()
+                
+    //         case 'momo':
+    //         case 'airtel_money':
+    //         case 'virement':
+    //             return redirect()->route('uFormation')->with('info', 'Cette méthode de paiement sera bientôt disponible.');
+                
+    //         default:
+    //             return redirect()->back()->with('error', 'Méthode de paiement non reconnue.');
+    //     }
+    // }
+
+    public function processPayment(Request $request, $inscriptionId, PawaPayService $pawaPayService){
+        // Ajout de la validation conditionnelle pour le numéro de téléphone
         $request->validate([
-            'methode_paiement' => 'required|in:stripe,momo,airtel_money,virement'
+            'methode_paiement' => 'required|in:stripe,momo,airtel_money,virement',
+            'phone_number' => 'nullable|string|min:8'
         ]);
 
         $methode = $request->methode_paiement;
@@ -408,16 +440,88 @@ class FirstController extends Controller
 
         switch ($methode) {
             case 'stripe':
-                return $this->checkout($inscriptionId); // → Appel de checkout()
+                return $this->checkout($inscriptionId); 
                 
             case 'momo':
             case 'airtel_money':
+                // Redirection vers notre nouvelle logique PawaPay
+                return $this->processPawaPay($request, $inscriptionId, $pawaPayService);
+                
             case 'virement':
                 return redirect()->route('uFormation')->with('info', 'Cette méthode de paiement sera bientôt disponible.');
                 
             default:
                 return redirect()->back()->with('error', 'Méthode de paiement non reconnue.');
         }
+    }
+
+    /**
+     * Logique dédiée au traitement PawaPay (Mobile Money)
+     */
+    private function processPawaPay(Request $request, $inscriptionId, $pawaPayService)
+    {
+        // 1. Validation du numéro de téléphone
+        if (!$request->phone_number) {
+            return redirect()->back()->with('error', 'Le numéro de téléphone est obligatoire pour le paiement Mobile Money.');
+        }
+
+        $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
+
+        // Vérifications de sécurité (similaires à Stripe)
+        if ($inscription->status !== 'Accepté') {
+            return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est plus valide.');
+        }
+        if ($inscription->statut_paiement === 'complet') {
+            return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
+        }
+
+        $montant = $inscription->formation->prix;
+        $phone = $request->phone_number;
+        $depositId = (string) Str::uuid(); // Référence unique pour PawaPay
+
+        // 2. Création du paiement "En attente" dans la base de données
+        $paiement = Paiement::create([
+            'inscription_id' => $inscription->id,
+            'montant' => $montant,
+            'mode' => 'mobile money',
+            'reference' => $depositId,
+            'statut' => 'en_attente',
+            'type_paiement' => 'pawapay',
+            'date_paiement' => now(),
+        ]);
+
+        // 3. Appel de l'API PawaPay
+        $response = $pawaPayService->initiateDeposit(
+            $depositId,
+            $phone,
+            $montant,
+            "Miko Insc " . $inscription->id
+        );
+
+        // 4. Redirection selon la réponse de l'API
+        if ($response) {
+            // Succès de l'API : On redirige vers la salle d'attente
+            return redirect()->route('payment.awaiting', ['reference' => $depositId]);
+        } else {
+            // Échec de l'API (Numéro invalide, etc.)
+            $paiement->update(['statut' => 'annulé', 'failure_code' => 'API_INIT_FAILED']);
+            return redirect()->route('payment.cancel')->with('error', 'Impossible d\'initier le paiement Mobile Money. Veuillez vérifier votre numéro.');
+        }
+    }
+
+    /**
+     * Nouvelle méthode pour afficher la vue success.blade.php après un paiement asynchrone
+     */
+    public function showPaymentSuccess($inscriptionId)
+    {
+        $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
+        
+        // Sécurité : on ne montre la page de succès que si c'est vraiment payé
+        if ($inscription->statut_paiement !== 'complet') {
+            return redirect()->route('uFormation');
+        }
+
+        return view('success', compact('inscription')); // Ajuste le nom de la vue si elle est dans un sous-dossier, ex: 'payment.success'
     }
 
     public function checkout($inscriptionId)
