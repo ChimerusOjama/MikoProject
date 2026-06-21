@@ -147,7 +147,8 @@ Route::post('/pawapay/callback-refund', [PawaPayController::class, 'handleRefund
 
 // La route pour afficher la salle d'attente
 Route::get('/payment/awaiting/{reference}', function ($reference) {
-    return view('payment-awaiting', ['reference' => $reference]);
+    // return view('payment-awaiting', ['reference' => $reference]);
+    return view('payment.payment-awaiting', ['reference' => $reference]);
 })->name('payment.awaiting');
 
 // La nouvelle route de succès rattachée au FirstController
