@@ -116,15 +116,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Gestion des boutons de navigation
-    document.querySelectorAll('.btn-primary').forEach(button => {
-    button.addEventListener('click', function() {
-        this.innerHTML = '<i class="fas fa-sync fa-spin"></i> Chargement...';
-        setTimeout(() => {
-        // Simulation de navigation
-        window.location.href = 'formation.html';
-        }, 1000);
-    });
-    });
+    // document.querySelectorAll('.btn-primary').forEach(button => {
+    // button.addEventListener('click', function() {
+    //     this.innerHTML = '<i class="fas fa-sync fa-spin"></i> Chargement...';
+    //     setTimeout(() => {
+    //     // Simulation de navigation
+    //     window.location.href = 'formation.html';
+    //     }, 1000);
+    // });
+    // });
 
     // Animation des nouvelles cartes
     setTimeout(() => {
