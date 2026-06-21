@@ -372,16 +372,16 @@ class FirstController extends Controller
                 'nom' => 'Mobile Money (Momo)',
                 'description' => 'Paiement via votre compte Mobile Money',
                 'icone' => 'fa-mobile-alt',
-                'disponible' => false,
-                'message' => 'Bientôt disponible'
+                'disponible' => true,
+                // 'message' => 'Bientôt disponible'
             ],
             [
                 'id' => 'airtel_money',
                 'nom' => 'Airtel Money',
                 'description' => 'Paiement via votre compte Airtel Money',
                 'icone' => 'fa-wallet',
-                'disponible' => false,
-                'message' => 'Bientôt disponible'
+                'disponible' => true,
+                // 'message' => 'Bientôt disponible'
             ],
             [
                 'id' => 'virement',
