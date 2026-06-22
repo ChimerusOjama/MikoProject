@@ -50,7 +50,7 @@
                   <td>{{ $oneInscShow->choixForm }}</td>
                   <!-- <td>{{ $oneInscShow->montant }}</td> -->
                    <td>{{ $oneInscShow->formation->prix }} FCFA</td>
-                  <td>{{ $oneInscShow->created_at->format('d/m/Y') }}</td>
+                  <td>{{ $oneInscShow->created_at->format('d/m/Y à H:i') }}</td>
                   <td><span class="status-badge {{ $statusClass }}">{{ $oneInscShow->status }}</span></td>
                   <td class="actions-cell">
                     @if($oneInscShow->status === 'En attente')

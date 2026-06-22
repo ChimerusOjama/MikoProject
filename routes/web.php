@@ -92,6 +92,17 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(
     Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
     Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
     Route::post('/Mise_a_jour/paiement={id}', 'updatePayment')->name('updatePayment');
+
+    // Paiements PawaPay
+    Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
+    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
+    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
+    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
+    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');  
+    Route::get('/user/payment/success/{inscriptionId}', 'showPaymentSuccess')->name('payment.success.view');
+    Route::get('/payment/awaiting/{reference}', 'paymentAwaiting')->name('payment.awaiting');
+    Route::get('/payment/check-status/{reference}', 'checkPaymentStatus')->name('payment.check-status');
     
     // Logout
     Route::post('/logout', 'logout')->name('aLogout');

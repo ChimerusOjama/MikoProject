@@ -340,6 +340,62 @@ class FirstController extends Controller
 
     // Stripe
 
+    // public function showPaymentMethods($inscriptionId){
+    //     if (!Auth::check()) {
+    //         return redirect()->route('login');
+    //     }
+
+    //     $inscription = Inscription::with('formation')
+    //         ->where('id', $inscriptionId)
+    //         ->where('user_id', Auth::id())
+    //         ->firstOrFail();
+
+    //     // Vérifications de sécurité
+    //     if ($inscription->status !== 'Accepté') {
+    //         return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
+    //     }
+
+    //     if ($inscription->statut_paiement === 'complet') {
+    //         return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
+    //     }
+
+    //     $methodesPaiement = [
+    //         [
+    //             'id' => 'stripe',
+    //             'nom' => 'Carte Bancaire',
+    //             'description' => 'Paiement sécurisé par carte Visa/Mastercard',
+    //             'icone' => 'fa-credit-card',
+    //             'disponible' => true
+    //         ],
+    //         [
+    //             'id' => 'momo', 
+    //             'nom' => 'Mobile Money (Momo)',
+    //             'description' => 'Paiement via votre compte Mobile Money',
+    //             'icone' => 'fa-mobile-alt',
+    //             'disponible' => true,
+    //             // 'message' => 'Bientôt disponible'
+    //         ],
+    //         [
+    //             'id' => 'airtel_money',
+    //             'nom' => 'Airtel Money',
+    //             'description' => 'Paiement via votre compte Airtel Money',
+    //             'icone' => 'fa-wallet',
+    //             'disponible' => true,
+    //             // 'message' => 'Bientôt disponible'
+    //         ],
+    //         [
+    //             'id' => 'virement',
+    //             'nom' => 'Virement Bancaire',
+    //             'description' => 'Transfert bancaire traditionnel',
+    //             'icone' => 'fa-university',
+    //             'disponible' => false,
+    //             'message' => 'Bientôt disponible'
+    //         ]
+    //     ];
+
+    //     return view('uAdmin.choose-method', compact('inscription', 'methodesPaiement'));
+    // }
+
     public function showPaymentMethods($inscriptionId){
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -350,7 +406,6 @@ class FirstController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Vérifications de sécurité
         if ($inscription->status !== 'Accepté') {
             return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
         }
@@ -358,6 +413,22 @@ class FirstController extends Controller
         if ($inscription->statut_paiement === 'complet') {
             return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
         }
+
+        // --- NOUVEAU : Calcul des tranches ---
+        $prixTotal = $inscription->formation->prix;
+        $montantDejaPaye = Paiement::where('inscription_id', $inscription->id)
+            ->where('statut', 'complet')
+            ->sum('montant');
+        $resteAPayer = $prixTotal - $montantDejaPaye;
+        $nombreDeTranchesPayees = Paiement::where('inscription_id', $inscription->id)
+            ->where('statut', 'complet')
+            ->count();
+
+        // Bloquer l'accès si la limite des 2 tranches est atteinte
+        if ($nombreDeTranchesPayees >= 2 && $resteAPayer > 0) {
+            return redirect()->route('uFormation')->with('error', 'Vous avez atteint la limite de 2 tranches de paiement. Veuillez contacter le support.');
+        }
+        // -------------------------------------
 
         $methodesPaiement = [
             [
@@ -393,7 +464,14 @@ class FirstController extends Controller
             ]
         ];
 
-        return view('uAdmin.choose-method', compact('inscription', 'methodesPaiement'));
+        // On passe les nouvelles variables à la vue
+        return view('uAdmin.choose-method', compact(
+            'inscription', 
+            'methodesPaiement', 
+            'prixTotal', 
+            'montantDejaPaye', 
+            'resteAPayer'
+        ));
     }
 
     // public function processPayment(Request $request, $inscriptionId){
@@ -445,7 +523,7 @@ class FirstController extends Controller
             case 'momo':
             case 'airtel_money':
                 // Redirection vers notre nouvelle logique PawaPay
-                return $this->processPawaPay($request, $inscriptionId, $pawaPayService);
+                return $this->processPawaPay($request, $inscriptionId, $pawaPayService, $methode);
                 
             case 'virement':
                 return redirect()->route('uFormation')->with('info', 'Cette méthode de paiement sera bientôt disponible.');
@@ -455,63 +533,142 @@ class FirstController extends Controller
         }
     }
 
-    /**
-     * Logique dédiée au traitement PawaPay (Mobile Money)
-     */
-    private function processPawaPay(Request $request, $inscriptionId, $pawaPayService)
+    // Pawapay
+
+    // private function processPawaPay(Request $request, $inscriptionId, $pawaPayService, $methode)
+    // {
+    //     // 1. Validation du numéro de téléphone
+    //     if (!$request->phone_number) {
+    //         return redirect()->back()->with('error', 'Le numéro de téléphone est obligatoire pour le paiement Mobile Money.');
+    //     }
+
+    //     $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
+
+    //     // Vérifications de sécurité (similaires à Stripe)
+    //     if ($inscription->status !== 'Accepté') {
+    //         return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est plus valide.');
+    //     }
+    //     if ($inscription->statut_paiement === 'complet') {
+    //         return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
+    //     }
+
+    //     $montant = $inscription->formation->prix;
+    //     $phone = $request->phone_number;
+    //     $depositId = (string) Str::uuid(); // Référence unique pour PawaPay
+
+    //     // 2. Création du paiement "En attente" dans la base de données
+    //     $paiement = Paiement::create([
+    //         'inscription_id' => $inscription->id,
+    //         'montant' => $montant,
+    //         'mode' => 'mobile money',
+    //         'reference' => $depositId,
+    //         'statut' => 'en_attente',
+    //         'type_paiement' => 'pawapay',
+    //         'date_paiement' => now(),
+    //     ]);
+
+    //     // 3. Appel de l'API PawaPay
+    //     $response = $pawaPayService->initiateDeposit(
+    //         $depositId,
+    //         $phone,
+    //         $montant,
+    //         "Miko Insc " . $inscription->id
+    //     );
+
+    //     // 4. Redirection selon la réponse de l'API
+    //     if ($response) {
+    //         // Succès de l'API : On redirige vers la salle d'attente
+    //         return redirect()->route('payment.awaiting', ['reference' => $depositId]);
+    //     } else {
+    //         // Échec de l'API (Numéro invalide, etc.)
+    //         $paiement->update(['statut' => 'annulé', 'failure_code' => 'API_INIT_FAILED']);
+    //         return redirect()->route('payment.cancel')->with('error', 'Impossible d\'initier le paiement Mobile Money. Veuillez vérifier votre numéro.');
+    //     }
+    // }
+
+    private function processPawaPay(Request $request, $inscriptionId, $pawaPayService, $methode)
     {
-        // 1. Validation du numéro de téléphone
-        if (!$request->phone_number) {
-            return redirect()->back()->with('error', 'Le numéro de téléphone est obligatoire pour le paiement Mobile Money.');
-        }
+        // 1. Validation de l'appartenance de l'inscription (Sécurité)
+        $inscription = Inscription::with('formation')
+            ->where('id', $inscriptionId)
+            ->where('user_id', Auth::id()) // STRICT : Doit appartenir à l'utilisateur connecté
+            ->firstOrFail();
 
-        $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
-
-        // Vérifications de sécurité (similaires à Stripe)
+        // 2. Vérification de l'état général
         if ($inscription->status !== 'Accepté') {
             return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est plus valide.');
         }
         if ($inscription->statut_paiement === 'complet') {
-            return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été payée.');
+            return redirect()->route('uFormation')->with('info', 'Cette formation a déjà été intégralement payée.');
         }
 
-        $montant = $inscription->formation->prix;
-        $phone = $request->phone_number;
-        $depositId = (string) Str::uuid(); // Référence unique pour PawaPay
+        // 3. Calcul de la règle des tranches
+        $prixTotal = $inscription->formation->prix;
+        $montantDejaPaye = Paiement::where('inscription_id', $inscription->id)
+            ->where('statut', 'complet')
+            ->sum('montant');
+        $resteAPayer = $prixTotal - $montantDejaPaye;
+        $nombreDeTranchesPayees = Paiement::where('inscription_id', $inscription->id)
+            ->where('statut', 'complet')
+            ->count();
 
-        // 2. Création du paiement "En attente" dans la base de données
+        // Limite à 2 tranches maximum
+        if ($nombreDeTranchesPayees >= 2 && $resteAPayer > 0) {
+            Log::warning('Tentative de paiement : Limite de tranches atteinte', ['inscription_id' => $inscription->id]);
+            return redirect()->back()->with('error', 'Vous avez déjà utilisé vos 2 tranches de paiement. Veuillez contacter le support.');
+        }
+
+        // Récupération du montant saisi par l'utilisateur (ou le reste à payer par défaut)
+        $montantSaisi = $request->input('montant', $resteAPayer);
+
+        // Validation du montant
+        if ($montantSaisi < 5000 && $resteAPayer >= 5000) {
+            return redirect()->back()->with('error', 'Le montant minimum par tranche est de 5 000 FCFA.');
+        }
+        if ($montantSaisi > $resteAPayer) {
+            return redirect()->back()->with('error', 'Le montant saisi (' . $montantSaisi . ' FCFA) dépasse le reste à payer (' . $resteAPayer . ' FCFA).');
+        }
+
+        // 4. Initialisation PawaPay
+        $phone = $request->phone_number;
+        $depositId = (string) Str::uuid(); 
+        
+        // Nom exact de l'opérateur
+        $nomOperateur = $methode === 'momo' ? 'MTN Mobile Money' : 'Airtel Money';
+
+        // Création de l'empreinte en base (avec l'heure exacte générée par now())
         $paiement = Paiement::create([
             'inscription_id' => $inscription->id,
-            'montant' => $montant,
-            'mode' => 'mobile money',
+            'montant' => $montantSaisi,
+            'mode' => $nomOperateur, // Enregistre l'opérateur spécifique
             'reference' => $depositId,
             'statut' => 'en_attente',
             'type_paiement' => 'pawapay',
-            'date_paiement' => now(),
+            'date_paiement' => now(), // now() enregistre YYYY-MM-DD HH:MM:SS
         ]);
 
-        // 3. Appel de l'API PawaPay
+        Log::info('Initiation de paiement PawaPay (Tranche ' . ($nombreDeTranchesPayees + 1) . ')', [
+            'user_id' => Auth::id(),
+            'inscription_id' => $inscription->id,
+            'montant' => $montantSaisi,
+            'operateur' => $nomOperateur
+        ]);
+
         $response = $pawaPayService->initiateDeposit(
             $depositId,
             $phone,
-            $montant,
+            $montantSaisi,
             "Miko Insc " . $inscription->id
         );
 
-        // 4. Redirection selon la réponse de l'API
         if ($response) {
-            // Succès de l'API : On redirige vers la salle d'attente
             return redirect()->route('payment.awaiting', ['reference' => $depositId]);
         } else {
-            // Échec de l'API (Numéro invalide, etc.)
             $paiement->update(['statut' => 'annulé', 'failure_code' => 'API_INIT_FAILED']);
-            return redirect()->route('payment.cancel')->with('error', 'Impossible d\'initier le paiement Mobile Money. Veuillez vérifier votre numéro.');
+            return redirect()->route('payment.cancel')->with('error', 'Impossible d\'initier le paiement. Vérifiez votre numéro.');
         }
     }
 
-    /**
-     * Nouvelle méthode pour afficher la vue success.blade.php après un paiement asynchrone
-     */
     public function showPaymentSuccess($inscriptionId)
     {
         $inscription = Inscription::with('formation')->findOrFail($inscriptionId);
@@ -523,6 +680,36 @@ class FirstController extends Controller
 
         return view('success', compact('inscription')); // Ajuste le nom de la vue si elle est dans un sous-dossier, ex: 'payment.success'
     }
+
+    public function paymentAwaiting($reference)
+    {
+        // On s'assure que le paiement appartient bien à l'utilisateur connecté via la relation Inscription
+        $paiement = Paiement::where('reference', $reference)
+            ->whereHas('inscription', function($query) {
+                $query->where('user_id', Auth::id());
+            })->firstOrFail();
+
+        return view('payment.payment-awaiting', ['reference' => $reference]);
+    }
+
+    public function checkPaymentStatus($reference)
+    {
+        $paiement = Paiement::where('reference', $reference)
+            ->whereHas('inscription', function($query) {
+                $query->where('user_id', Auth::id());
+            })->first();
+        
+        if (!$paiement) {
+            return response()->json(['statut' => 'introuvable'], 404);
+        }
+        
+        return response()->json([
+            'statut' => $paiement->statut,
+            'inscription_id' => $paiement->inscription_id
+        ]);
+    }
+
+    // Stripe
 
     public function checkout($inscriptionId)
     {
