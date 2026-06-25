@@ -36,58 +36,55 @@
               </thead>
               <tbody>
                 @foreach($inscShow as $oneInscShow)
-                @php
-                    $statusClass = '';
-                    if ($oneInscShow->status === 'En attente') {
-                        $statusClass = 'status-pending';
-                    } elseif ($oneInscShow->status === 'Accepté') {
-                        $statusClass = 'status-confirmed';
-                    } elseif ($oneInscShow->status === 'Payé') {
-                        $statusClass = 'status-completed';
-                    }
-                @endphp
-                <tr>
-                  <td>{{ $oneInscShow->choixForm }}</td>
-                  <!-- <td>{{ $oneInscShow->montant }}</td> -->
-                   <td>{{ $oneInscShow->formation->prix }} FCFA</td>
-                  <td>{{ $oneInscShow->created_at->format('d/m/Y à H:i') }}</td>
-                  <td><span class="status-badge {{ $statusClass }}">{{ $oneInscShow->status }}</span></td>
-                  <td class="actions-cell">
-                    @if($oneInscShow->status === 'En attente')
-                      <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
-                          @csrf
-                          @method('POST')
-                          <button type="submit" class="btn-icon danger" title="Annuler">
-                            <i class="fas fa-times-circle"></i>
-                          </button>
-                      </form>
-                    @elseif($oneInscShow->status === 'Accepté')
-                      <!-- Actions pour "Accepté" -->
-                      <!-- <a href="{{ route('checkout', ['inscriptionId' => $oneInscShow->id]) }}" 
-                        class="btn-icon success" 
-                        title="Effectuer le paiement">
-                          <i class="fas fa-money-bill"></i>
-                      </a> -->
-                      <a href="{{ route('payment.methods', ['inscriptionId' => $oneInscShow->id]) }}" 
+                  @php
+                      $statusClass = '';
+                      if ($oneInscShow->status === 'En attente') {
+                          $statusClass = 'status-pending';
+                      } elseif ($oneInscShow->status === 'Accepté') {
+                          $statusClass = 'status-confirmed';
+                      } elseif ($oneInscShow->status === 'Payé') {
+                          $statusClass = 'status-completed';
+                      }
+                  @endphp
+                  <tr>
+                    <td>{{ $oneInscShow->choixForm }}</td>
+                    <!-- <td>{{ $oneInscShow->montant }}</td> -->
+                    <td>{{ $oneInscShow->formation->prix }} FCFA</td>
+                    <td>{{ $oneInscShow->created_at->format('d/m/Y à H:i') }}</td>
+                    <td><span class="status-badge {{ $statusClass }}">{{ $oneInscShow->status }}</span></td>
+                    <td class="actions-cell">
+                      @if($oneInscShow->status === 'En attente')
+                        <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('POST')
+                            <button type="submit" class="btn-icon danger" title="Annuler">
+                              <i class="fas fa-times-circle"></i>
+                            </button>
+                        </form>
+                      @elseif(($oneInscShow->status === 'Accepté' || $oneInscShow->status === 'Payé') && $oneInscShow->statut_paiement !== 'complet')
+                      {{-- <a href="{{ route('payment.methods', ['inscriptionId' => $oneInscShow->id]) }}" 
                         class="btn-icon success" 
                         title="Choisir le moyen de paiement">
                           <i class="fas fa-credit-card"></i>
-                      </a>
-                      <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
-                          @csrf
-                          @method('POST')
-                          <button type="submit" class="btn-icon danger" title="Annuler">
-                            <i class="fas fa-times-circle"></i>
-                          </button>
-                      </form>
-                    @elseif($oneInscShow->status === 'Payé')
-                      <!-- Actions pour "Payé" -->
-                      <button class="btn-icon" title="Télécharger l'attestation">
-                        <i class="fas fa-file-download"></i>
-                      </button>
-                    @endif
-                  </td>
-                </tr>
+                      </a> --}}
+                        <a href="{{ route('payment.methods', $oneInscShow->id) }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-credit-card"></i> Payer
+                        </a>
+                        <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('POST')
+                            <button type="submit" class="btn-icon danger" title="Annuler">
+                              <i class="fas fa-times-circle"></i>
+                            </button>
+                        </form>
+                      @elseif($oneInscShow->status === 'Payé')
+                        <!-- Actions pour "Payé" -->
+                        <button class="btn-icon" title="Télécharger l'attestation">
+                          <i class="fas fa-file-download"></i>
+                        </button>
+                      @endif
+                    </td>
+                  </tr>
                 @endforeach
               </tbody>
             </table>

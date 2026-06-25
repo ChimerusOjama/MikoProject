@@ -125,6 +125,22 @@
         </div>
       </div>
     </div>
+
+    <div class="container-fluid flash-messages" style="padding: 15px 25px 0 25px;">
+        @if(session('error'))
+            <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-left: 5px solid #dc3545;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>{{ session('error') }}</div>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-left: 5px solid #28a745;">
+                <i class="fas fa-check-circle"></i>
+                <div>{{ session('success') }}</div>
+            </div>
+        @endif
+    </div>
     
     <!-- Content -->
     <div class="content">
