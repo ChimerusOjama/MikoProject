@@ -286,7 +286,7 @@ class FirstController extends Controller
     }
 
     public function afficherConfirmation($id){
-        $route = route('annuler_reservation', ['id' => $id]);
+        $route = route('annuler.inscription', ['id' => $id]);
         return redirect()->back()->with([
             'message' => 'Souhaitez-vous réellement annuler votre demande ?',
             'type' => 'info',

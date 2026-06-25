@@ -164,3 +164,30 @@ Route::get('/payment/awaiting/{reference}', function ($reference) {
 
 // La nouvelle route de succès rattachée au FirstController
 Route::get('/user/payment/success/{inscriptionId}', [FirstController::class, 'showPaymentSuccess'])->name('payment.success.view');
+
+use App\Models\Inscription;
+use Illuminate\Support\Facades\DB;
+
+// 🔍 ROUTE TEMPORAIRE D'AUDIT (À supprimer après vérification)
+Route::get('/audit-inscriptions-miko', function () {
+    try {
+        // Regroupe et compte les inscriptions par statut global
+        $statuts_globaux = Inscription::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->get();
+
+        // Regroupe et compte par statut de paiement
+        $statuts_paiements = Inscription::select('statut_paiement', DB::raw('count(*) as total'))
+            ->groupBy('statut_paiement')
+            ->get();
+
+        return response()->json([
+            'message' => 'Audit de la base de données de production',
+            'statuts_dossiers' => $statuts_globaux,
+            'statuts_financiers' => $statuts_paiements
+        ], 200, [], JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        return "Erreur de lecture : " . $e->getMessage();
+    }
+});
