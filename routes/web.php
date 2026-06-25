@@ -42,13 +42,25 @@ Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(Fi
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
 
-    //payement routes
+    //choix payement
     Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
+
+    //Paiements Stripe
+    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
+    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
+    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
+    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
+    Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');
+    
+    // Paiements PawaPay
     Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
     Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
     Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
     Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
     Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');  
+    Route::get('/user/payment/success/{inscriptionId}', 'showPaymentSuccess')->name('payment.success.view');
+    Route::get('/payment/awaiting/{reference}', 'paymentAwaiting')->name('payment.awaiting');
+    Route::get('/payment/check-status/{reference}', 'checkPaymentStatus')->name('payment.check-status');
     
     //logout
     Route::post('/logout-user', 'uLogout')->name('logout-user');
@@ -92,17 +104,6 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(
     Route::get('/Supprimer_paiement/paiement={id}', 'supPayment')->name('supPayment');
     Route::get('/Modifier_paiement/paiement={id}', 'updatePaymentView')->name('updatePaymentView');
     Route::post('/Mise_a_jour/paiement={id}', 'updatePayment')->name('updatePayment');
-
-    // Paiements PawaPay
-    Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
-    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
-    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
-    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
-    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
-    Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');  
-    Route::get('/user/payment/success/{inscriptionId}', 'showPaymentSuccess')->name('payment.success.view');
-    Route::get('/payment/awaiting/{reference}', 'paymentAwaiting')->name('payment.awaiting');
-    Route::get('/payment/check-status/{reference}', 'checkPaymentStatus')->name('payment.check-status');
     
     // Logout
     Route::post('/logout', 'logout')->name('aLogout');
@@ -113,9 +114,9 @@ Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
 
 
 // Routes pour les Callbacks de PawaPay
-Route::post('/pawapay/callback-deposit', [PawaPayController::class, 'handleDepositCallback'])->name('pawapay.callback.deposit');
-Route::post('/pawapay/callback-payout', [PawaPayController::class, 'handlePayoutCallback'])->name('pawapay.callback.payout');
-Route::post('/pawapay/callback-refund', [PawaPayController::class, 'handleRefundCallback'])->name('pawapay.callback.refund');
+// Route::post('/pawapay/callback-deposit', [PawaPayController::class, 'handleDepositCallback'])->name('pawapay.callback.deposit');
+// Route::post('/pawapay/callback-payout', [PawaPayController::class, 'handlePayoutCallback'])->name('pawapay.callback.payout');
+// Route::post('/pawapay/callback-refund', [PawaPayController::class, 'handleRefundCallback'])->name('pawapay.callback.refund');
 
 //Test route pour simuler un paiement PawaPay (à utiliser uniquement en environnement de développement)
 // Route::get('/test-pawapay', function(PawaPayService $service) {

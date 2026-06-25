@@ -67,8 +67,8 @@
                         title="Choisir le moyen de paiement">
                           <i class="fas fa-credit-card"></i>
                       </a> --}}
-                        <a href="{{ route('payment.methods', $oneInscShow->id) }}" class="btn btn-success btn-sm">
-                            <i class="fas fa-credit-card"></i> Payer
+                        <a href="{{ route('payment.methods', $oneInscShow->id) }}" class="btn-icon success" title="Payer">
+                            <i class="fas fa-credit-card"></i>
                         </a>
                         <form action="{{ route('annuler.inscription', ['id' => $oneInscShow->id]) }}" method="POST" style="display: inline;">
                             @csrf
