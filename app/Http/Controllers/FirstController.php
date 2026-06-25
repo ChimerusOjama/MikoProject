@@ -639,7 +639,7 @@ class FirstController extends Controller
         $depositId = (string) Str::uuid(); 
         
         // Nom exact de l'opérateur
-        $nomOperateur = $methode === 'momo' ? 'Mobile Money' : 'Airtel Money';
+        $nomOperateur = $methode === 'momo' ? 'mobile money' : 'airtel money';
 
         // Création de l'empreinte en base (avec l'heure exacte générée par now())
         $paiement = Paiement::create([
