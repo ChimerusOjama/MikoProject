@@ -406,7 +406,12 @@ class FirstController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if ($inscription->status !== 'Accepté') {
+        // if ($inscription->status !== 'Accepté') {
+        //     return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
+        // }
+
+        // Modifié pour accepter l'accès au paiement aux dossiers Acceptés ET aux Inscrits (pour les tranches suivantes)
+        if ($inscription->status !== 'Accepté' && $inscription->status !== 'Inscrit') {
             return redirect()->route('uFormation')->with('error', 'Cette inscription n\'est pas éligible au paiement.');
         }
 
@@ -906,16 +911,23 @@ class FirstController extends Controller
 
                 try {
                     // Mise à jour de l'inscription
+                    // $inscription->update([
+                    //     'statut_paiement' => 'complet',
+                    //     // 'status' => 'Payé',
+                    //     'stripe_session_id' => $sessionId,
+                    //     'payment_date' => now(),
+                    // ]);
+
                     $inscription->update([
-                        'statut_paiement' => 'complet',
-                        'status' => 'Payé',
+                        'statut_paiement' => 'complet', // ou 'partiel' si c'est une tranche
+                        'status' => 'Inscrit',          // <-- Le voilà l'état final propre !
                         'stripe_session_id' => $sessionId,
                         'payment_date' => now(),
                     ]);
 
                     Log::info('✅ INSCRIPTION MIS À JOUR', [
                         'inscription_id' => $inscription->id,
-                        'nouveau_statut' => 'Payé'
+                        'nouveau_statut' => 'Inscrit'
                     ]);
 
                     // Création du paiement

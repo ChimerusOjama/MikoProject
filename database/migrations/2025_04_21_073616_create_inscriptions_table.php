@@ -18,11 +18,13 @@ return new class extends Migration
             $table->string('address');
             $table->string('choixForm');
             $table->text('message')->nullable();
-            $table->string('status')->enum([
+            $table->enum('status', [
                 'En attente',
                 'Accepté',
-                'Rejeté'
-            ])->default('Accepté')->comment('Statut de l\'inscription: En attente, Accepté, Rejeté');
+                'Inscrit',
+                'Rejeté',
+                'Annulé'
+            ])->default('En attente')->comment('Statut global de l\'inscription');
             $table->enum('statut_paiement', [
                 'non_payé', 
                 'partiel', 
