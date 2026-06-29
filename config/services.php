@@ -46,4 +46,9 @@ return [
         'token' => env('PAWAPAY_TOKEN'),
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+        'mcp' => env('BREVO_API_MCP'),
+    ],
+
 ];

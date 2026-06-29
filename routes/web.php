@@ -5,11 +5,12 @@ use App\Http\Controllers\FirstController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\PawaPayController;
-
+use App\Http\Controllers\PhoneVerificationController;
 use App\Services\PawaPayService;
 use App\Models\Paiement;
+use App\Models\Inscription;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -27,13 +28,20 @@ Route::controller(FirstController::class)->group(function () {
     Route::post('/afficher-confirmation/{id}', 'afficherConfirmation');
 });
 
-// GROUPE : Routes partagées (auth + redirect)
-Route::middleware(['auth', 'verified'])->group(function () {
+// GROUPE : Routes partagées (Connexion requise)
+Route::middleware(['auth'])->group(function () {
     Route::get('/home', [FirstController::class, 'redirect'])->name('home');
+
+    // 📱 SYSTÈME DE VÉRIFICATION SMS
+    Route::get('/verify-phone', [PhoneVerificationController::class, 'notice'])->name('phone.verify.notice');
+    Route::post('/verify-phone/send', [PhoneVerificationController::class, 'sendOtp'])->middleware('throttle:3,1')->name('phone.send');
+    Route::post('/verify-phone/check', [PhoneVerificationController::class, 'verify'])->name('phone.verify');
 });
 
 // GROUPE : Utilisateur simple (usertype = user)
-Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(FirstController::class)->group(function () {
+Route::middleware(['auth', 'isUser'])->prefix('user')->controller(FirstController::class)->group(function () {
+    
+    // --- 🟢 ZONES LIBRES (Exploration, profil, annulation) ---
     Route::get('/acceuil', 'index')->name('index');
     Route::post('/Inscription', 'formInsc')->name('inscForm');
     Route::get('/user_dashboard', 'uAdmin')->name('uAdmin');
@@ -42,32 +50,27 @@ Route::middleware(['auth', 'verified', 'isUser'])->prefix('user')->controller(Fi
     Route::get('/Mon_profil_utilisateur', 'uProfile')->name('uProfile');
     Route::get('/Support', 'uSupport')->name('uSupport');
 
-    //choix payement
-    Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
-
-    //Paiements Stripe
-    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
-    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
-    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
+    // Routes informatives de paiement (Succès, attente, annulation, expiré)
+    Route::get('/payment/success/{inscriptionId}', 'showPaymentSuccess')->name('payment.success.view');
+    Route::get('/payment/awaiting/{reference}', 'paymentAwaiting')->name('payment.awaiting');
+    Route::get('/payment/check-status/{reference}', 'checkPaymentStatus')->name('payment.check-status');
     Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
     Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');
     
-    // Paiements PawaPay
-    Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
-    Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
-    Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
-    Route::get('/payment/cancel', 'cancel')->name('payment.cancel');
-    Route::get('/payment/expired', 'showLinkExpired')->name('payment.expired');  
-    Route::get('/user/payment/success/{inscriptionId}', 'showPaymentSuccess')->name('payment.success.view');
-    Route::get('/payment/awaiting/{reference}', 'paymentAwaiting')->name('payment.awaiting');
-    Route::get('/payment/check-status/{reference}', 'checkPaymentStatus')->name('payment.check-status');
+    // --- 🔴 ZONES CRITIQUES (Paiement) : Protégées par la vérification SMS ---
+    Route::middleware(['phone.verified'])->group(function () {
+        Route::get('/paiement/choix-methode/{inscriptionId}', 'showPaymentMethods')->name('payment.methods');
+        Route::post('/paiement/process/{inscriptionId}', 'processPayment')->name('payment.process');
+        Route::get('/checkout/{inscriptionId}', 'checkout')->name('checkout');
+        Route::get('/payment/verify', 'verifyPayment')->name('payment.verify');
+    });
     
-    //logout
+    // Logout
     Route::post('/logout-user', 'uLogout')->name('logout-user');
 });
 
 // GROUPE : Administrateur (usertype = admin)
-Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(AdminController::class)->group(function () {
+Route::middleware(['auth', 'isAdmin'])->prefix('admin')->controller(AdminController::class)->group(function () {
     // Tableau de bord
     Route::get('/dashboard', 'aIndex')->name('admin.dashboard');
 
@@ -112,72 +115,13 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->controller(
 // Route test (facultative)
 Route::get('/test-mail', [MainController::class, 'testMail'])->name('testMail');
 
-
-// Routes pour les Callbacks de PawaPay
-// Route::post('/pawapay/callback-deposit', [PawaPayController::class, 'handleDepositCallback'])->name('pawapay.callback.deposit');
-// Route::post('/pawapay/callback-payout', [PawaPayController::class, 'handlePayoutCallback'])->name('pawapay.callback.payout');
-// Route::post('/pawapay/callback-refund', [PawaPayController::class, 'handleRefundCallback'])->name('pawapay.callback.refund');
-
-//Test route pour simuler un paiement PawaPay (à utiliser uniquement en environnement de développement)
-// Route::get('/test-pawapay', function(PawaPayService $service) {
-//     // 1. On simule un ID de transaction unique (UUID) obligatoire pour PawaPay
-//     $depositId = (string) Str::uuid();
-
-//     // 2. On crée d'abord le paiement "en attente" dans ta table PostgreSQL
-//     // (Remplace inscription_id par un ID existant dans ta base pour éviter une erreur de clé étrangère)
-//     $paiement = Paiement::create([
-//         'inscription_id' => 1, 
-//         'montant' => 5000,
-//         'mode' => 'mobile money',
-//         'reference' => $depositId, // Le depositId sert de référence unique
-//         'statut' => 'en_attente',
-//         'account_type' => 'principal',
-//         'type_paiement' => 'pawapay',
-//         'date_paiement' => now(),
-//     ]);
-
-//     // 3. On utilise un numéro de test Sandbox officiel de PawaPay
-//     // Ce numéro simule un paiement instantané réussi au Congo
-//     $phoneDestination = '061234567'; 
-
-//     echo "Initialisation du paiement pour le numéro : " . $phoneDestination . "<br>";
-    
-//     // 4. Appel du service
-//     $resultat = $service->initiateDeposit(
-//         $depositId, 
-//         $phoneDestination, 
-//         5000, 
-//         "Inscription test cours Miko"
-//     );
-
-//     if ($resultat) {
-//         return "Requête acceptée par PawaPay ! En attente du Webhook... Check tes logs.";
-//     } else {
-//         return "Échec de communication avec l'API PawaPay. Vérifie ton TOKEN dans le .env";
-//     }
-// });
-
-// La route pour afficher la salle d'attente
-Route::get('/payment/awaiting/{reference}', function ($reference) {
-    // return view('payment-awaiting', ['reference' => $reference]);
-    return view('payment.payment-awaiting', ['reference' => $reference]);
-})->name('payment.awaiting');
-
-// La nouvelle route de succès rattachée au FirstController
-Route::get('/user/payment/success/{inscriptionId}', [FirstController::class, 'showPaymentSuccess'])->name('payment.success.view');
-
-use App\Models\Inscription;
-use Illuminate\Support\Facades\DB;
-
 // 🔍 ROUTE TEMPORAIRE D'AUDIT (À supprimer après vérification)
 Route::get('/audit-inscriptions-miko', function () {
     try {
-        // Regroupe et compte les inscriptions par statut global
         $statuts_globaux = Inscription::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->get();
 
-        // Regroupe et compte par statut de paiement
         $statuts_paiements = Inscription::select('statut_paiement', DB::raw('count(*) as total'))
             ->groupBy('statut_paiement')
             ->get();
